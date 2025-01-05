@@ -21,16 +21,27 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="article">
+    <meta name="description" content="View &#x2F; Camera Transformation (ModelView Transformation) To define a camera, we need 3 variables.  Position e⃗\vec{e}e Look at &#x2F; gaze direction g^\hat{g}g^​ Up direction t^\hat{t}t^ (assuming perpendic">
+<meta property="og:type" content="article">
 <meta property="og:title" content="GAMES 101 L04-Transformation Cont.">
 <meta property="og:url" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="View &#x2F; Camera Transformation (ModelView Transformation) To define a camera, we need 3 variables.  Position e⃗\vec{e}e Look at &#x2F; gaze direction g^\hat{g}g^​ Up direction t^\hat{t}t^ (assuming perpendic">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/Mview.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/ortho_proj.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/ortho_proj_mat.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/optic_cone.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/optic_cone_calc.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/screen_space.png">
+<meta property="og:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/viewport_transform.png">
 <meta property="article:published_time" content="2025-01-03T04:18:29.556Z">
-<meta property="article:modified_time" content="2025-01-03T04:20:05.042Z">
+<meta property="article:modified_time" content="2025-01-05T22:22:05.166Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/02/Games101-L04-TransformationCont/Mview.png">
   
   
   
@@ -225,7 +236,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 words
+          279 words
         
       </span>
     
@@ -236,7 +247,7 @@
         
         
         
-          1 mins
+          3 mins
         
       </span>
     
@@ -278,7 +289,133 @@
             
               <div class="markdown-body">
                 
-                
+                <h1>View / Camera Transformation (ModelView Transformation)</h1>
+<p>To define a camera, we need 3 variables.</p>
+<ul>
+<li>Position <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>e</mi><mo>⃗</mo></mover></mrow><annotation encoding="application/x-tex">\vec{e}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.714em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.714em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">e</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1799em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.471em" height="0.714em" style="width:0.471em" viewBox="0 0 471 714" preserveAspectRatio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></span></span></span></span></li>
+<li>Look at / gaze direction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>g</mi><mo>^</mo></mover></mrow><annotation encoding="application/x-tex">\hat{g}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span></span></span></span></li>
+<li>Up direction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>t</mi><mo>^</mo></mover></mrow><annotation encoding="application/x-tex">\hat{t}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8785em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8785em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">t</span></span><span style="top:-3.1841em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span></span></span></span></span></span></span> (assuming perpendicular to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>g</mi><mo>^</mo></mover></mrow><annotation encoding="application/x-tex">\hat{g}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span></span></span></span>)</li>
+</ul>
+<p>For convenience, we always consider the camera to the origin, up at Y, look at <strong>-Z</strong>. And Transform the objects along with the camera. We define a matrix <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi></mrow></msub></mrow><annotation encoding="application/x-tex">M_{view}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> to transform the camera (at any possible positions) to our default state as described above.</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>v</mi><mi>i</mi><mi>e</mi><mi>w</mi></mrow></msub></mrow><annotation encoding="application/x-tex">M_{view}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> in math:</p>
+<ul>
+<li>Translate e to origin</li>
+<li>Rotate g to -Z</li>
+<li>Rotate t to Y</li>
+<li>Rotate <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>×</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">g \times t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span> to X</li>
+</ul>
+<p>As shown in the figure below, since rotate a random axis to x/y/-z can be complex, we can first get the inverse matrix. Then since the rotation matrix is orthogonal matrix, its transpose matrix equals its inverse matrix. So we can easily get the rotation matrix we need.<br>
+<img src="Mview.png" srcset="/img/loading.gif" lazyload alt="Mview" title="Mview in math"></p>
+<h1>Projection Transformation</h1>
+<h2 id="Two-projections">Two projections</h2>
+<ul>
+<li>Prospective projection （透视投影）(causes “near big far small” phenomenon)</li>
+<li>Orthographic projection (正交投影) (suppose the camera is at infinity)</li>
+</ul>
+<h2 id="Orthographic-projection">Orthographic projection</h2>
+<p><img src="ortho_proj.png" srcset="/img/loading.gif" lazyload alt="orthographic projection" title="Orthographic Projection"><br>
+Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mo>&lt;</mo><mi>r</mi><mo separator="true">,</mo><mi>b</mi><mo>&lt;</mo><mi>t</mi><mo separator="true">,</mo><mi>f</mi><mo>&lt;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">l&lt;r, b&lt;t, f&lt;n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">t</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>&lt;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">f&lt;n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> because of looking at -Z, also that’s why openGL use left-handed coords).<br>
+To do so,</p>
+<ul>
+<li>Center the cuboid by translating.</li>
+<li>Scale into canonical cube.</li>
+</ul>
+<p>In math orthographic projection matrix can be wriiten as:</p>
+<p><img src="ortho_proj_mat.png" srcset="/img/loading.gif" lazyload alt="orthographic projection matrix" title="Orthographic Projection Matrix"></p>
+<h2 id="Perspective-projection">Perspective projection</h2>
+<ul>
+<li>Further objects are smaller</li>
+<li>Parellel lines are not parellel; converge to a single point</li>
+</ul>
+<p>We first convert perspective projection to orthographic projection, then perform orthographic projection.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>p</mi><mi>e</mi><mi>r</mi><mi>s</mi><mi>p</mi></mrow></msub><mo>=</mo><msub><mi>M</mi><mrow><mi>o</mi><mi>r</mi><mi>t</mi><mi>h</mi><mi>o</mi></mrow></msub><msub><mi>M</mi><mrow><mi>p</mi><mi>e</mi><mi>r</mi><mi>s</mi><mi>p</mi><mo>−</mo><mo>&gt;</mo><mi>o</mi><mi>r</mi><mi>t</mi><mi>h</mi><mi>o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">M_{persp} = M_{ortho}M_{persp-&gt;ortho}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ers</span><span class="mord mathnormal mtight">p</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight">ers</span><span class="mord mathnormal mtight">p</span><span class="mord mtight">−</span><span class="mrel mtight">&gt;</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p>To define the optic cone for perspective projection, we only need two factors: aspect ratio and fov.<br>
+<img src="optic_cone.png" srcset="/img/loading.gif" lazyload alt="optic cone" title="Optic Cone: FOV and Aspect Ratio"></p>
+<p>The l, r, b, t previous mentioned in the orthographic projection can be calculated based on aspect ratio and fov. Here, |n| refers to the distance to the near plane.<br>
+<img src="optic_cone_calc.png" srcset="/img/loading.gif" lazyload alt="optic_cone_calc" title="Optic cone: calculation"></p>
+<h1>Summary of MVP</h1>
+<ol>
+<li>
+<p>Model Transformation<br>
+<strong>Purpose</strong>: Positions objects in the world. Transforms vertices from the object’s local space (model space) to world space.<br>
+Typical operations:<br>
+Translation (moving the object).<br>
+Rotation (rotating the object).<br>
+Scaling (resizing the object).</p>
+<p>M = T⋅R⋅S<br>
+where T is translation, R is rotation, and S is scaling.</p>
+</li>
+<li>
+<p>View Transformation<br>
+<strong>Purpose</strong>: Positions the camera and orients it in the scene.<br>
+Transforms vertices from world space to camera space (or view space), as if the camera is at the origin.</p>
+<p>V = Inverse of camera transformation matrix</p>
+</li>
+<li>
+<p>Projection Transformation<br>
+<strong>Purpose</strong>: Projects 3D points in camera space onto a 2D plane (screen space).<br>
+Converts vertices from camera space to clip space.<br>
+Two types of projection:<br>
+Orthographic Projection: Preserves sizes and parallel lines (used for CAD, 2D games, etc.) (cuboid to canonical cube <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">[-1, 1]^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span>).<br>
+Perspective Projection: Mimics how the human eye sees, with objects farther away appearing smaller (frustum to canonical cube).<br>
+Example: Maps a frustum (a truncated pyramid for perspective projection) or a box (orthographic) onto the normalized device coordinates (NDC).</p>
+<p>P = Projection matrix</p>
+</li>
+</ol>
+<p><strong>About NDC</strong></p>
+<ul>
+<li>
+<p>Range:</p>
+<p>Coordinates are confined to a canonical cube: x, y ,z are in the range <code>[−1,1]</code>. After projection, this range represents the visible portion of the scene.</p>
+</li>
+<li>
+<p>Purpose:</p>
+<p>To standardize the coordinate space, regardless of the screen resolution or the aspect ratio of the viewport. Simplifies clipping and culling operations since only coordinates inside <code>[−1,1]</code> in all three dimensions are visible.</p>
+</li>
+<li>
+<p>Coordinate Meaning:</p>
+<p>x and y determine the 2D position on the screen relative to the viewport. z represents depth information, often used for depth testing to resolve which objects are in front of others.</p>
+</li>
+</ul>
+<p><strong>Final Transformation</strong><br>
+The combined transformation matrix MVP is:</p>
+<p>MVP = P⋅V⋅M</p>
+<p>Applied to vertex coordinates v (in homogenous coordinates):<br>
+v’ = MVP ⋅ v</p>
+<p>After applying MVP:</p>
+<ul>
+<li>The coordinates are in clip space.</li>
+<li>Clip space coordinates are divided by their w-component to normalize them, resulting in NDC.</li>
+<li>Finally, NDC is mapped to screen space using the viewport transformation.</li>
+</ul>
+<h1>What’s after MVP?</h1>
+<h2 id="Canonical-Cube-to-Screen">Canonical Cube to Screen</h2>
+<p><strong>Screen:</strong></p>
+<ul>
+<li>an array of pixels (pixel is short for picture element)</li>
+<li>size of the array - resolution</li>
+<li>a typical kind of raster display</li>
+</ul>
+<p><strong>Raster</strong></p>
+<ul>
+<li>rasterize == drawing onto the screen</li>
+</ul>
+<p><strong>Screen Space (屏幕空间)</strong><br>
+<img src="screen_space.png" srcset="/img/loading.gif" lazyload alt="Screen Space" title="Screen Space"><br>
+Here the definition is slightly different from the tiger book. Pixel (x, y) is centered at (x+0.5, y+0.5)</p>
+<ul>
+<li>Irrelevant to z</li>
+<li>Transform in xy plane: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>2</mn></msup><mi>t</mi><mi>o</mi><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mi>w</mi><mi>i</mi><mi>d</mi><mi>t</mi><mi>h</mi><mo stretchy="false">]</mo><mi mathvariant="normal">/</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mi>s</mi><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mi>h</mi><mi>e</mi><mi>i</mi><mi>g</mi><mi>h</mi><mi>t</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[-1, 1]^2 to [0, width] /times [0, height]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mathnormal">t</span><span class="mord mathnormal">o</span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="mord mathnormal">i</span><span class="mord mathnormal">d</span><span class="mord mathnormal">t</span><span class="mord mathnormal">h</span><span class="mclose">]</span><span class="mord">/</span><span class="mord mathnormal">t</span><span class="mord mathnormal">im</span><span class="mord mathnormal">es</span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">h</span><span class="mord mathnormal">e</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal">h</span><span class="mord mathnormal">t</span><span class="mclose">]</span></span></span></span></li>
+<li>Viewport transform (视口变换) matrix:<br>
+<img src="viewport_transform.png" srcset="/img/loading.gif" lazyload alt="Viewport Transform" title="Viewport Transform"></li>
+</ul>
+
                 
               </div>
             
@@ -326,6 +463,8 @@
       <i class="iconfont icon-tags"></i>
       
         <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
       
     </div>
   
