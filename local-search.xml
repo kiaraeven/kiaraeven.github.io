@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>How to set up cpp environment in VSCode (Windows 10)</title>
+    <link href="/2025/01/27/cpp-env-setup-win/"/>
+    <url>/2025/01/27/cpp-env-setup-win/</url>
+    
+    <content type="html"><![CDATA[<h1>Install MinGW</h1><p>See official website and follow the instructions step by step (<a href="https://code.visualstudio.com/docs/cpp/config-mingw">https://code.visualstudio.com/docs/cpp/config-mingw</a>). Note that we need to add the folder path <code>C:\msys64\ucrt64\bin</code> (for example) to both User Variables and Environment Variables. Someone said the order of the path also matters, so put this path in front of others if possible.</p><h1>Install CMake</h1><p>Use CMake as the build tool. Download .msi from the official website. Remember to select “Add CMake to system PATH for all users” while installation so that we can use CMake in the command line.</p><p>Test with:</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake --version<br></code></pre></td></tr></table></figure><p>Then, if we run <code>cmake ..</code> or <code>cmake -B build</code> in cmd/powershell, we might still get the following error:</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">-- Building for: NMake Makefiles<br>CMake Error at CMakeLists.txt:5 (project):<br><br>   &#x27;nmake&#x27; &#x27;-?&#x27;<br><br>  failed with:<br><br>   no such file or directory<br><br><br>CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage<br>-- Configuring incomplete, errors occurred!<br></code></pre></td></tr></table></figure><p>The error is caused by failing to set up the compiler correctly or failing to set up the generator correctly.</p><p>If the error is caused by failing to set up the compiler correctly, we can ass a new line (see below) in the CMakeLists.txt to specify our compiler. Here, remember to put this line before project().</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">set(CMAKE_CXX_COMPILER &quot;F:/D/software/mysys2/install/ucrt64/bin/g++.exe&quot;)<br></code></pre></td></tr></table></figure><p>If the error is caused by failing to set up the generator (generator can be MinGW Makefiles, Ninja, CodeBlocks, etc.) correctly, we can specify our generater in our commands like:</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake -G &quot;MinGW Makefiles&quot; ..<br><span class="hljs-meta prompt_"># </span><span class="language-bash">or</span><br>cmake -G &quot;MinGW Makefiles&quot; -B build<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-keyword">for</span> `cmake --build build`, no need to specify the generator.</span><br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>Learning</category>
+      
+      <category>Programming</category>
+      
+      <category>C++</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>cpp</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Fork Other&#39;s Repo and Create Personal Repo</title>
     <link href="/2025/01/25/git-forkandthen/"/>
     <url>/2025/01/25/git-forkandthen/</url>
