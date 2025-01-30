@@ -21,22 +21,23 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Install MinGW See official website and follow the instructions step by step (https:&#x2F;&#x2F;code.visualstudio.com&#x2F;docs&#x2F;cpp&#x2F;config-mingw). Note that we need to add the folder path C:\msys64\ucrt64\bin (for ex">
+    <meta name="description" content="12cmake -B buildcmake --build build cmake -B build: This command configures the project and generates the necessary build files. The -B build option specifies the build directory where the generate">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How to set up cpp environment in VSCode (Windows 10)">
-<meta property="og:url" content="http://example.com/2025/01/27/cpp-env-setup-win/index.html">
+<meta property="og:title" content="Commenly Used CMake Commands and Explanations">
+<meta property="og:url" content="http://example.com/2025/01/27/cmake-cmds/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Install MinGW See official website and follow the instructions step by step (https:&#x2F;&#x2F;code.visualstudio.com&#x2F;docs&#x2F;cpp&#x2F;config-mingw). Note that we need to add the folder path C:\msys64\ucrt64\bin (for ex">
+<meta property="og:description" content="12cmake -B buildcmake --build build cmake -B build: This command configures the project and generates the necessary build files. The -B build option specifies the build directory where the generate">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-01-27T07:18:00.294Z">
-<meta property="article:modified_time" content="2025-01-27T07:38:38.931Z">
+<meta property="article:published_time" content="2025-01-28T04:35:22.165Z">
+<meta property="article:modified_time" content="2025-01-28T20:14:44.459Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="cpp">
+<meta property="article:tag" content="CMake">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>How to set up cpp environment in VSCode (Windows 10) - Hexo</title>
+  <title>Commenly Used CMake Commands and Explanations - Hexo</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -202,7 +203,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="How to set up cpp environment in VSCode (Windows 10)"></span>
+            <span id="subtitle" data-typed-text="Commenly Used CMake Commands and Explanations"></span>
           
         </div>
 
@@ -213,8 +214,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-27 02:18" pubdate>
-          January 27, 2025 am
+        <time datetime="2025-01-27 23:35" pubdate>
+          January 27, 2025 pm
         </time>
       </span>
     
@@ -225,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          91 words
+          61 words
         
       </span>
     
@@ -273,24 +274,32 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">How to set up cpp environment in VSCode (Windows 10)</h1>
+            <h1 id="seo-header">Commenly Used CMake Commands and Explanations</h1>
             
             
               <div class="markdown-body">
                 
-                <h1>Install MinGW</h1>
-<p>See official website and follow the instructions step by step (<a target="_blank" rel="noopener" href="https://code.visualstudio.com/docs/cpp/config-mingw">https://code.visualstudio.com/docs/cpp/config-mingw</a>). Note that we need to add the folder path <code>C:\msys64\ucrt64\bin</code> (for example) to both User Variables and Environment Variables. Someone said the order of the path also matters, so put this path in front of others if possible.</p>
-<h1>Install CMake</h1>
-<p>Use CMake as the build tool. Download .msi from the official website. Remember to select “Add CMake to system PATH for all users” while installation so that we can use CMake in the command line.</p>
-<p>Test with:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake --version<br></code></pre></td></tr></table></figure>
-<p>Then, if we run <code>cmake ..</code> or <code>cmake -B build</code> in cmd/powershell, we might still get the following error:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">-- Building for: NMake Makefiles<br>CMake Error at CMakeLists.txt:5 (project):<br><br>   &#x27;nmake&#x27; &#x27;-?&#x27;<br><br>  failed with:<br><br>   no such file or directory<br><br><br>CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage<br>-- Configuring incomplete, errors occurred!<br></code></pre></td></tr></table></figure>
-<p>The error is caused by failing to set up the compiler correctly or failing to set up the generator correctly.</p>
-<p>If the error is caused by failing to set up the compiler correctly, we can ass a new line (see below) in the CMakeLists.txt to specify our compiler. Here, remember to put this line before project().</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">set(CMAKE_CXX_COMPILER &quot;F:/D/software/mysys2/install/ucrt64/bin/g++.exe&quot;)<br></code></pre></td></tr></table></figure>
-<p>If the error is caused by failing to set up the generator (generator can be MinGW Makefiles, Ninja, CodeBlocks, etc.) correctly, we can specify our generater in our commands like:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake -G &quot;MinGW Makefiles&quot; ..<br><span class="hljs-meta prompt_"># </span><span class="language-bash">or</span><br>cmake -G &quot;MinGW Makefiles&quot; -B build<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-keyword">for</span> `cmake --build build`, no need to specify the generator.</span><br></code></pre></td></tr></table></figure>
+                <ol>
+<li></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake -B build<br>cmake --build build<br></code></pre></td></tr></table></figure>
+<p><code>cmake -B build</code>: This command configures the project and generates the necessary build files.<br>
+The -B build option specifies the build directory where the generated files will be placed. In this case, it is the build directory. If the build directory does not exist, CMake will create it.</p>
+<p><code>cmake --build build</code>: This command builds the project using the build files generated in the “build” directory. It compiles the source code and links the binaries according to the configuration specified in the CMakeLists.txt file.</p>
+<ol start="2">
+<li></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> build</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> build</span><br>cmake ..<br></code></pre></td></tr></table></figure>
+<p><code>cmake ..</code>: This command is typically run from within a subdirectory (e.g., build) of the project root. The CS_Projects argument tells CMake to look for the CMakeLists.txt file in the parent directory. This command configures the project and generates the build files in the current directory (e.g., build).</p>
+<ol start="3">
+<li></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake --build build --config release<br>cmake --build build --config debug<br></code></pre></td></tr></table></figure>
+<p><code>cmake --build build --config release</code>: <code>--config release</code> specifies the build configuration to use. In this case, it is the release configuration. The release configuration typically enables optimizations and disables debugging information, resulting in a more optimized and smaller executable.</p>
+<p><code>cmake --build build --config debug</code>: The debug configuration typically includes debugging information and disables optimizations, making it easier to debug the program.</p>
+<ol start="4">
+<li>No need to delete the previously generated build files when making changes to the code. CMake is designed to detect changes in the source files and rebuild only the necessary parts of the project. Delete the build directory only if we make changes to CMakeLists.txt / switch build configurations (e.g., debug -&gt; release) / encounter build errors.</li>
+</ol>
 
                 
               </div>
@@ -340,6 +349,8 @@
       
         <a href="/tags/cpp/" class="print-no-link">#cpp</a>
       
+        <a href="/tags/CMake/" class="print-no-link">#CMake</a>
+      
     </div>
   
 </div>
@@ -350,8 +361,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>How to set up cpp environment in VSCode (Windows 10)</div>
-      <div>http://example.com/2025/01/27/cpp-env-setup-win/</div>
+      <div>Commenly Used CMake Commands and Explanations</div>
+      <div>http://example.com/2025/01/27/cmake-cmds/</div>
     </div>
     <div class="license-meta">
       
@@ -395,9 +406,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/01/27/cmake-cmds/" title="Commenly Used CMake Commands and Explanations">
+                      <a href="/2025/01/29/learn-from-bugs/" title="[object Object]">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Commenly Used CMake Commands and Explanations</span>
+                        <span class="hidden-mobile">[object Object]</span>
                         <span class="visible-mobile">Previous</span>
                       </a>
                     
@@ -405,8 +416,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/01/25/git-forkandthen/" title="Fork Other&#39;s Repo and Create Personal Repo">
-                        <span class="hidden-mobile">Fork Other&#39;s Repo and Create Personal Repo</span>
+                      <a href="/2025/01/27/cpp-env-setup-win/" title="How to set up cpp environment in VSCode (Windows 10)">
+                        <span class="hidden-mobile">How to set up cpp environment in VSCode (Windows 10)</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
