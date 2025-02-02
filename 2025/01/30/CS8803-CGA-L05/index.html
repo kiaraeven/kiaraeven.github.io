@@ -41,8 +41,10 @@
 <meta property="og:image" content="http://example.com/2025/01/30/CS8803-CGA-L05/pt_cloud.png">
 <meta property="og:image" content="http://example.com/2025/01/30/CS8803-CGA-L05/find_surface.png">
 <meta property="og:image" content="http://example.com/2025/01/30/CS8803-CGA-L05/MarchingSquares.png">
+<meta property="og:image" content="http://example.com/2025/01/30/CS8803-CGA-L05/marching_cubes1.png">
+<meta property="og:image" content="http://example.com/2025/01/30/CS8803-CGA-L05/marching_cubes2.png">
 <meta property="article:published_time" content="2025-01-30T11:15:31.370Z">
-<meta property="article:modified_time" content="2025-01-30T21:29:37.513Z">
+<meta property="article:modified_time" content="2025-02-01T21:55:35.838Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="SDF">
@@ -242,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          450 words
+          472 words
         
       </span>
     
@@ -410,6 +412,25 @@ Here, (i, j) is the the coordinate of the bottom-left node of the square.</li>
 <li>We maintain a giant table to enumerate all cases</li>
 <li>The algorithm is called “Marching Cubes”</li>
 </ul>
+<h4 id="Examples-for-Marching-Cubes">Examples for Marching Cubes</h4>
+<ol>
+<li>See the figure below, each node in the cell has an SDF value, and we want to reconstruct the surface mesh that intersects with this cell.</li>
+</ol>
+<ul>
+<li>Step I: find all edges that have different signs (i.e., one positive sign and one negative sign)</li>
+<li>Step II: Connect these edges to form triangles</li>
+</ul>
+<p><img src="marching_cubes1.png" srcset="/img/loading.gif" lazyload alt="Example 1"></p>
+<ol start="2">
+<li>Each node in the cell has an SDF value, and we want to reconstruct the surface mesh that intersects with this cell.</li>
+</ol>
+<ul>
+<li>Step I: find all edges that have different signs (i.e., one positive sign and one<br>
+negative sign)</li>
+<li>Step II: Connect these edges to form triangles</li>
+</ul>
+<p><img src="marching_cubes2.png" srcset="/img/loading.gif" lazyload alt="Example 2"></p>
+<p>For each of the 2^8 = 256 cases, we can draw triangles by following these steps, and store the way to calculate these triangles in a giant table.</p>
 
                 
               </div>
@@ -515,6 +536,12 @@ Here, (i, j) is the the coordinate of the bottom-left node of the square.</li>
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/02/01/CS8803-CGA-L06/" title="CS 8803 CGA - Neural SDF">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CS 8803 CGA - Neural SDF</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
