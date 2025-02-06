@@ -21,27 +21,33 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Recap: Ray Tracing Basic ray tracing pipeline: Ray Generation -&gt; Intersection -&gt; Shading 123456789101112131415rayTraceImage()&#123;  parse scene description  for each pixel # Implemented on GPU.">
+    <meta name="description" content="Participating Media Model Definition  Participating media can be thought of as a collection of particles suspended in a vacuum As a photon travel through the scene, it may interact with the medium by">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CS 8803 CGA - SDF Rendering">
-<meta property="og:url" content="http://example.com/2025/01/23/CS8803-CGA-L04/index.html">
+<meta property="og:title" content="CS 8803 CGA - Participating Media">
+<meta property="og:url" content="http://example.com/2025/02/06/CS8803-CGA-L08/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Recap: Ray Tracing Basic ray tracing pipeline: Ray Generation -&gt; Intersection -&gt; Shading 123456789101112131415rayTraceImage()&#123;  parse scene description  for each pixel # Implemented on GPU.">
+<meta property="og:description" content="Participating Media Model Definition  Participating media can be thought of as a collection of particles suspended in a vacuum As a photon travel through the scene, it may interact with the medium by">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2025/01/23/CS8803-CGA-L04/ray_marching.png">
-<meta property="og:image" content="http://example.com/2025/01/23/CS8803-CGA-L04/sphere_raymarching.png">
-<meta property="og:image" content="http://example.com/2025/01/23/CS8803-CGA-L04/normal.png">
-<meta property="article:published_time" content="2025-01-23T20:17:37.857Z">
-<meta property="article:modified_time" content="2025-02-06T17:54:11.656Z">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/assumption-participating.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/absorption.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/out-scattering.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/in-scattering.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/emission.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/dL-RTE.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/losses-extinction.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/extinction-finite.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/transmittance.png">
+<meta property="og:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/transmittance1.png">
+<meta property="article:published_time" content="2025-02-06T17:53:20.384Z">
+<meta property="article:modified_time" content="2025-02-06T19:13:58.770Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
-<meta property="article:tag" content="SDF">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2025/01/23/CS8803-CGA-L04/ray_marching.png">
+<meta name="twitter:image" content="http://example.com/2025/02/06/CS8803-CGA-L08/assumption-participating.png">
   
   
   
-  <title>CS 8803 CGA - SDF Rendering - Hexo</title>
+  <title>CS 8803 CGA - Participating Media - Hexo</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -209,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="CS 8803 CGA - SDF Rendering"></span>
+            <span id="subtitle" data-typed-text="CS 8803 CGA - Participating Media"></span>
           
         </div>
 
@@ -220,8 +226,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-23 15:17" pubdate>
-          January 23, 2025 pm
+        <time datetime="2025-02-06 12:53" pubdate>
+          February 6, 2025 pm
         </time>
       </span>
     
@@ -232,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          236 words
+          59 words
         
       </span>
     
@@ -243,7 +249,7 @@
         
         
         
-          2 mins
+          1 mins
         
       </span>
     
@@ -280,89 +286,67 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">CS 8803 CGA - SDF Rendering</h1>
+            <h1 id="seo-header">CS 8803 CGA - Participating Media</h1>
             
             
               <div class="markdown-body">
                 
-                <h1>Recap: Ray Tracing</h1>
-<p>Basic ray tracing pipeline: Ray Generation -&gt; Intersection -&gt; Shading</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs glsl">rayTraceImage()<br>&#123;<br>  parse scene description<br>  <span class="hljs-keyword">for</span> each pixel <span class="hljs-meta"># Implemented on GPU. All pixels can be calculated in parallel, so no need to wait until the previous pixel is finished.</span><br>    ray = generateCameraRay(pixel)<br>    pixelColor= trace(ray)<br>&#125;<br><br>trace(ray)<br>&#123;<br>  hit = find first intersection with scene objects<br>  color = shade(hit) <span class="hljs-meta"># handle shadow by tracing more rays</span><br>  <span class="hljs-meta"># check whether there are other objects that are in between the light source and the current object to determine if the current object is under shadow.</span><br>  <span class="hljs-keyword">return</span> color<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>Previously, for each new primitive, we need to implement a new ray-primitive intersection algorithm, but now we can convert every object represented by an implicit function to SDF. That is to say, implementing a new rayprimitive function for each new SDF.</p>
-<p>However, we don’t want to implement a customized ray-object intersection algorithm for each new object. Instead, we want the ray-SDF intersection algorithm can work for any new SDF input. So, we can <strong>assume the input SDF as a black-box function</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> that takes a query point as input and produces its SDF as output.</p>
-<h1>Ray Marching</h1>
+                <h1>Participating Media Model</h1>
+<h2 id="Definition">Definition</h2>
 <ul>
-<li>We assume <strong>the entire scene can be represented by a single SDF function</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span>. For any query point p, we can get its SDF value by calling the function.</li>
-<li>We <strong>advance a ray step by step</strong> through a scene and use the SDF to determine the ray hits something or not.</li>
-<li>At each step, we ask “Is this point inside the scene surface”, or alternately phrased, “Does the SDF evaluate to a negative number at this point?”
+<li>Participating media can be thought of as a collection of particles suspended in a vacuum</li>
+<li>As a photon travel through the scene, it may interact with the medium by hitting one of these particles.</li>
+<li>If we consider an infinitesimal segment of media, when a photon travels through this segment, a number of possible interactions might occur.</li>
+</ul>
+<h2 id="Assumptions">Assumptions</h2>
 <ul>
-<li>If it does, we’re done! We hit something.</li>
-<li>If it’s not, we keep going up to some maximum number of steps along the ray.</li>
+<li>statistically independent positions</li>
+<li>isotropic particles, or</li>
+<li>isotropicallyoriented anisotropic particles</li>
+</ul>
+<p><img src="assumption-participating.png" srcset="/img/loading.gif" lazyload alt="assumptions"></p>
+<h2 id="Categories">Categories</h2>
+<ul>
+<li>Homogeneous Media: Infinite or bounded by a surface or simple shape (glass, transparent solid objects, light beams inside a dark room)</li>
+<li>Heterogeneous Media (spatially varying coefficients):
+<ul>
+<li>Procedurally e.g.,using a noise function</li>
+<li>Simulation + volume discretization, e.g.,a voxel grid</li>
 </ul>
 </li>
 </ul>
-<p><img src="ray_marching.png" srcset="/img/loading.gif" lazyload alt="Ray Marching"></p>
-<p><strong>Ray Marching Pseudocode (naïve version)</strong></p>
-<p><em>Traditionally, a ray marching algorithm with a constant step size is called ray casting</em></p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta"># Input: ray r (with origin o, direction d), SDF(p)</span><br><span class="hljs-meta"># Output: t</span><br><span class="hljs-meta"># Algorithm:</span><br>  iter = <span class="hljs-number">0</span><br>  t = <span class="hljs-number">0</span><br>  sdf = <span class="hljs-number">0</span><br>  <span class="hljs-keyword">while</span> iter &lt; max_iteration:<br>    p = o + t * d<br>    s = SDF(p)<br>    <span class="hljs-keyword">if</span> s &lt; epsilon: <span class="hljs-keyword">break</span><br>    t += ds<br>    iter += <span class="hljs-number">1</span><br>  <span class="hljs-keyword">return</span> t<br></code></pre></td></tr></table></figure>
-<h2 id="Sphere-Marching">Sphere Marching</h2>
-<p>Improve the performance of the naïve ray marching by dynamically adjusting the step size along each ray. Instead of moving by a constant step size each time, we choose the current SDF value <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> as our current step size. We repeat this process until the step size is below some certain threshold epsilon, which means that we are close to the object surface.<br>
-<img src="sphere_raymarching.png" srcset="/img/loading.gif" lazyload alt="Sphere Marching"></p>
-<h2 id="Ray-Marching-Algorithm-Overview">Ray Marching Algorithm Overview</h2>
+<h2 id="Differential-Beam">Differential Beam</h2>
+<p>How much light is lost/gained along the differential beam due to interactions of light with the medium? Think of a differential beam segment and see the following situations.</p>
+<h3 id="Four-Processes">Four Processes</h3>
+<h4 id="Absorption">Absorption</h4>
+<p><img src="absorption.png" srcset="/img/loading.gif" lazyload alt="absorption"></p>
+<h4 id="Out-scattering">Out-scattering</h4>
+<p><img src="out-scattering.png" srcset="/img/loading.gif" lazyload alt="out-scattering"></p>
+<h4 id="In-scattering">In-scattering</h4>
+<p>The scattering coefficient should be the same as in out-scattering process.<br>
+Use integration to calculate L_s.<br>
+<img src="in-scattering.png" srcset="/img/loading.gif" lazyload alt="in-scattering"></p>
+<h4 id="Emission">Emission</h4>
+<p><img src="emission.png" srcset="/img/loading.gif" lazyload alt="Emission"></p>
+<h3 id="Radiative-Transfer-Equation-RTE-辐射传输方程">Radiative Transfer Equation (RTE, 辐射传输方程)</h3>
+<p><img src="dL-RTE.png" srcset="/img/loading.gif" lazyload alt="RTE for dL"></p>
+<p>What about a beam with a finite length? As shown above, we can see the losses as a whole (extinction):</p>
+<p><img src="losses-extinction.png" srcset="/img/loading.gif" lazyload alt="extinction"></p>
+<p>Then, think about extinction along an finite beam:</p>
+<p><img src="extinction-finite.png" srcset="/img/loading.gif" lazyload alt="extinction along an finite beam"></p>
+<p>This is the so-called Beer-Lambert law.</p>
+<h2 id="Beer-Lambert-Law">Beer-Lambert Law</h2>
 <ul>
-<li>Step 1: Fire a ray into the scene from the camera.</li>
-<li>Step 2: At each step, measure the distance from the current point to the nearest surface using the SDF.</li>
-<li>Step 3: Move the ray forward by the distance obtained, ensuring no intersections are missed.</li>
-<li>Step 4: Repeat until an object is hit or the maximum number of steps is reached.</li>
+<li>Expresses the remaining radiance after traveling a finite distance through a medium with constant extinction coefficient.</li>
+<li>The fraction is referred to as the transmittance (这个比例被称为透过率).</li>
+<li>Think of this as fractional visibility between points.</li>
 </ul>
-<p><strong>Pseudocode</strong></p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta"># Input: ray r (with origin o, direction d), SDF(p)</span><br><span class="hljs-meta"># Output: t</span><br><br><span class="hljs-meta"># RayMarching:</span><br>  iter = <span class="hljs-number">0</span><br>  s = <span class="hljs-number">0</span> <span class="hljs-comment">// distance to the nearest surface</span><br>  t = <span class="hljs-number">0</span> <span class="hljs-comment">// The distance traveled along the ray until it intersects an object or exceeds a maximum distance.</span><br>  <span class="hljs-keyword">while</span> iter &lt; max_iteration:<br>    p = o + d * t<br>    s = SDF(p) <span class="hljs-meta"># a single SDF for the whole scene</span><br>    t += s<br>    <span class="hljs-keyword">if</span> s &lt; epsilon or t &gt; max_distance: <span class="hljs-keyword">break</span><br>    iter += <span class="hljs-number">1</span><br>  <span class="hljs-keyword">return</span> t<br><br>rayMarchImage()<br>&#123;<br>  parse scene description<br>  <span class="hljs-keyword">for</span> each pixel<br>  ray = generateCameraRay(pixel)<br>  pixelColor= calculateColor(ray)<br>&#125;<br><br>calculateColor(ray)<br>&#123;<br>  hit = find intersection with RayMarching<br>  color = shade(hit) <span class="hljs-meta"># Use Phong Shading in Ray Marching</span><br>  <span class="hljs-keyword">return</span> color<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="Use-Phong-Shading-in-Ray-Marching">Use Phong Shading in Ray Marching</h2>
-<p><img src="normal.png" srcset="/img/loading.gif" lazyload alt="Phone Shading"></p>
-<ul>
-<li>Difference between GLSL Shading, Ray Tracing, and Ray Marching:
-<ul>
-<li>In GLSL, the surface position is known for each fragment (In the fragment shader, we read the fragment position p and use it to calculate the vector l and v);</li>
-<li>In ray tracing, the surface position is calculated using ray-object intersection.</li>
-<li>In ray marching, the surface position is calculated by iteratively marching the ray and checking SDF values (In a ray tracer, we shoot a ray from the eye position and calculate its intersection with objects in the scene; then we calculate the color of the ray based on the lights in the scene using vectors p, d, and l).</li>
-</ul>
-</li>
-<li>The key missing piece is how to get the normal vector from an SDF.</li>
-</ul>
-<h3 id="SDF-Normal-Calculate-the-Gradient">SDF Normal: Calculate the Gradient</h3>
-<p>We can get the normal vector of a given point p by calculating the gradient of its SDF:</p>
-<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>n</mi><mo>⃗</mo></mover><mo>=</mo><mi mathvariant="normal">∇</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\vec n = \nabla \phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.714em;"></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.714em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">n</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2355em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.471em" height="0.714em" style="width:0.471em" viewBox="0 0 471 714" preserveAspectRatio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
-3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
-10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
--1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
--7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
-H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
-c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">∇</span><span class="mord mathnormal">ϕ</span></span></span></span></p>
-<ul>
-<li>This is because the gradient of any scalar field is always normal to the level sets of that field (the implicit object surface). The direction of the gradient is pointing to the direction where SDF increases (the outward of the surface).</li>
-<li>We can calculate the gradient with finite difference in each axis.</li>
-</ul>
-<h1>Ray Tracing vs. Ray Marching</h1>
-<ul>
-<li>
-<p>Ray Tracing</p>
-<ul>
-<li>Cast a ray and check for intersections with objects along the ray’s path.</li>
-<li>Require customized ray-object intersection implementation.</li>
-<li>Suitable for both implicit primitives (e.g., sphere, cube) and explicit geometric models (e.g., triangles, meshes).</li>
-</ul>
-</li>
-<li>
-<p>Ray Marching</p>
-<ul>
-<li>Steps through the scene, checking if a ray has hit an object by using SDFs.</li>
-<li>Does not require ray-SDF intersection implementation.</li>
-<li>Efficient for complicated implicit surfaces, where the geometry is defined by an SDF function.</li>
-</ul>
-</li>
-</ul>
-<h1>References</h1>
-<p><a target="_blank" rel="noopener" href="https://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/">https://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/</a></p>
+<p><img src="transmittance.png" srcset="/img/loading.gif" lazyload alt="transmittance"></p>
+<h3 id="Transmittance">Transmittance</h3>
+<p><img src="transmittance1.png" srcset="/img/loading.gif" lazyload alt="transmittance"></p>
+<h1>Volume Rendering Equation</h1>
+<h1>Volumetric Path Tracing</h1>
+<h1>Numerical Implementation</h1>
 
                 
               </div>
@@ -405,8 +389,6 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
       
         <a href="/tags/graphics/" class="print-no-link">#graphics</a>
       
-        <a href="/tags/SDF/" class="print-no-link">#SDF</a>
-      
     </div>
   
 </div>
@@ -417,8 +399,8 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>CS 8803 CGA - SDF Rendering</div>
-      <div>http://example.com/2025/01/23/CS8803-CGA-L04/</div>
+      <div>CS 8803 CGA - Participating Media</div>
+      <div>http://example.com/2025/02/06/CS8803-CGA-L08/</div>
     </div>
     <div class="license-meta">
       
@@ -430,7 +412,7 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>January 23, 2025</div>
+          <div>February 6, 2025</div>
         </div>
       
       
@@ -462,18 +444,12 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/01/24/resources/" title="Learning Resources">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Learning Resources</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/01/21/CS8803-CGA-L03/" title="CS 8803 CGA - SDF Transformation and Combination">
-                        <span class="hidden-mobile">CS 8803 CGA - SDF Transformation and Combination</span>
+                      <a href="/2025/02/04/opengl-env-setup/" title="How to set up OpenGL environment in VSCode with CMake">
+                        <span class="hidden-mobile">How to set up OpenGL environment in VSCode with CMake</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
