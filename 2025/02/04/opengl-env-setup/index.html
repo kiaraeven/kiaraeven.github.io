@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to set up OpenGL environment in VSCode with CMake">
 <meta property="og:url" content="http://example.com/2025/02/04/opengl-env-setup/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Main steps  Create an empty folder for our project. Inside our project folder, create empty folders according to the following structure.  12345678910MyOpenGL&#x2F;├── include&#x2F;├── src&#x2F;|   ├── main.cpp│   └">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2025/02/04/opengl-env-setup/proj_structure.png">
@@ -38,7 +38,7 @@
   
   
   
-  <title>How to set up OpenGL environment in VSCode with CMake - Hexo</title>
+  <title>How to set up OpenGL environment in VSCode with CMake - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -78,7 +78,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -282,7 +282,7 @@
             
               <div class="markdown-body">
                 
-                <h1>Main steps</h1>
+                <h1><span id="main-steps">Main steps</span></h1>
 <ol>
 <li>Create an empty folder for our project. Inside our project folder, create empty folders according to the following structure.</li>
 </ol>
@@ -324,7 +324,7 @@
 <p>The final CMakeLists.txt in the project folder is like:</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs makefile">cmake_minimum_required(VERSION 3.10)<br>project(MyOpenGL)<br><br><span class="hljs-comment"># Set the C++ standard</span><br>set(CMAKE_CXX_STANDARD 11)<br>set(CMAKE_CXX_STANDARD_REQUIRED True)<br><br><span class="hljs-comment"># When including GLFW as part of your build, you probably don&#x27;t want to build the GLFW tests, examples and documentation. To disable these, set the corresponding cache variables before adding the GLFW source tree.</span><br>set(GLFW_BUILD_DOCS OFF CACHE BOOL <span class="hljs-string">&quot;&quot;</span> FORCE)<br>set(GLFW_BUILD_TESTS OFF CACHE BOOL <span class="hljs-string">&quot;&quot;</span> FORCE)<br>set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL <span class="hljs-string">&quot;&quot;</span> FORCE)<br><br><span class="hljs-comment"># Add GLFW as a subdirectory. Add the root directory of the GLFW source tree to your project. This will add the glfw target to your project.</span><br>add_subdirectory(extern/glfw-3.4)<br><br>add_subdirectory(extern/glad)<br><br><span class="hljs-comment"># Include directories 把include文件夹添加到项目中</span><br>include_directories(<span class="hljs-keyword">include</span>)<br><br><span class="hljs-comment"># Link directories</span><br>link_directories($&#123;CMAKE_SOURCE_DIR&#125;/lib)<br><br><span class="hljs-comment"># Add source files as SRC_LIST</span><br>aux_source_directory(./src SRC_LIST)<br><br><span class="hljs-comment"># Add executable</span><br>add_executable(MyOpenGL $&#123;SRC_LIST&#125;)<br><br><span class="hljs-comment"># Once GLFW has been added, link your application against the glfw target. This adds the GLFW library and its link-time dependencies as it is currently configured, the include directory for the GLFW header and, when applicable, the GLFW_DLL macro.</span><br>target_link_libraries(MyOpenGL glfw)<br><br><span class="hljs-comment"># Note that the glfw target does not depend on OpenGL, as GLFW loads any OpenGL, OpenGL ES or Vulkan libraries it needs at runtime. If your application calls OpenGL directly, instead of using a modern extension loader library, use the OpenGL CMake package.</span><br>find_package(OpenGL REQUIRED)<br><span class="hljs-comment"># If OpenGL is found, the OpenGL::GL target is added to your project, containing library and include directory paths. Link against this like any other library.</span><br>target_link_libraries(MyOpenGL OpenGL::GL)<br><br>target_link_libraries(MyOpenGL glad)<br></code></pre></td></tr></table></figure>
 <p>Refer the following figure for the project structure.<br>
-<img src="proj_structure.png" srcset="/img/loading.gif" lazyload alt="project structurer"></p>
+<img src="proj_structure.png" alt="project structurer"></p>
 </li>
 <li>
 <p>Assume we are in the project folder. Then,</p>
@@ -332,7 +332,7 @@
 </li>
 </ol>
 <p>If we can run the program successfully, done!</p>
-<h1>References</h1>
+<h1><span id="references">References</span></h1>
 <p><a target="_blank" rel="noopener" href="https://www.glfw.org/docs/3.3/build_guide.html#build_link_cmake_source">https://www.glfw.org/docs/3.3/build_guide.html#build_link_cmake_source</a> (search for “With CMake and GLFW source”)<br>
 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/asmurmur/p/17720760.html">https://www.cnblogs.com/asmurmur/p/17720760.html</a></p>
 
@@ -597,10 +597,6 @@
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 

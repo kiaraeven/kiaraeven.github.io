@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="CS 8803 CGA - Neural SDF">
 <meta property="og:url" content="http://example.com/2025/02/01/CS8803-CGA-L06/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Traditional SDF Representation  The grid-based SDF representation takes a query point position as input and produces its SDF as output. Recall the three steps for grid-based query:  identify the grid">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2025/02/01/CS8803-CGA-L06/mem_efficiency.png">
@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2025/02/01/CS8803-CGA-L06/latent_loss.png">
 <meta property="og:image" content="http://example.com/2025/02/01/CS8803-CGA-L06/latent_app.png">
 <meta property="article:published_time" content="2025-02-01T19:41:19.927Z">
-<meta property="article:modified_time" content="2025-02-06T17:53:55.108Z">
+<meta property="article:modified_time" content="2025-02-21T05:05:37.554Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="SDF">
@@ -48,7 +48,7 @@
   
   
   
-  <title>CS 8803 CGA - Neural SDF - Hexo</title>
+  <title>CS 8803 CGA - Neural SDF - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -88,7 +88,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -292,7 +292,7 @@
             
               <div class="markdown-body">
                 
-                <h1>Traditional SDF Representation</h1>
+                <h2><span id="traditional-sdf-representation">Traditional SDF Representation</span></h2>
 <ul>
 <li>The grid-based SDF representation takes a query point position as input and produces its SDF as output.</li>
 <li>Recall the three steps for grid-based query:
@@ -303,9 +303,9 @@
 </ul>
 </li>
 </ul>
-<h1>Neural SDF Representation</h1>
+<h2><span id="neural-sdf-representation">Neural SDF Representation</span></h2>
 <p>The neural network takes a query point position as input and produces its SDF as output. We can think of the neural network as a black-box function <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> that replaces the grid</p>
-<h2 id="Neural-Feilds">Neural Feilds</h2>
+<h3><span id="neural-feilds">Neural Feilds</span></h3>
 <ul>
 <li>A neural field is a function represented by a neural network that maps continuous coordinates to physical quantities, signals, or other desired outputs.</li>
 <li>It is also known as a coordinate-based neural network, <strong>implicit neural representation</strong> (INR), or neural implicit function</li>
@@ -323,7 +323,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="Why-Neural-Fields">Why Neural Fields?</h3>
+<h4><span id="why-neural-fields">Why Neural Fields?</span></h4>
 <p>As compared with the traditional field representation such as a grid, neural representations manifest the following merits:</p>
 <ul>
 <li>
@@ -336,7 +336,7 @@
 <p>Inherently differentiable</p>
 </li>
 </ul>
-<h4 id="Memory-Efficiency-Grid-v-s-NN">Memory Efficiency: Grid v.s. NN</h4>
+<h5><span id="memory-efficiency-grid-vs-nn">Memory Efficiency: Grid v.s. NN</span></h5>
 <ul>
 <li>Grid: The accuracy of an SDF discretized on a grid depends on its <strong>grid resolution</strong>: the denser the grid (i.e., the smaller the grid cell size), the more accurate the SDF.
 <ul>
@@ -349,44 +349,44 @@
 </ul>
 </li>
 </ul>
-<p><img src="mem_efficiency.png" srcset="/img/loading.gif" lazyload alt="memory efficiency"></p>
-<h4 id="Domain-Agnosticism-不可知论-Grid-v-s-NN">Domain Agnosticism (不可知论): Grid v.s. NN</h4>
+<p><img src="mem_efficiency.png" alt="memory efficiency"></p>
+<h5><span id="domain-agnosticism-不可知论-grid-vs-nn">Domain Agnosticism (不可知论): Grid v.s. NN</span></h5>
 <ul>
 <li>Grid: A grid-based SDF is domain-specific, as its resolution and memory requirements depend on the spatial discretization of a fixed domain, making it inflexible for handling shapes of varying scales or unbounded spaces.</li>
 <li>Neural Network: In contrast, a neural network-based SDF is domain-agnostic, as it learns a continuous function independent of a fixed grid, enabling flexible representation across different scales and even generalization beyond the training domain.</li>
 </ul>
-<p><img src="DomainAgnosticism.png" srcset="/img/loading.gif" lazyload alt="Domain Agnosticism"></p>
-<h4 id="Differentiability">Differentiability</h4>
+<p><img src="DomainAgnosticism.png" alt="Domain Agnosticism"></p>
+<h5><span id="differentiability">Differentiability</span></h5>
 <ul>
 <li>Grid: A grid-based SDF is only differentiable at discrete points and requires numerical approximations (e.g., finite differences) to compute gradients, which can introduce errors and discontinuities.</li>
 <li>Neural Network: A neural network-based SDF is inherently differentiable, as its output is a continuous function of its input, allowing for exact analytical gradients that enable efficient optimization and gradient-based rendering techniques.</li>
 </ul>
-<p><img src="Differentiability.png" srcset="/img/loading.gif" lazyload alt="Differentiability"></p>
-<h1>Neural Networks Foundation</h1>
-<h2 id="Architecture">Architecture</h2>
+<p><img src="Differentiability.png" alt="Differentiability"></p>
+<h2><span id="neural-networks-foundation">Neural Networks Foundation</span></h2>
+<h3><span id="architecture">Architecture</span></h3>
 <ul>
 <li>Each node (neuron) in a layer receives inputs, applies a weighted sum followed by an activation function, and produces an output.</li>
 <li>Each edge has an associated weight that determines the strength of the connection between two nodes.</li>
 </ul>
-<h2 id="Loss-Function">Loss Function</h2>
+<h3><span id="loss-function">Loss Function</span></h3>
 <ul>
 <li>A loss function measures the difference between predicted and true outputs.</li>
 <li>Typically, a loss function can be calculated as the Mean Squared Error (MSE) of all the data samples:<br>
 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Loss</mtext><mo>=</mo><mfrac><mn>1</mn><mi>N</mi></mfrac><mo>∑</mo><mo stretchy="false">(</mo><msub><mi>y</mi><mtext>pred</mtext></msub><mo>−</mo><msub><mi>y</mi><mtext>true</mtext></msub><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\text{Loss} = \frac{1}{N} \sum (y_{\text{pred}} - y_{\text{true}})^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord">Loss</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">pred</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">true</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></li>
 </ul>
-<h2 id="Forward-and-backward-computation">Forward and backward computation</h2>
+<h3><span id="forward-and-backward-computation">Forward and backward computation</span></h3>
 <ul>
 <li>Forward: We know the parameters f and input X and want to calculate the output W. Given a network architecture and parameters, calculate the prediction based on the input.</li>
 <li>Backward: We know a set of input and output (X,W) and calculate parameters f. Given a network architecture and training data set (input-&gt;output), calculate the network parameters.</li>
 </ul>
-<h2 id="Chain-Rule">Chain Rule</h2>
+<h3><span id="chain-rule">Chain Rule</span></h3>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><mi>y</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>y</mi><mo>=</mo><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">z = f(y), y = g(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></p>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>z</mi><mo>=</mo><mfrac><mrow><mi>d</mi><mi>z</mi></mrow><mrow><mi>d</mi><mi>y</mi></mrow></mfrac><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>x</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">dz = \frac{dz}{dy} \frac{dy}{dx}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.4133em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">x</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4461em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
-<h1>Neural Networks for SDF</h1>
-<h2 id="Neural-SDF">Neural SDF</h2>
+<h2><span id="neural-networks-for-sdf">Neural Networks for SDF</span></h2>
+<h3><span id="neural-sdf">Neural SDF</span></h3>
 <ul>
 <li>
-<p>We describe it as the zero iso-surface decision boundaries of a feed-forward network trained to represent the SDF: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>ϕ</mi><mo stretchy="false">(</mo><mi mathvariant="bold">p</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="1em"/><mi mathvariant="bold">p</mi><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mn>3</mn></msup><mo separator="true">,</mo><mi>s</mi><mo>∈</mo><mi mathvariant="double-struck">R</mi></mrow><annotation encoding="application/x-tex">s = \phi(\mathbf{p}), \quad \mathbf{p} \in \mathbb{R}^3, s \in \mathbb{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathbf">p</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathbf">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0085em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6889em;"></span><span class="mord mathbb">R</span></span></span></span>.</p>
+<p>We describe it as the zero iso-surface decision boundaries of a feed-forward network trained to represent the SDF: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>ϕ</mi><mo stretchy="false">(</mo><mi mathvariant="bold">p</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="1em"><mi mathvariant="bold">p</mi><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mn>3</mn></msup><mo separator="true">,</mo><mi>s</mi><mo>∈</mo><mi mathvariant="double-struck">R</mi></mspace></mrow><annotation encoding="application/x-tex">s = \phi(\mathbf{p}), \quad \mathbf{p} \in \mathbb{R}^3, s \in \mathbb{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathbf">p</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathbf">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0085em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6889em;"></span><span class="mord mathbb">R</span></span></span></span>.</p>
 <ul>
 <li>Feed-forward network means that information flows in one direction only - forward - from the input nodes, through hidden layers (if any), and to the output nodes. In this case, it takes a 3D point p as input and outputs a scalar value s. The network is specifically trained so that when the output is 0 (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi(p) = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span>), it defines an implicit surface - meaning it marks the boundary of the shape being represented.</li>
 </ul>
@@ -398,42 +398,42 @@
 <p>This implicit surface can be viewed by Ray Casting or Marching Cube.</p>
 </li>
 </ul>
-<h2 id="Key-Idea">Key Idea</h2>
+<h3><span id="key-idea">Key Idea</span></h3>
 <ul>
 <li>The key idea is to directly regress the continuous SDF from point samples using deep neural networks.</li>
 <li>This representation can be intuitively understood as a learned binary classifier, where the decision boundary corresponds to the surface of the shape itself.<br>
-<img src="binary_classifier.png" srcset="/img/loading.gif" lazyload alt="binary classifier"></li>
+<img src="binary_classifier.png" alt="binary classifier"></li>
 </ul>
-<h2 id="Training-Data-Format">Training Data Format</h2>
+<h3><span id="training-data-format">Training Data Format</span></h3>
 <p>Given a target shape, we prepare a set of pairs X composed of 3D point samples and their SDF values:</p>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>:</mo><mo>=</mo><mrow><mi>p</mi><mo separator="true">,</mo><mi>s</mi><mo>:</mo><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mi>s</mi></mrow></mrow><annotation encoding="application/x-tex">X := {p, s : \phi(p) = s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">s</span></span></span></span></span></p>
-<h2 id="Training-Data-Preparation">Training Data Preparation</h2>
+<h3><span id="training-data-preparation">Training Data Preparation</span></h3>
 <ul>
 <li>A complete 3D shape mesh (P) is used as input.</li>
 <li>500,000 spatial points (x) are sampled around the mesh.</li>
 <li>We sample more aggressively near the surface of the object as we want to capture a more detailed SDF near the surface.</li>
 <li>To compute the SDF value of each sample point, we find the closest point on the mesh surface (denoted as P) to the sampled point x. Computes the SDF value as the distance between x and its closest point P.</li>
 </ul>
-<h2 id="Loss-Function-2">Loss Function</h2>
-<p><img src="loss_func.png" srcset="/img/loading.gif" lazyload alt="loss function"></p>
-<h2 id="Network-Architecture">Network Architecture</h2>
+<h3><span id="loss-function">Loss Function</span></h3>
+<p><img src="loss_func.png" alt="loss function"></p>
+<h3><span id="network-architecture">Network Architecture</span></h3>
 <ul>
 <li>A feed-forward network composed of eight <strong>fully connected layers</strong>, each of them applied with <strong>dropouts</strong>.</li>
 <li>All internal layers are 512-dimensional and have ReLU activation.</li>
 </ul>
-<p><img src="arch.png" srcset="/img/loading.gif" lazyload alt="network architecture"></p>
-<p><img src="SIREN.png" srcset="/img/loading.gif" lazyload alt="Another activation function that can representing small-scaled periodic features and have more expressive derivatives (sinusoidal function 正弦函数)"></p>
-<h1>Shape Latent Space</h1>
-<h2 id="Latent-Space-Representation-for-Many-Shapes">Latent Space Representation for Many Shapes</h2>
+<p><img src="arch.png" alt="network architecture"></p>
+<p><img src="SIREN.png" alt="Another activation function that can representing small-scaled periodic features and have more expressive derivatives (sinusoidal function 正弦函数)"></p>
+<h2><span id="shape-latent-space">Shape Latent Space</span></h2>
+<h3><span id="latent-space-representation-for-many-shapes">Latent Space Representation for Many Shapes</span></h3>
 <ul>
 <li>Motivation: We want to create a neural network model that can represent <strong>many shapes</strong> by discovering their common properties and embed them all in a low dimensional latent space.</li>
 <li>Key idea: We can introduce a latent vector z as a second input to the network, serving as the encoding of the desired shape.<br>
-<img src="latent.png" srcset="/img/loading.gif" lazyload alt="latent vector to code shapes"></li>
+<img src="latent.png" alt="latent vector to code shapes"></li>
 </ul>
-<h2 id="Loss-Function-for-Many-Shapes">Loss Function for Many Shapes</h2>
-<p><img src="latent_loss.png" srcset="/img/loading.gif" lazyload alt="loss function"></p>
-<h2 id="Deep-SDF-Applications">Deep SDF Applications</h2>
-<p><img src="latent_app.png" srcset="/img/loading.gif" lazyload alt="applications"></p>
+<h3><span id="loss-function-for-many-shapes">Loss Function for Many Shapes</span></h3>
+<p><img src="latent_loss.png" alt="loss function"></p>
+<h3><span id="deep-sdf-applications">Deep SDF Applications</span></h3>
+<p><img src="latent_app.png" alt="applications"></p>
 
                 
               </div>
@@ -698,10 +698,6 @@
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 

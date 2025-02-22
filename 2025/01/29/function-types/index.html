@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Introduction to function types in cpp">
 <meta property="og:url" content="http://example.com/2025/01/29/function-types/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Member Functions Functions that belong to a class and operate on its data members. It has access to all class members, including private data. Key Points:  Can access all members (public, private, pro">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-01-29T22:46:57.486Z">
@@ -36,7 +36,7 @@
   
   
   
-  <title>Introduction to function types in cpp - Hexo</title>
+  <title>Introduction to function types in cpp - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -74,7 +74,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -278,23 +278,23 @@
             
               <div class="markdown-body">
                 
-                <h1>Member Functions</h1>
+                <h1><span id="member-functions">Member Functions</span></h1>
 <p>Functions that belong to a class and operate on its data members. It has access to all class members, including private data.</p>
-<h2 id="Key-Points">Key Points:</h2>
+<h2><span id="key-points">Key Points:</span></h2>
 <ul>
 <li>Can access all members (public, private, protected).</li>
 <li>Most member functions are called on an instance using objectName.functionName(). Static functions are called on the class (ClassName::Function()).</li>
 <li>Can be defined inside (in .h files directly) or outside (declare the functions in .h files and define them outside using the ClassName::FunctionName syntax in .c files) the class.</li>
 </ul>
-<h1>Static Member Functions</h1>
+<h1><span id="static-member-functions">Static Member Functions</span></h1>
 <p>Static functions belong to a class but do not operate on instance-specific data. They are useful for utility functions that do not require an instance of the class.</p>
-<h2 id="Key-Points-2">Key Points:</h2>
+<h2><span id="key-points">Key Points:</span></h2>
 <ul>
 <li>Declared with static inside the class.</li>
 <li>Can only access static members (The only condition for a static function to access a member (function and data member) is that the member must also be static. It has nothing to do with whether the member is public, private, or protected).</li>
 <li>Called using ClassName::FunctionName(), but can also be called via objects.</li>
 </ul>
-<h2 id="Use-Cases">Use Cases:</h2>
+<h2><span id="use-cases">Use Cases:</span></h2>
 <ul>
 <li>
 <p>Utility functions related to the class but not specific to any object.</p>
@@ -307,25 +307,25 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ObjectCounter</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">int</span> count;  <span class="hljs-comment">// Static variable to track object count</span><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">ObjectCounter</span>() &#123;<br>        count++;  <span class="hljs-comment">// Increment count when object is created</span><br>    &#125;<br><br>    ~<span class="hljs-built_in">ObjectCounter</span>() &#123;<br>        count--;  <span class="hljs-comment">// Decrement count when object is destroyed</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">showCount</span><span class="hljs-params">()</span> </span>&#123;  <span class="hljs-comment">// Static function to access static variable</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Number of objects: &quot;</span> &lt;&lt; count &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// Define and initialize static variable outside class</span><br><span class="hljs-type">int</span> ObjectCounter::count = <span class="hljs-number">0</span>;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    ObjectCounter::<span class="hljs-built_in">showCount</span>();  <span class="hljs-comment">// Outputs: 0 (No objects yet)</span><br><br>    ObjectCounter obj1, obj2;<br>    ObjectCounter::<span class="hljs-built_in">showCount</span>();  <span class="hljs-comment">// Outputs: 2 (Two objects created)</span><br><br>    &#123;<br>        ObjectCounter obj3;<br>        ObjectCounter::<span class="hljs-built_in">showCount</span>();  <span class="hljs-comment">// Outputs: 3 (Third object created)</span><br>    &#125; <span class="hljs-comment">// obj3 goes out of scope and is destroyed</span><br><br>    ObjectCounter::<span class="hljs-built_in">showCount</span>();  <span class="hljs-comment">// Outputs: 2 (obj3 destroyed)</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h1>Inline Functions</h1>
+<h1><span id="inline-functions">Inline Functions</span></h1>
 <p>An inline function is a function that the compiler replaces directly at the point of the function call to avoid function call overhead.</p>
-<h2 id="When-to-use-inline-functions">When to use inline functions?</h2>
+<h2><span id="when-to-use-inline-functions">When to use inline functions?</span></h2>
 <ul>
 <li>When the function is small (e.g., one or two lines of code).</li>
 <li>When function call overhead needs to be minimized.</li>
 <li>Avoid inlining large functions as it can increase binary size.</li>
 </ul>
-<h2 id="Key-Points-3">Key Points:</h2>
+<h2><span id="key-points">Key Points:</span></h2>
 <ul>
 <li>Suggested using the inline keyword, but modern compilers decide whether to actually inline it.</li>
 <li>Works best for short, frequently called functions.</li>
 <li>Inlining large functions can increase binary size (code bloat).</li>
 </ul>
-<h1>Const Member Functions</h1>
+<h1><span id="const-member-functions">Const Member Functions</span></h1>
 <p>A member function that does not modify the state of an object. It guarantees that no member variables (except mutable ones) will be changed inside the function.</p>
-<h2 id="Syntax">Syntax</h2>
+<h2><span id="syntax">Syntax</span></h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">return_type <span class="hljs-title">function_name</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br></code></pre></td></tr></table></figure>
-<h2 id="Examples">Examples</h2>
+<h2><span id="examples">Examples</span></h2>
 <ol>
 <li><strong>Marking getter functions as const</strong> is a best practice since they should not modify the object.</li>
 </ol>
@@ -334,17 +334,17 @@
 <li>A <strong>mutable</strong> member variable can be modified inside a const function.</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Demo</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">mutable</span> <span class="hljs-type">int</span> counter;  <span class="hljs-comment">// `mutable` allows modification even in `const` functions</span><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Demo</span>() : <span class="hljs-built_in">counter</span>(<span class="hljs-number">0</span>) &#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">increment</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        counter++;  <span class="hljs-comment">// Allowed because `counter` is mutable</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getCounter</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> counter;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
-<h2 id="Key-Takeaways">Key Takeaways</h2>
+<h2><span id="key-takeaways">Key Takeaways</span></h2>
 <ul>
 <li>A const member function ensures the object’s data remains unchanged.</li>
 <li>Const objects can only call const functions (cause compilation error). Non-const objects can call both const and non-const functions.</li>
 <li>Use mutable to mark the variables that must change inside const functions for exceptions (e.g., caching, logging).</li>
 <li>Always mark getter functions as const for safety.</li>
 </ul>
-<h1>Virtual Functions</h1>
+<h1><span id="virtual-functions">Virtual Functions</span></h1>
 <p>A virtual function is a member function that can be overridden in a derived class, allowing <strong>dynamic (runtime) polymorphism</strong>.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">show</span><span class="hljs-params">()</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Base class function.&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">show</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;Derived class function.&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Base* b = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Derived</span>();<br>    b-&gt;<span class="hljs-built_in">show</span>(); <span class="hljs-comment">// Calls the correct function based on the object&#x27;s actual type, not pointer type.</span><br>    <span class="hljs-keyword">delete</span> b;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="Key-Points-4">Key Points:</h2>
+<h2><span id="key-points">Key Points:</span></h2>
 <ul>
 <li>
 <p>Virtual functions enable runtime polymorphism.</p>
@@ -376,17 +376,17 @@
 </ul>
 </li>
 </ul>
-<h1>Pure Virtual Fuctions (Abstract Base Class)</h1>
+<h1><span id="pure-virtual-fuctions-abstract-base-class">Pure Virtual Fuctions (Abstract Base Class)</span></h1>
 <p>A pure virtual function has no implementation in the base class and forces derived classes to provide an implementation.</p>
-<h2 id="Example">Example</h2>
+<h2><span id="example">Example</span></h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">AbstractBase</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">show</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;  <span class="hljs-comment">// Pure virtual function</span><br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> AbstractBase &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">show</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived class implementation&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// AbstractBase obj;  // Error: Cannot instantiate an abstract class</span><br>    Derived d;<br>    d.<span class="hljs-built_in">show</span>();  <span class="hljs-comment">// Works fine</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="Key-Points-5">Key Points:</h2>
+<h2><span id="key-points">Key Points:</span></h2>
 <ul>
 <li>Declared using <strong>= 0</strong> syntax.</li>
 <li><strong>Makes a class abstract</strong>, meaning it <strong>cannot be instantiated directly</strong>.</li>
 <li>Derived classes <strong>must</strong> provide their own implementation.</li>
 </ul>
-<h2 id="Use-Cases-2">Use Cases:</h2>
+<h2><span id="use-cases">Use Cases:</span></h2>
 <ul>
 <li>
 <p>Defining interfaces or base classes for runtime polymorphism.</p>
@@ -415,16 +415,16 @@
 <p>Enforcing derived classes to implement certain functions.</p>
 </li>
 </ul>
-<h1>Lambda Functions</h1>
+<h1><span id="lambda-functions">Lambda Functions</span></h1>
 <p>A lambda function is a short, unnamed function used for quick operations, especially in algorithms and functional programming.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> add = [](<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b) &#123; <span class="hljs-keyword">return</span> a + b; &#125;;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Sum: &quot;</span> &lt;&lt; <span class="hljs-built_in">add</span>(<span class="hljs-number">5</span>, <span class="hljs-number">3</span>) &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="Lambda-Function-Syntax">Lambda Function Syntax</h2>
+<h2><span id="lambda-function-syntax">Lambda Function Syntax</span></h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">[capture_list](parameters) -&gt; return_type &#123; function_body &#125;<br></code></pre></td></tr></table></figure>
 <p>[capture_list] specifies which variables from the surrounding scope should be captured.</p>
 <p>(parameters) defines the function’s parameters.</p>
 <p>-&gt; return_type (optional) specifies the return type.</p>
 <p>{ function_body } contains the function logic.</p>
-<h2 id="Capture-list-and-parameters">Capture list and parameters</h2>
+<h2><span id="capture-list-and-parameters">Capture list and parameters</span></h2>
 <ul>
 <li>Capture List ([]): Used for accessing external variables from the surrounding scope.
 <ul>
@@ -442,7 +442,7 @@
 <li>Parameter List (()): Used for passing arguments like a normal function.</li>
 <li>Captured values are fixed at the time the lambda is created, while parameters change per call.</li>
 </ul>
-<h2 id="Use-Cases-3">Use Cases</h2>
+<h2><span id="use-cases">Use Cases</span></h2>
 <ul>
 <li>
 <p>Callback functions in algorithms (std::for_each, std::sort).</p>
@@ -726,10 +726,6 @@
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 

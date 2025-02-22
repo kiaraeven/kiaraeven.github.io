@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="GAMES 101 L18-Advanced Topics">
 <meta property="og:url" content="http://example.com/2025/01/19/GAMES101-L18-AdvancedTopics/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Advanced Light Transport Non-biased Bidirectional Path Tracing (BDRT) Recall: a path connects the camera and the light BDRT:  Traces sub-paths from both the camera and the light Connects the end point">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2025/01/19/GAMES101-L18-AdvancedTopics/phase_func.png">
@@ -40,7 +40,7 @@
   
   
   
-  <title>GAMES 101 L18-Advanced Topics - Hexo</title>
+  <title>GAMES 101 L18-Advanced Topics - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -80,7 +80,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -284,9 +284,9 @@
             
               <div class="markdown-body">
                 
-                <h1>Advanced Light Transport</h1>
-<h2 id="Non-biased">Non-biased</h2>
-<h3 id="Bidirectional-Path-Tracing-BDRT">Bidirectional Path Tracing (BDRT)</h3>
+                <h1><span id="advanced-light-transport">Advanced Light Transport</span></h1>
+<h2><span id="non-biased">Non-biased</span></h2>
+<h3><span id="bidirectional-path-tracing-bdrt">Bidirectional Path Tracing (BDRT)</span></h3>
 <p>Recall: a path connects the camera and the light</p>
 <p>BDRT:</p>
 <ul>
@@ -295,7 +295,7 @@
 <li>Suitable if the light transport is complex on the light’s side</li>
 <li>Difficult to implement &amp; quite slow</li>
 </ul>
-<h3 id="Metropolis-n-Light-Transport-MLT">Metropolis(n.) Light Transport (MLT)</h3>
+<h3><span id="metropolisn-light-transport-mlt">Metropolis(n.) Light Transport (MLT)</span></h3>
 <ul>
 <li>A Markov Chain Monte Carlo (MCMC) application
 <ul>
@@ -316,13 +316,13 @@
 <li>So, usually produces “dirty” results</li>
 <li>Therefore, usually not used to render animations</li>
 </ul>
-<h2 id="Biased">Biased</h2>
-<h3 id="Photon-Mapping-光子映射">Photon Mapping (光子映射)</h3>
+<h2><span id="biased">Biased</span></h2>
+<h3><span id="photon-mapping-光子映射">Photon Mapping (光子映射)</span></h3>
 <ul>
 <li>A biased approach &amp; A two-stage method</li>
 <li>Very good at handling Specular-Diffuse-Specular (SDS) paths and generating caustics (焦散)</li>
 </ul>
-<h4 id="Approach">Approach</h4>
+<h4><span id="approach">Approach</span></h4>
 <ul>
 <li>Stage 1 - photon tracing
 <ul>
@@ -342,7 +342,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="Why-Biased">Why Biased?</h4>
+<h4><span id="why-biased">Why Biased?</span></h4>
 <ul>
 <li>Small N -&gt; noisy; big N -&gt; blurry (模糊)</li>
 <li>This is because <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>N</mi><mi mathvariant="normal">/</mi><mi>d</mi><mi>A</mi><mo mathvariant="normal">≠</mo><mi mathvariant="normal">Δ</mi><mi>N</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">Δ</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">dN / dA \neq \Delta N / \Delta A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord mathnormal">d</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord">/Δ</span><span class="mord mathnormal">A</span></span></span></span>.</li>
@@ -358,7 +358,7 @@
 <ul>
 <li>“Const range” means we can take a unit area (e.g., <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>c</mi><msup><mi>m</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">1cm^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord mathnormal">c</span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>) and increase the number of photons in there, and then estimate local density by counting N. However, in this way <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">\Delta A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal">A</span></span></span></span> will never get close to dA, so we don’t use this method.</li>
 </ul>
-<h3 id="Vertex-Connection-and-Merging-VCM">Vertex Connection and Merging (VCM)</h3>
+<h3><span id="vertex-connection-and-merging-vcm">Vertex Connection and Merging (VCM)</span></h3>
 <ul>
 <li>A combination of BDPT and Photon Mapping</li>
 <li>Key idea:
@@ -368,7 +368,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="Instant-Radiosity-IR">Instant Radiosity (IR)</h3>
+<h3><span id="instant-radiosity-ir">Instant Radiosity (IR)</span></h3>
 <ul>
 <li>Sometimes also called many-light approaches</li>
 <li>Key idea:
@@ -392,18 +392,18 @@
 <li>Spikes will emerge when VPLs are close to shading points</li>
 <li>Cannot handle glossy materials</li>
 </ul>
-<h1>Advanced Appearance Modeling</h1>
-<h2 id="Non-Surface-Models">Non-Surface Models</h2>
-<h3 id="Participating-Materials">Participating Materials</h3>
-<h4 id="Phase-function">Phase function</h4>
+<h1><span id="advanced-appearance-modeling">Advanced Appearance Modeling</span></h1>
+<h2><span id="non-surface-models">Non-Surface Models</span></h2>
+<h3><span id="participating-materials">Participating Materials</span></h3>
+<h4><span id="phase-function">Phase function</span></h4>
 <p>Use Phase Function to describe the angular distribution of light scattering at any point x within participating media.<br>
-<img src="phase_func.png" srcset="/img/loading.gif" lazyload alt="phase function"></p>
-<h4 id="Rendering">Rendering</h4>
+<img src="phase_func.png" alt="phase function"></p>
+<h4><span id="rendering">Rendering</span></h4>
 <ul>
 <li>Randomly choose a direction to bounce</li>
 <li>Randomly choose a distance to go straight</li>
 <li>At each ‘shading point’, connect to the light<br>
-<img src="part_rendering.png" srcset="/img/loading.gif" lazyload alt="rendering"></li>
+<img src="part_rendering.png" alt="rendering"></li>
 </ul>
 <p>…The following content is omitted…</p>
 
@@ -677,10 +677,6 @@
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 

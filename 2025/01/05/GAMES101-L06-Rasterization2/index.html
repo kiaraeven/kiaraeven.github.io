@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)">
 <meta property="og:url" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Sampling Artifacts (瑕疵)  Jaggies - sampling in space Moire Patterns (摩尔纹) - undersampling images Wagon wheel effect - sampling in time  root cause: signals are changing too fast (high frequency) but s">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/pre_filter.png">
@@ -47,7 +47,7 @@
   
   
   
-  <title>GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering) - Hexo</title>
+  <title>GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering) - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -87,7 +87,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -291,24 +291,24 @@
             
               <div class="markdown-body">
                 
-                <h1>Sampling Artifacts (瑕疵)</h1>
+                <h1><span id="sampling-artifacts-瑕疵">Sampling Artifacts (瑕疵)</span></h1>
 <ul>
 <li>Jaggies - sampling in space</li>
 <li>Moire Patterns (摩尔纹) - undersampling images</li>
 <li>Wagon wheel effect - sampling in time</li>
 </ul>
 <p>root cause: signals are changing too fast (high frequency) but sampled too slowly.</p>
-<h1>Antialiasing idea - Blurring (pre-filtering) Before Sampling</h1>
-<p><img src="pre_filter.png" srcset="/img/loading.gif" lazyload alt="pre filter" title="Pre-filter for antialiasing"><br>
+<h1><span id="antialiasing-idea-blurring-pre-filtering-before-sampling">Antialiasing idea - Blurring (pre-filtering) Before Sampling</span></h1>
+<p><img src="pre_filter.png" alt="pre filter" title="Pre-filter for antialiasing"><br>
 Note antialiased edges in rasterized trianglewhere pixel values take intermediate values.</p>
-<h2 id="How-Aliases-are-Created">How Aliases are Created</h2>
-<h3 id="Aliases">Aliases</h3>
+<h2><span id="how-aliases-are-created">How Aliases are Created</span></h2>
+<h3><span id="aliases">Aliases</span></h3>
 <p>The <strong>Fourier series</strong> represents a periodic function as a sum of sines and cosines (or complex exponentials). This decomposition shows how a function can be expressed as a combination of simple harmonic components. The <strong>Fourier transform</strong> generalizes the Fourier series to analyze non-periodic functions or signals. It <strong>decomposes a signal into its frequency components</strong>, showing how much of each frequency is present in the signal.<br>
-<img src="fourier_transform.png" srcset="/img/loading.gif" lazyload alt="fourier transform" title="Fourier Transform"><br>
+<img src="fourier_transform.png" alt="fourier transform" title="Fourier Transform"><br>
 Higer frequencies needs faster sampling.<br>
-<img src="freq_sampling.png" srcset="/img/loading.gif" lazyload alt="frequencies and sampling" title="Frequencies and Sampling"></p>
+<img src="freq_sampling.png" alt="frequencies and sampling" title="Frequencies and Sampling"></p>
 <p>Two frequencies that are indistinguishable at a given sampling rate are called “<strong>aliases</strong>”.</p>
-<h3 id="Filtering">Filtering</h3>
+<h3><span id="filtering">Filtering</span></h3>
 <p><strong>Filtering</strong>: getting rid of certain frequencies.<br>
 Filtering = Convolution = Average</p>
 <p>Convolution in the spatial domain is equal to multiplicationin the frequency domain, and vice versa</p>
@@ -318,11 +318,11 @@ Filter by convolution in the spatial domain.</li>
 <li>Option 2:<br>
 Transform to frequency domain (Fourier transform). Multiply by Fourier transform of convolution kernel. Transform back to spatial domain (inverse Fourier).</li>
 </ul>
-<h3 id="Summary">Summary</h3>
+<h3><span id="summary">Summary</span></h3>
 <p>Sampling = Repeating Frequency Contents<br>
 Aliasing = Mixed Frequency Contents<br>
 Aliasing occurs when a signal or image contains high-frequency details that are inadequately sampled.</p>
-<h2 id="How-to-Reduce-Aliasing-Errors">How to Reduce Aliasing Errors</h2>
+<h2><span id="how-to-reduce-aliasing-errors">How to Reduce Aliasing Errors</span></h2>
 <ul>
 <li>Option 1: Increase sampling rate<br>
 Essentially increasing the distance between replicas in the Fourier domain.<br>
@@ -332,42 +332,42 @@ But: costly &amp; may need very high resolution</li>
 Making Fourier contents “narrower” before repeating, i.e. <strong>Filtering out high frequencies before sampling</strong>.</li>
 </ul>
 <p>See the two figures below. The horizontal axis in the figure represents frequency, with 0 Hz at the center. Moving away from the center represents higher frequencies. Fs/2 and -Fs/2 represent the Nyquist frequency (see explanation below), the highest frequency that can be represented accurately for a sampling rate Fs. Initially, as shown in the first figure, mixed frequencies caused aliases. In the second figure, if we remove the high frequencies, the mixed part no longer exists, anti-aliasing achieved.</p>
-<p><img src="mixed_freq.png" srcset="/img/loading.gif" lazyload alt="mixed part" title="Initial mixed part"><br>
-<img src="after_lowpass_filter.png" srcset="/img/loading.gif" lazyload alt="after low pass filter" title="After low pass filter"></p>
+<p><img src="mixed_freq.png" alt="mixed part" title="Initial mixed part"><br>
+<img src="after_lowpass_filter.png" alt="after low pass filter" title="After low pass filter"></p>
 <p>PS: Nyquist-Shannon Sampling Theorem<br>
 To accurately represent a signal, the sampling rate must be at least twice the highest frequency in the signal. This threshold is called the Nyquist frequency:<br>
 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>s</mi><mi>a</mi><mi>m</mi><mi>p</mi><mi>l</mi><mi>i</mi><mi>n</mi><mi>g</mi></mrow></msub><mo>&gt;</mo><mo>=</mo><mn>2</mn><msub><mi>f</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mrow><annotation encoding="application/x-tex">f_{sampling} &gt;= 2f_{max}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">am</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">pl</span><span class="mord mathnormal mtight">in</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><br>
 If this condition is not met, aliasing occurs.</p>
 <p>PPS: If sampled first, low-frequency information will be aliased.</p>
-<h2 id="A-Practical-Pre-Filter">A Practical Pre-Filter</h2>
+<h2><span id="a-practical-pre-filter">A Practical Pre-Filter</span></h2>
 <p>Solution:</p>
 <ul>
 <li>Convolve f(x,y) by a 1-pixel box-blur<br>
 Recall: convolving =filtering= averaginge</li>
 <li>Then sample at every pixel’s center</li>
 </ul>
-<p><img src="practical_antialiasing_tri.png" srcset="/img/loading.gif" lazyload alt="Antialiasing Example" title="Antialiasing Example"></p>
-<h1>Antialiasing by Supersampling - Multisample Anti-Aliasing (MSAA)</h1>
+<p><img src="practical_antialiasing_tri.png" alt="Antialiasing Example" title="Antialiasing Example"></p>
+<h1><span id="antialiasing-by-supersampling-multisample-anti-aliasing-msaa">Antialiasing by Supersampling - Multisample Anti-Aliasing (MSAA)</span></h1>
 <ol>
 <li>Take <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">N \times N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> samples in each pixel.<br>
-<img src="MSAA1.png" srcset="/img/loading.gif" lazyload alt="MSAA1" title="MSAA1"></li>
+<img src="MSAA1.png" alt="MSAA1" title="MSAA1"></li>
 <li>Average the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mi>s</mi><mi>N</mi></mrow><annotation encoding="application/x-tex">N /times N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord mathnormal">t</span><span class="mord mathnormal">im</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> samples inside each pixel.<br>
-<img src="MSAA2.png" srcset="/img/loading.gif" lazyload alt="MSAA2" title="MSAA2"><br>
-<img src="MSAA3.png" srcset="/img/loading.gif" lazyload alt="MSAA3" title="MSAA3"></li>
+<img src="MSAA2.png" alt="MSAA2" title="MSAA2"><br>
+<img src="MSAA3.png" alt="MSAA3" title="MSAA3"></li>
 </ol>
 <p>In practice, industry don’t use regularly spaced samples, instead they place samples based on a predefined sampling pattern, to use less samples getting the same effect as more samples.</p>
-<h1>Other Anti-Aliasing Techniques</h1>
+<h1><span id="other-anti-aliasing-techniques">Other Anti-Aliasing Techniques</span></h1>
 <ul>
 <li>FXAA (Fast Aproximate AA)</li>
 <li>TAA (Temporal AA)</li>
 </ul>
-<h1>Super resolution / Super Sampling</h1>
+<h1><span id="super-resolution-super-sampling">Super resolution / Super Sampling</span></h1>
 <ul>
 <li>From low resolution to high resolution</li>
 <li>Essentially still “not enough samples” problem</li>
 <li>DLSS (Deep Learning Super Sampling) to “guess” the missing part</li>
 </ul>
-<h1>Z-Buffer (深度缓存)</h1>
+<h1><span id="z-buffer-深度缓存">Z-Buffer (深度缓存)</span></h1>
 <ul>
 <li>Store current min. z-value for each sample (pixel)</li>
 <li>Needs an additional buffer for depth values</li>
@@ -375,7 +375,7 @@ Recall: convolving =filtering= averaginge</li>
 <li>depth buffer (z-buffer) stores depth</li>
 </ul>
 <p>IMPORTANT: For simplicity we suppose z is always positive (smallerz -&gt; closer, larger z -&gt; further).</p>
-<p>Initialize depth buffer to <span class='katex-error' title='ParseError: KaTeX parse error: Undefined control sequence: \infinity at position 1: \̲i̲n̲f̲i̲n̲i̲t̲y̲'>\infinity</span>.</p>
+<p>Initialize depth buffer to <span class="katex-error" title="ParseError: KaTeX parse error: Undefined control sequence: \infinity at position 1: \̲i̲n̲f̲i̲n̲i̲t̲y̲">\infinity</span>.</p>
 <p>During rasterization:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (each triangle T)<br>  <span class="hljs-keyword">for</span> (each <span class="hljs-built_in">sample</span> (x,y,z) in T)<br>    <span class="hljs-keyword">if</span> (z &lt; zbuffer[x,y])  <span class="hljs-comment">// closest sample so far</span><br>      framebuffer[x,y] = rgb;<span class="hljs-comment">// update color</span><br>      zbuffer[x,y] = z;  <span class="hljs-comment">// update depth</span><br>    <span class="hljs-keyword">else</span><br>      ;  <span class="hljs-comment">// do nothing, this sample is occluded</span><br></code></pre></td></tr></table></figure>
 <ul>
@@ -655,10 +655,6 @@ Recall: convolving =filtering= averaginge</li>
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 

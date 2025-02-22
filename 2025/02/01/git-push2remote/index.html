@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Push local project to existing remote repos">
 <meta property="og:url" content="http://example.com/2025/02/01/git-push2remote/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:site_name" content="Go7&#39;s Blog">
 <meta property="og:description" content="Assume we have a local project with some finished contents and a newly created github repository (with&#x2F;without .gitignore and README.md). The following steps show how to push our project to the remote">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-02-01T19:59:17.420Z">
@@ -36,7 +36,7 @@
   
   
   
-  <title>Push local project to existing remote repos - Hexo</title>
+  <title>Push local project to existing remote repos - Go7&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -281,37 +281,37 @@
               <div class="markdown-body">
                 
                 <p>Assume we have a local project with some finished contents and a newly created github repository (with/without <code>.gitignore</code> and <code>README.md</code>). The following steps show how to push our project to the remote repository.</p>
-<h1>1. Initialize local repo</h1>
+<h1><span id="1-initialize-local-repo">1. Initialize local repo</span></h1>
 <p>In the project root folder:</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp">git <span class="hljs-keyword">init</span><br></code></pre></td></tr></table></figure>
-<h1>2. Create a new branch</h1>
+<h1><span id="2-create-a-new-branch">2. Create a new branch</span></h1>
 <p>If we run <code>git branch</code> right after <code>git init</code>, we’ll get:</p>
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-symbol">$</span> git branch<br><span class="hljs-comment">* (no branch)</span><br></code></pre></td></tr></table></figure>
 <p>So it’s recommended that we create a new branch first before add files. See remote branch name for reference.</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">git checkout -<span class="hljs-selector-tag">b</span> <span class="hljs-selector-tag">main</span><br></code></pre></td></tr></table></figure>
 <p>Or just:</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">git branch <span class="hljs-selector-tag">main</span><br>git checkout <span class="hljs-selector-tag">main</span><br></code></pre></td></tr></table></figure>
-<h1>3. Add remote origin</h1>
+<h1><span id="3-add-remote-origin">3. Add remote origin</span></h1>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">git</span> remote <span class="hljs-keyword">add</span> origin https:<span class="hljs-comment">//github.com/your-username/your-repo.git</span><br></code></pre></td></tr></table></figure>
 <p>test by:</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">git remote -v</span><br></code></pre></td></tr></table></figure>
-<h1>4. Add changes, commit, and push</h1>
-<h2 id="Add-files">Add files</h2>
+<h1><span id="4-add-changes-commit-and-push">4. Add changes, commit, and push</span></h1>
+<h2><span id="add-files">Add files</span></h2>
 <p>Add all files:</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">git <span class="hljs-built_in">add</span> .<br></code></pre></td></tr></table></figure>
 <p>Or create a local .gitignore in project root folder, and add some special files / folders you wanna ignore:<br>
 For example, in a cpp project, I don’t want the remote repo to track the build folder, then I can add <code>/build/</code> as a new line in .gitignore.</p>
 <p>Or add selected files (use <code>git status</code> to check changed files paths):</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">git <span class="hljs-built_in">add</span> selected_file_name<br></code></pre></td></tr></table></figure>
-<h2 id="Commit">Commit</h2>
+<h2><span id="commit">Commit</span></h2>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">git</span> commit -m <span class="hljs-string">&quot;init&quot;</span><br></code></pre></td></tr></table></figure>
-<h2 id="Push">Push</h2>
+<h2><span id="push">Push</span></h2>
 <figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs maxima">git <span class="hljs-built_in">push</span> <span class="hljs-built_in">origin</span> main<br></code></pre></td></tr></table></figure>
 <p>If we have included <code>.gitignore</code> or <code>README.md</code> while creating the github repo, we might error pushing local changes:</p>
 <figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs vbnet"> ! [rejected]        main -&gt; main (non-fast-forward)<br><span class="hljs-symbol">error:</span> failed <span class="hljs-keyword">to</span> push some refs <span class="hljs-keyword">to</span> <span class="hljs-comment">&#x27;https://github.com/kiaraeven/RayTracingSeries_private.git&#x27;</span><br><span class="hljs-symbol">hint:</span> Updates were rejected because the tip <span class="hljs-keyword">of</span> your current branch <span class="hljs-built_in">is</span> behind<br><span class="hljs-symbol">hint:</span> its remote counterpart. Integrate the remote changes (e.g.<br><span class="hljs-symbol">hint:</span> <span class="hljs-comment">&#x27;git pull ...&#x27;) before pushing again.</span><br><span class="hljs-symbol">hint:</span> See the <span class="hljs-comment">&#x27;Note about fast-forwards&#x27; in &#x27;git push --help&#x27; for details.</span><br></code></pre></td></tr></table></figure>
 <p>This is because the local main branch is behind the remote main branch on GitHub. This means there are commits on the remote repository that you don’t have in your local branch. To resolve this, we need to pull the latest changes from the remote main branch, integrate them with your local changes, and then push. The following commands pull the changes from the remote repository and merge them into your local branch, while allowing unrelated histories to be merged.</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">git pull origin <span class="hljs-selector-tag">main</span> <span class="hljs-attr">--allow-unrelated-histories</span><br></code></pre></td></tr></table></figure>
-<h1>5. Exceptions</h1>
+<h1><span id="5-exceptions">5. Exceptions</span></h1>
 <p>What if we incorrectly push some unrelated folder / files to the remote repo?</p>
 <p>Take <code>/build/</code> as an example, if we have already push it to remote repo, we can just:</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">git rm -<span class="hljs-attribute">r</span> <span class="hljs-attr">--cached</span> build/<br></code></pre></td></tr></table></figure>
@@ -578,10 +578,6 @@ For example, in a cpp project, I don’t want the remote repo to track the build
 
 
 
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
 
 
 
