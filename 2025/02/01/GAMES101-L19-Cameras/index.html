@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -281,19 +281,19 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="focal-length-f">Focal Length (<code>f</code>)</span></h1>
+                <h1 id="focal-length-f">Focal Length (<code>f</code>)</h1>
 <ul>
 <li>The <strong>focal length</strong> represents the distance from the <strong>camera (eye)</strong> to the <strong>image plane (viewport)</strong> in world space.</li>
 <li>A larger focal length means a more <strong>zoomed-in</strong> effect (narrow FoV).</li>
 <li>A smaller focal length means a <strong>wider</strong> perspective (wide FoV).</li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="ray-tracing-interpretation">Ray Tracing Interpretation</h2>
 <ul>
 <li>The focal length determines how far the <strong>virtual image plane (viewport)</strong> is placed in front of the camera.</li>
 <li>In ray tracing, we assume a <strong>thin lens model</strong>, where the camera sits at <code>(0,0,0)</code>, and the image plane is placed at <code>z = -f</code>.</li>
 </ul>
 <hr>
-<h1><span id="viewport-size-viewport_width-viewport_height">Viewport Size (<code>viewport_width</code>, <code>viewport_height</code>)</span></h1>
+<h1 id="viewport-size-viewport_width-viewport_height">Viewport Size (<code>viewport_width</code>, <code>viewport_height</code>)</h1>
 <ul>
 <li>The <strong>viewport</strong> is the <strong>imaginary 2D plane</strong> where the rays originate before traveling into the scene.</li>
 <li>The size of the viewport depends on:
@@ -304,13 +304,13 @@
 </ul>
 </li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="ray-tracing-interpretation">Ray Tracing Interpretation</h2>
 <ul>
 <li>The viewport is usually defined in <strong>world coordinates</strong> at <code>z = -f</code> (for a forward-facing camera).</li>
 <li>The camera shoots rays from its <strong>center of projection</strong>, passing through each pixel on the viewport.</li>
 </ul>
 <hr>
-<h1><span id="field-of-view-fov">Field of View (FoV)</span></h1>
+<h1 id="field-of-view-fov">Field of View (FoV)</h1>
 <ul>
 <li>
 <p>The <strong>field of view (FoV)</strong> is the angular extent of the scene captured by the camera.</p>
@@ -328,12 +328,12 @@
 <p>A <strong>small FoV</strong> (e.g., 30°) results in a <strong>zoomed-in</strong> effect.</p>
 </li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="ray-tracing-interpretation">Ray Tracing Interpretation</h2>
 <ul>
 <li>When setting up a <strong>camera in ray tracing</strong>, we often specify the <strong>FoV</strong>, then derive the viewport size accordingly.</li>
 </ul>
 <hr>
-<h1><span id="relationship-between-focal-length-viewport-and-fov">Relationship Between Focal Length, Viewport, and FoV</span></h1>
+<h1 id="relationship-between-focal-length-viewport-and-fov">Relationship Between Focal Length, Viewport, and FoV</h1>
 <ol>
 <li>
 <p><strong>Focal Length and Viewport</strong></p>
@@ -362,7 +362,7 @@
 </ul>
 </li>
 </ol>
-<h1><span id="defocus-blur-depth-of-field">Defocus Blur (Depth of Field)</span></h1>
+<h1 id="defocus-blur-depth-of-field">Defocus Blur (Depth of Field)</h1>
 <p>See <a target="_blank" rel="noopener" href="https://raytracing.github.io/books/RayTracingInOneWeekend.html#defocusblur/athinlensapproximation">https://raytracing.github.io/books/RayTracingInOneWeekend.html#defocusblur/athinlensapproximation</a> 13. Defocus Blur for more.</p>
 
                 
@@ -529,9 +529,6 @@
 
 
 
-  
-
-
 
   
 
@@ -682,44 +679,6 @@
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

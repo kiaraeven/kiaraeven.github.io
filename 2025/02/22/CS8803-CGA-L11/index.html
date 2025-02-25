@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2025/02/22/CS8803-CGA-L11/alpha_blending.png">
 <meta property="og:image" content="http://example.com/2025/02/22/CS8803-CGA-L11/filtering.png">
 <meta property="article:published_time" content="2025-02-23T03:25:03.979Z">
-<meta property="article:modified_time" content="2025-02-24T06:21:25.732Z">
+<meta property="article:modified_time" content="2025-02-25T20:59:14.398Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="Gaussian Splatting">
@@ -88,7 +88,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -239,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          386 words
+          456 words
         
       </span>
     
@@ -292,13 +292,13 @@
             
               <div class="markdown-body">
                 
-                <h2><span id="rasterization-pipeline">Rasterization pipeline</span></h2>
-<h3><span id="core-concepts-essence-of-nerf-and-gs">Core Concepts: Essence of NeRF and GS</span></h3>
+                <h2 id="rasterization-pipeline">Rasterization pipeline</h2>
+<h3 id="core-concepts-essence-of-nerf-and-gs">Core Concepts: Essence of NeRF and GS</h3>
 <ul>
 <li>NeRF is neural radiance representation + differentiable ray tracing</li>
 <li>3D GS is point-based representation + differentiable rasterization</li>
 </ul>
-<h3><span id="rasterization-vs-ray-tracing">Rasterization v.s. Ray Tracing</span></h3>
+<h3 id="rasterization-vs-ray-tracing">Rasterization v.s. Ray Tracing</h3>
 <ul>
 <li>Rasterization: object point to image plane
 <ul>
@@ -320,7 +320,7 @@
 </ul>
 <p><img src="raytracing.png" alt="ray tracing"></p>
 <p><em>Rasterization and ray tracing are inverse processes to each other.</em></p>
-<h3><span id="rasterization-vs-ray-casting">Rasterization vs. Ray casting</span></h3>
+<h3 id="rasterization-vs-ray-casting">Rasterization vs. Ray casting</h3>
 <p><img src="raster_raycast.png" alt="Rasterization vs. Ray casting"></p>
 <ul>
 <li>What needs to be stored in memory in each case?
@@ -330,104 +330,138 @@
 </ul>
 </li>
 </ul>
-<h3><span id="review-of-rendering-pipeline">Review of rendering pipeline</span></h3>
+<h3 id="review-of-rendering-pipeline">Review of rendering pipeline</h3>
 <p><img src="rendering_pipeline.png" alt="rendering pipeline"></p>
-<h4><span id="stage-i-vertex-processing">Stage I: Vertex Processing</span></h4>
+<h4 id="stage-i-vertex-processing">Stage I: Vertex Processing</h4>
 <ul>
 <li>The vertex processing stage processes vertex data through a vertex shader.</li>
 <li>Each vertex’s properties, like position, color, and texture coordinates, are calculated and transformed to prepare for primitive processing.</li>
 <li>We can program this stage in Vertex Shaders.</li>
 </ul>
-<h4><span id="stage-ii-primitive-processing">Stage II: Primitive Processing</span></h4>
+<h4 id="stage-ii-primitive-processing">Stage II: Primitive Processing</h4>
 <ul>
 <li>Once vertices are processed, they are assembled into geometric primitives such as <strong>points</strong>, lines, or triangles.</li>
 <li>This stage may include tessellation (镶嵌), where primitives are subdivided into finer details, and geometry shading.</li>
 <li>This stage can be programmed using Geometry Shaders.</li>
 </ul>
-<h4><span id="stage-iii-rasterization">Stage III: Rasterization</span></h4>
+<h4 id="stage-iii-rasterization">Stage III: Rasterization</h4>
 <ul>
 <li>Rasterization converts primitives into a 2D image or framebuffer.</li>
 <li>It determines the pixels that form the primitives, performing interpolations for pixel positions. This stage sets the scene for fragment processing.</li>
 <li>This stage is not programmable.</li>
 </ul>
-<h4><span id="stage-iv-fragment-processing">Stage IV: Fragment Processing</span></h4>
+<h4 id="stage-iv-fragment-processing">Stage IV: Fragment Processing</h4>
 <ul>
 <li>Fragments can be thought of as pixels (but they are actually not!), are processed to determine<br>
 their final color and properties.</li>
 <li>Fragment shaders compute lighting, apply textures, and carry out operations for visual effects.</li>
 <li>We can program this stage in Fragment Shaders.</li>
 </ul>
-<h4><span id="stage-v-pixel-processing">Stage V: Pixel Processing</span></h4>
+<p>In the rendering pipeline, fragments and pixels are closely related but distinct concepts. A fragment is an intermediate stage in the pipeline, while a pixel represents the final output on the screen.</p>
+<ul>
+<li>
+<p>Fragment</p>
+<ul>
+<li>A fragment is a <em>potential</em> pixel generated during rasterization.</li>
+<li>It contains <em>interpolated</em> attributes from vertices, such as:
+<ul>
+<li>Depth (Z-value)</li>
+<li>Color</li>
+<li>Texture coordinates</li>
+<li>Normals, lighting values, etc.</li>
+</ul>
+</li>
+<li>Each fragment undergoes per-fragment operations (like shading, depth testing, blending).</li>
+<li>Not all fragments become pixels due to <em>depth testing, alpha testing, and other rejection criteria</em>.</li>
+</ul>
+</li>
+<li>
+<p>Pixel</p>
+<ul>
+<li>A pixel is the final colored output on the screen.</li>
+<li>It contains final colors only.</li>
+<li>After fragment processing, only one final color value per pixel is stored in the frame buffer.</li>
+<li>Operations affecting pixels:
+<ul>
+<li>Blending (combining multiple fragments)</li>
+<li>Post-processing effects (antialiasing, tone mapping)</li>
+</ul>
+</li>
+<li>If two fragments map to the same pixel, only the one closest to the camera (passing depth test) is displayed.</li>
+</ul>
+</li>
+</ul>
+<h4 id="stage-v-pixel-processing">Stage V: Pixel Processing</h4>
 <ul>
 <li>The pixel processing stage involves operations like blending and testing pixels for depth and stencil (模板) comparison.</li>
 <li>The final pixel colors are output to the screen, resulting in the rendered image.</li>
 <li>This stage is not fully programmable (mainly hardware control).</li>
 </ul>
-<h2><span id="points-and-surfels">Points and surfels</span></h2>
-<h3><span id="points-as-rendering-primitives">Points as Rendering Primitives</span></h3>
+<h2 id="points-and-surfels">Points and surfels</h2>
+<h3 id="points-as-rendering-primitives">Points as Rendering Primitives</h3>
 <ul>
 <li>We want to use point clouds instead of triangle meshes and textures as a rendering primitive</li>
 <li>Points are considered as a collection of nonuniform samplers of a surface in 3D space</li>
 <li>We want to carry surface information such as colors, normal, and textures on each point</li>
 <li>The original idea has been proposed by Levoy and Whitted in 1985 (<em>The Use of Points as a Display Primitive</em> Marc Levoy and Turner WhittedTechnical Report 85-022, UNC Chapel Hill, January, 1985.)</li>
 </ul>
-<h3><span id="why-points">Why Points?</span></h3>
-<h4><span id="representation-simplicity">Representation Simplicity</span></h4>
+<h3 id="why-points">Why Points?</h3>
+<h4 id="representation-simplicity">Representation Simplicity</h4>
 <ul>
 <li>Performance of 3D hardware has exploded</li>
 <li>Projected triangles are very small, causing higher setup overhead</li>
 <li><strong>Generating triangle meshes is time-consuming and difficult</strong></li>
 <li>Seeking a simpler, more efficient rendering primitive than triangles</li>
 </ul>
-<h4><span id="model-acquisition">Model Acquisition</span></h4>
+<h4 id="model-acquisition">Model Acquisition</h4>
 <ul>
 <li>3D scanning of physical objects is ubiquitous</li>
 <li>Modern 3D scanning and LiDAR devices produce huge point clouds</li>
 <li>Direct rendering of acquired point clouds becomes possible with the improvement of GPU power</li>
 <li>Efficient rendering of synthetic models and animated scenes</li>
 </ul>
-<h4><span id="model-editing">Model Editing</span></h4>
+<h4 id="model-editing">Model Editing</h4>
 <ul>
 <li>Processing and editing of point-sampled geometry become necessary after obtaining these geometries from real-world scanning</li>
 <li>Graphics community needs a point-based content creation pipeline</li>
 </ul>
-<h3><span id="points-as-primitives-summary">Points as primitives - Summary</span></h3>
+<h3 id="points-as-primitives-summary">Points as primitives - Summary</h3>
 <ul>
 <li>Point clouds instead of triangle meshes</li>
 <li>No explicit connectivity or texture maps</li>
 <li>Each point carries 3D geometry and surface reflectance properties</li>
 <li>We need a large number of points to render realistic appearance</li>
 </ul>
-<h3><span id="recap-render-a-single-particle-in-fragment-shader">Recap: Render a Single Particle in Fragment Shader</span></h3>
+<h3 id="recap-render-a-single-particle-in-fragment-shader">Recap: Render a Single Particle in Fragment Shader</h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp">- Input: <span class="hljs-comment">/*fragment position*/</span> frag_pos, <span class="hljs-comment">/*particle position*/</span> particle_pos, <span class="hljs-comment">/*particle’s default brightness*/</span> brightness, <span class="hljs-comment">/*particle’s default color*/</span> color<br>- Output: <span class="hljs-comment">/*fragment color*/</span> frag_color<br>- Algorithm:<br><span class="hljs-comment">// Given the particle’s position, we want to render it like a Gaussian blob in the fragment shader</span><br><span class="hljs-comment">// For each pixel, we check its distance to the center of the particle, and then calculate a color based on a decay function</span><br>distance = <span class="hljs-built_in">length</span>(frag_pos – particle_pos)<br>decay = <span class="hljs-number">1</span> / distance<br>frag_color = color * brightness * decay <span class="hljs-comment">// Get a bright color with a short distance / Get a dark color with a long distance</span><br><span class="hljs-keyword">return</span> frag_color<br><br><span class="hljs-comment">// We can play with the distance, direction, as well as the decay function to produce different particle shapes</span><br></code></pre></td></tr></table></figure>
-<h3><span id="recap-render-multiple-particles-in-fragment-shader">Recap: Render Multiple Particles in Fragment Shader</span></h3>
+<h3 id="recap-render-multiple-particles-in-fragment-shader">Recap: Render Multiple Particles in Fragment Shader</h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp">- Input: <span class="hljs-comment">/*fragment coordinate*/</span> frag_pos<br>- Output: <span class="hljs-comment">/*fragment color*/</span> frag_color<br>- Algorithm:<br>frag_color = <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>)<br><span class="hljs-comment">// Use a for loop to go over all particles for each pixel</span><br><span class="hljs-keyword">for</span> each particle p:<br>  get its position, brightness, <span class="hljs-keyword">and</span> color <span class="hljs-comment">// We can create functions of time to change each particle’s appearance (e.g., brightness and color) to produce effects like flickering, fading, color transition, etc.</span><br>  <span class="hljs-comment">// The color of the fragment is the sum of contributions from all particles on the screen</span><br>  frag_color += <span class="hljs-built_in">SingleParticleColor</span>(frag_pos, particle_pos, brightness, color)<br><span class="hljs-keyword">return</span> frag_color<br></code></pre></td></tr></table></figure>
-<h3><span id="surface-element-surfel">Surface Element (Surfel)</span></h3>
+<h3 id="surface-element-surfel">Surface Element (Surfel)</h3>
 <ul>
 <li>A surfel is defined as a point in space carrying a list of attributes (position:x, color:c)</li>
 <li>A surfel encapsulates the properties of a small patch of a surface</li>
 <li>Extended attributes include normal, radius, and other shading properties such as transparency</li>
 </ul>
-<h3><span id="using-surfels-to-represent-a-surface">Using Surfels to Represent a Surface</span></h3>
+<h3 id="using-surfels-to-represent-a-surface">Using Surfels to Represent a Surface</h3>
 <ul>
 <li>Each surfel represents as a small patch of the surface</li>
 <li>A certain surface area is associated with each surfel</li>
 <li>Its normal vector represents the normal direction of the surface on the local patch</li>
 <li>How to represent the surface between the points? Surfels need to interpolate the surface between the points</li>
 </ul>
-<h4><span id="surfel-interpolation">Surfel Interpolation</span></h4>
+<h4 id="surfel-interpolation">Surfel Interpolation</h4>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>c</mi><mi>i</mi></msub><mtext> </mtext><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><mrow><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">c(p) = \frac{\sum_i c_i \, w_i(p)}{\sum_i w_i(p)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">c</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.63em;vertical-align:-0.57em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.06em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496em;"><span style="top:-2.1786em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3214em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.0269em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">p</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.535em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mop op-symbol small-op mtight" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1496em;"><span style="top:-2.1786em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3214em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.0269em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">p</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.57em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
 <ul>
 <li>Each surfel carries a kernel function spreading its contribution over neighboring points</li>
 <li>The <em>splat function</em> defines the shape and intensity of this spread, often using a Gaussian kernel (where Gaussian Splatting comes from) or an elliptical kernel to simulate natural energy distribution</li>
 <li>The value of a new point on the surface is interpolated using the kernel function of each neighboring surfel (think of weighted average, here we do normalization so that <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\sum_i w_i(p) = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0497em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>)</li>
 </ul>
-<h2><span id="point-based-rendering-pipeline">Point-based rendering pipeline</span></h2>
-<h3><span id="shading">Shading</span></h3>
+<h2 id="point-based-rendering-pipeline">Point-based rendering pipeline</h2>
+<h3 id="shading">Shading</h3>
 <p>For each surfel, we shade its color using conventional shading models (e.g., phong shading) and then store its color on the surfel.</p>
-<h3><span id="warping-变形">Warping (变形)</span></h3>
+<h3 id="warping-变形">Warping (变形)</h3>
 <p>Warping in the point-based rendering pipeline refers to the transformation of surface colors from object space to image space using a reconstruction technique. It ensures that colors from surfels (surface elements) are accurately transferred to the final pixel representation in screen space.</p>
-<h4><span id="rendering-surfels-on-screen">Rendering Surfels on Screen</span></h4>
+<h4 id="rendering-surfels-on-screen">Rendering Surfels on Screen</h4>
 <ul>
 <li>Considers surfels as discrete samples of a texture function on a surface in 3D <strong>object space</strong>. We can imagine a set of points (with colors, normals, etc.) scattered nonuniformly over an object. Conceptually, these surfels approximate some continuous function (like a texture or color distribution) on the 3D surface.</li>
 <li>When we render an image, we have a uniform grid of pixels in 2D screen space. Each pixel is effectively a sample of the projected surface function. So there’s a change in coordinate system: from 3D object space to 2D screen space. A <em>Gaussian kernel (splat function)</em> is used to recover a continuous signal such that we can sample it in 2D <strong>screen space</strong>.</li>
@@ -444,7 +478,7 @@ their final color and properties.</li>
 <p><img src="obj2screen.png" alt="Object and Screen Mapping"></p>
 <p><img src="warping.png" alt="Warping"></p>
 <p><img src="warping_proc.png" alt="Illustration of Warping Process"></p>
-<h4><span id="point-based-shading-and-warping-algorithm">Point-based Shading and Warping Algorithm</span></h4>
+<h4 id="point-based-shading-and-warping-algorithm">Point-based Shading and Warping Algorithm</h4>
 <ul>
 <li>Stage I: go over all surfels (Happens in the vertex shader)</li>
 </ul>
@@ -453,8 +487,8 @@ their final color and properties.</li>
 <li>Stage II: go over all pixels (Happens in the fragment shader)</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> each pixel:<br>    normalize <span class="hljs-comment"># Normalize the accumulated values to compute final pixel colors.</span><br></code></pre></td></tr></table></figure>
-<h3><span id="visibility">Visibility</span></h3>
-<h4><span id="visibility-test">Visibility test</span></h4>
+<h3 id="visibility">Visibility</h3>
+<h4 id="visibility-test">Visibility test</h4>
 <p>The visibility test ensures that only visible surface elements (surfels) contribute to the final pixel color.</p>
 <p><img src="visibility_test.png" alt="Discard occluded splats"></p>
 <ul>
@@ -464,7 +498,7 @@ their final color and properties.</li>
 </ul>
 <p>See the psudocode of depth test.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// for each pixel (x,y)</span><br><span class="hljs-built_in">DepthTest</span>(x,y) &#123;<br>  <span class="hljs-comment">// splat z - The depth value of the surfel.</span><br>  <span class="hljs-comment">// z(x,y) - Stores the depth value of the closest splat already written to the pixel (x,y) in the Z-buffer.</span><br>  <span class="hljs-comment">// The Z-buffer keeps track of the depth of the closest visible surface to ensure correct occlusion.</span><br>  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">abs</span>(splat z - <span class="hljs-built_in">z</span>(x,y)) &lt; threshold) &#123;<br>    <span class="hljs-comment">// Accumulate the splat&#x27;s color if it is within a small depth threshold (i.e., close to current z).</span><br>    <span class="hljs-built_in">c</span>(x,y) = <span class="hljs-built_in">c</span>(x,y) + splat color<br>    <span class="hljs-built_in">w</span>(x,y) = <span class="hljs-built_in">w</span>(x,y) + splat <span class="hljs-built_in">w</span>(x,y)<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (splat z &lt; <span class="hljs-built_in">z</span>(x,y)) &#123;<br>    <span class="hljs-comment">// Replace the current depth if the new splat is closer to the camera.</span><br>    <span class="hljs-built_in">z</span>(x,y) = splat z<br>    <span class="hljs-built_in">c</span>(x,y) = splat color<br>    <span class="hljs-built_in">w</span>(x,y) = splat <span class="hljs-built_in">w</span>(x,y) <span class="hljs-comment">// The weight determining the influence of the splat in blending.</span><br>  &#125;<br>  <span class="hljs-comment">// Discard the splat if it is behind an existing surfel.</span><br>&#125;<br></code></pre></td></tr></table></figure>
-<h4><span id="alpha-blending">Alpha blending</span></h4>
+<h4 id="alpha-blending">Alpha blending</h4>
 <p><img src="alpha_blending.png" alt="alpha blending"></p>
 <ol>
 <li>Additive Blending (Left)</li>
@@ -478,8 +512,8 @@ their final color and properties.</li>
 <ul>
 <li>Models light absorption through a volume, similar to NeRF (Neural Radiance Fields).</li>
 </ul>
-<h3><span id="filtering">Filtering</span></h3>
-<p>Filtering in the point-based rendering pipeline is applied after surfels are warped to screen space to smooth accumulated colors before final sampling. This step ensures high-quality reconstruction by reducing aliasing and preserving details. After the surfels are warped to screen, we will perform a low-pass filter onto the accumulated colors and sample on the output grid.</p>
+<h3 id="filtering">Filtering</h3>
+<p>Filtering in the point-based rendering pipeline is applied after surfels are warped to screen space to smooth accumulated colors before final sampling. This step ensures high-quality reconstruction by avoiding holes, reducing aliasing and preserving details. After the surfels are warped to screen, we will perform a low-pass filter onto the accumulated colors and sample on the output grid.</p>
 <p><img src="filtering.png" alt="filtering"></p>
 <p>In the figure above,</p>
 <ul>
@@ -491,6 +525,23 @@ their final color and properties.</li>
 </ul>
 </li>
 <li>Sampling (Step 4): The final colors are resampled onto the pixel grid for output.</li>
+</ul>
+<h2 id="ps-the-meaning-of-splat-in-the-context-of-gaussian-splatting">PS: the meaning of “splat” in the context of Gaussian Splatting</h2>
+<p>As a verb, it refers to the process of projecting and blending a Gaussian-shaped surfel (a small surface element) onto the image plane. As a noun, it refers to the projected contribution of a 3D Gaussian (or surfel) onto the 2D image plane during rendering.</p>
+<ul>
+<li>3D Gaussians Representation
+<ul>
+<li>Each surfel (point in 3D space) is represented as an anisotropic (direction-dependent) or isotropic (uniform) Gaussian blob.</li>
+<li>These Gaussians have a position, scale, orientation, color, and opacity.</li>
+</ul>
+</li>
+<li>Splatting Process (Projection &amp; Blending)
+<ul>
+<li>Each Gaussian is projected onto the 2D screen.</li>
+<li>Instead of a single pixel, it contributes to multiple pixels based on its Gaussian distribution.</li>
+<li>This creates a smooth and continuous blending effect.</li>
+</ul>
+</li>
 </ul>
 
                 
@@ -591,6 +642,12 @@ their final color and properties.</li>
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/02/25/CS8803-CGA-L12/" title="CS 8803 CGA - Differentiable Rasterization">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CS 8803 CGA - Differentiable Rasterization</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
@@ -642,9 +699,6 @@ their final color and properties.</li>
 
   
 
-
-
-  
 
 
 
@@ -797,44 +851,6 @@ their final color and properties.</li>
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

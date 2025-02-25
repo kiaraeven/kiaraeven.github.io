@@ -88,7 +88,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -293,7 +293,7 @@
               <div class="markdown-body">
                 
                 <p>credit for Prof. Bo Zhu’s CS 8803 CGA</p>
-<h2><span id="intro">Intro</span></h2>
+<h2 id="intro">Intro</h2>
 <p>Some shapes are not easy to be represented by triangle meshes.</p>
 <ul>
 <li>Fractals: A fractal shape takes a mathematical expression or recursive program as its<br>
@@ -302,9 +302,9 @@ representation, which will be prohibitively expensive to convert to a mesh.</li>
 <li>Procedural Terrain</li>
 </ul>
 <p>Interesting: <a target="_blank" rel="noopener" href="https://iquilezles.org/">https://iquilezles.org/</a></p>
-<h2><span id="signed-distance-function-sdf">Signed Distance Function (SDF)</span></h2>
-<h3><span id="1d-distance-function">1D Distance Function</span></h3>
-<h4><span id="distance-and-signed-distance">Distance and Signed Distance</span></h4>
+<h2 id="signed-distance-function-sdf">Signed Distance Function (SDF)</h2>
+<h3 id="1d-distance-function">1D Distance Function</h3>
+<h4 id="distance-and-signed-distance">Distance and Signed Distance</h4>
 <p>Distance</p>
 <ul>
 <li>A scalar value measuring how far apart two points are</li>
@@ -315,14 +315,14 @@ representation, which will be prohibitively expensive to convert to a mesh.</li>
 <li>Use a ‘-’ or ‘+’ sign in front of the distance to indicate if the point is inside or outside of the interface defined by a given point in a 1D axis.</li>
 <li>For 1D case, we assume a point is inside (‘-’) if it is on the left of the given point and outside (‘+’) if it is on the right of the given point (just our assumption!).</li>
 </ul>
-<h4><span id="sdf-for-a-point">SDF for a point</span></h4>
+<h4 id="sdf-for-a-point">SDF for a point</h4>
 <ul>
 <li>UDF Example: d(x) = |x-1|, d(x) is called distance function; it is also called unsigned distance function (UDF) to distinguish from the signed distance function.</li>
 <li>SDF Example: Similarly, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>x</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\phi(x) = x-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></li>
 </ul>
 <p><strong>Derivatives of SDF</strong>:<br>
 Think of the visuals SDF to any point x on a 1d axis, it seems that we are just translating the function shape on x-axis according to x, and the function shape never changes. That is to say, the derivatives of the 1d SDFs are the same - always 1.</p>
-<h4><span id="sdf-for-a-segment">SDF for a segment</span></h4>
+<h4 id="sdf-for-a-segment">SDF for a segment</h4>
 <p>Assume we have a segment ‘ab’ with its two endpoints a and b.</p>
 <ul>
 <li>If the point is inside the segment, the sign is negative; if the point is outside<br>
@@ -331,31 +331,31 @@ the segment, the sign is positive.</li>
 <img src="SDF_1D_SEG.png" alt="1d segment SDF"><br>
 <img src="SDF_1D_2SEG.png" alt="1d segment SDF"></li>
 </ul>
-<h4><span id="summary-of-1d-sdf">Summary of 1D SDF</span></h4>
+<h4 id="summary-of-1d-sdf">Summary of 1D SDF</h4>
 <ul>
 <li>The sign (-/+) indicates if the given point is inside/outside the given object</li>
 <li>‘-’ always indicates inside; ‘+’ always indicates outside</li>
 <li>The magnitude of SDF indicates the closest distance from the point to the boundary of the object</li>
 </ul>
 <p>These properties also apply to higher dimensions.</p>
-<h3><span id="2d-distance-function">2D Distance Function</span></h3>
-<h4><span id="goal">Goal</span></h4>
+<h3 id="2d-distance-function">2D Distance Function</h3>
+<h4 id="goal">Goal</h4>
 <ul>
 <li>A function to determine whether a given point is inside, outside, or on the boundary of an object</li>
 <li>A function to provide the closest distance from the point to the circle.</li>
 </ul>
-<h4><span id="definition">Definition</span></h4>
+<h4 id="definition">Definition</h4>
 <ul>
 <li>The closest distance from a point to the boundary of the object is the shortest distance between the point and any location on the object’s boundary.</li>
 <li>Mathematically, this distance is measured along a straight line that is perpendicular to the boundary at the point where it touches.</li>
 <li>The magnitude of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> defines the closest distance from p to the boundary of the object; the sign of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> indicates if p is outside (+) or inside (-) the object. p is on the circle iff <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> = 0</li>
 </ul>
-<h4><span id="examples">Examples</span></h4>
-<h5><span id="sdf-for-circles">SDF for circles</span></h5>
+<h4 id="examples">Examples</h4>
+<h5 id="sdf-for-circles">SDF for circles</h5>
 <p><img src="SDF_Circle.png" alt="SDF for circles"><br>
 Visualize SDF for circles with isocontours.<br>
 <img src="SDF_Circle1.png" alt="SDF for circles"></p>
-<h4><span id="sdf-derivatives">SDF Derivatives</span></h4>
+<h4 id="sdf-derivatives">SDF Derivatives</h4>
 <p>See the figure below calculation the gradient of 2D SDF gradient. It turns out that <strong>SDF have a gradient of length one everywhere</strong>.<br>
 <img src="SDF_Grad.png" alt="Gradient of SDF"></p>
 <p>PS:<br>
@@ -384,11 +384,11 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <img src="SDF_Grad1.png" alt="Gradient of SDF"><br>
 For an arbitrary point x in the 2D domain, the magnitude of its gradient always satisfies: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∇</mi><mi>ϕ</mi><mi mathvariant="normal">∣</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\nabla \phi| = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣∇</span><span class="mord mathnormal">ϕ</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>. In other words, the gradient vector at any point is always a unit vector pointing in the direction where<br>
 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span></span></span></span> increases the most. This conclusion is very important and <strong>can be generalized to an arbitrary shape</strong>!</p>
-<h4><span id="relation-between-gradient-and-closest-point">Relation between Gradient and Closest Point</span></h4>
+<h4 id="relation-between-gradient-and-closest-point">Relation between Gradient and Closest Point</h4>
 <p>For a given point p, we can get its closest point to the surface based on its SDF value and SDF gradient. We can simply move along the gradient direction by the SDF value to get the closest point. See the figure below, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span></span></span></span> determines the distance value, while the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∇</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\nabla \phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">∇</span><span class="mord mathnormal">ϕ</span></span></span></span> (a vector) determines the direction.<br>
 <img src="SDF_Grad_rel.png" alt="Relation between gradient and closest point"></p>
 <p>See <a target="_blank" rel="noopener" href="https://www.shadertoy.com/view/3ltSW2">https://www.shadertoy.com/view/3ltSW2</a> for circle SDF in shadertoy.</p>
-<h4><span id="general-calculation-for-simple-shapes">General Calculation for Simple Shapes</span></h4>
+<h4 id="general-calculation-for-simple-shapes">General Calculation for Simple Shapes</h4>
 <p>The idea can be</p>
 <ul>
 <li>check which region the querying point falls into</li>
@@ -398,14 +398,14 @@ For an arbitrary point x in the 2D domain, the magnitude of its gradient always 
 <img src="SDF_calc3.png" alt="Segment SDF Calculation"><br>
 Note that there is no ‘-’ region for a segment because it doesn’t have an ‘interior’ in 2D.</li>
 </ul>
-<h4><span id="summary-of-2d-sdf">Summary of 2D SDF</span></h4>
+<h4 id="summary-of-2d-sdf">Summary of 2D SDF</h4>
 <ul>
 <li>SDF represents a signed distance from a given point p to a given shape’s surface</li>
 <li>Plot a 2D SDF with isocontours, height fields, or color fields</li>
 <li>For a simple primitive, such as a segment, triangle, or rectangle, we can calculate its SDF values by dividing the shape into regions and computing the value according to which region the query point falls into</li>
 <li>Calculating SDF for an arbitrary 2D shape relies on more advanced algorithms such as fast marching and neural networks</li>
 </ul>
-<h3><span id="3d-distance-function">3D Distance Function</span></h3>
+<h3 id="3d-distance-function">3D Distance Function</h3>
 <ul>
 <li>The 3D extension of the 2D SDFs, by extending from the previous x and y axes in 2D to the x, y, and z axes in 3D.</li>
 <li>The idea of constructing the 3D primitives such as sphere, box, and segment remain the same as 2D, in which we divide the domain into multiple regions and calculate the SDF according to which region the querying point falls into.</li>
@@ -568,9 +568,6 @@ Note that there is no ‘-’ region for a segment because it doesn’t have an 
 
 
 
-  
-
-
 
   
 
@@ -721,44 +718,6 @@ Note that there is no ‘-’ region for a segment because it doesn’t have an 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

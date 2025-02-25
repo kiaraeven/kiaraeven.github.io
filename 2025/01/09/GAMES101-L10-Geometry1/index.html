@@ -94,7 +94,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -298,7 +298,7 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="implicit-representation-of-geometry">Implicit representation of geometry</span></h1>
+                <h1 id="implicit-representation-of-geometry">Implicit representation of geometry</h1>
 <p>Based on classifying points. Describe geometry with relationships or conditions without providing the exact set of points.<br>
 Points satisfy some specified relationship.<br>
 E.g. sphere: all points in 3D, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup><mo>+</mo><msup><mi>z</mi><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^2 + y^2 + z^2 = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0085em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span><br>
@@ -307,7 +307,7 @@ More generally, f(x,y,z) = 0</p>
 <li>Sampling can be hard</li>
 <li>Inside / outside can be easy</li>
 </ul>
-<h2><span id="more-implicit-representations">More implicit representations</span></h2>
+<h2 id="more-implicit-representations">More implicit representations</h2>
 <ol>
 <li>Algebraic Surfaces<br>
 Surface is zero set of a polynomial in x, y, z.</li>
@@ -326,7 +326,7 @@ Instead of Booleans, gradually blend surfaces together using distance functions 
 </ul>
 </li>
 </ol>
-<h2><span id="pros">Pros:</span></h2>
+<h2 id="pros">Pros:</h2>
 <ul>
 <li>compact description (e.g., a function) saves memory</li>
 <li>certain queries easy (inside object, distance to surface)</li>
@@ -334,13 +334,13 @@ Instead of Booleans, gradually blend surfaces together using distance functions 
 <li>for simple shapes, exact description / no sampling error</li>
 <li>easy to handle changes in topology (e.g., fluid)</li>
 </ul>
-<h1><span id="explicit-representation-of-geometry">Explicit representation of geometry</span></h1>
+<h1 id="explicit-representation-of-geometry">Explicit representation of geometry</h1>
 <p>All points are given directly or via parameter mapping (generally, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>:</mo><msup><mi>R</mi><mn>2</mn></msup><mo>→</mo><msup><mi>R</mi><mn>3</mn></msup><mo separator="true">;</mo><mo stretchy="false">(</mo><mi>u</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo><mo>→</mo><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo separator="true">,</mo><mi>z</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f : R^2 → R^3; (u, v)→(x, y, z)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal">u</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mclose">)</span></span></span></span>)</p>
 <ul>
 <li>Sampling is easy (just plug in (u, v) to get the point (x, y, z))</li>
 <li>Inside / outside can be hard</li>
 </ul>
-<h2><span id="more-explicit-representations">More explicit representations</span></h2>
+<h2 id="more-explicit-representations">More explicit representations</h2>
 <ol>
 <li>Polygon meshes
 <ul>
@@ -369,9 +369,9 @@ Instead of Booleans, gradually blend surfaces together using distance functions 
 </ul>
 </li>
 </ol>
-<h2><span id="bezier-curves">Bezier Curves</span></h2>
+<h2 id="bezier-curves">Bezier Curves</h2>
 <p>The curve must start at (pass) p0 and end at (pass) p3. The tangent line at p0 passes p1 (the first control point) and the tagent line at p3 passes p2 (the second control point).</p>
-<h3><span id="de-casteljau-algorithm">de Casteljau Algorithm</span></h3>
+<h3 id="de-casteljau-algorithm">de Casteljau Algorithm</h3>
 <p>Consider given three points to draw a quadratic Bezier (二次贝塞尔). The key is to determine the point the curve passes at each moment t in [0, 1] to form the curve.</p>
 <p>First, insert two points in each edge using linear interpolation.<br>
 <img src="bz1.png" alt="bz" title="1"><br>
@@ -381,7 +381,7 @@ Run the same algorithm for every t in [0, 1].<br>
 <img src="bz3.png" alt="bz" title="3"></p>
 <p>Similarly, given four points to draw a Bezier curve. Each time we decrease the number of edges and points we considered, until there’s only two points and one edge on which we can determine a point at t.<br>
 <img src="bz4.png" alt="bz" title="4"></p>
-<h3><span id="algebraic-formula">Algebraic Formula</span></h3>
+<h3 id="algebraic-formula">Algebraic Formula</h3>
 <p>Note: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><mo stretchy="false">(</mo><msub><mi>b</mi><mn>1</mn></msub><mo>−</mo><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mo>&gt;</mo><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><msub><mi>b</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">b_0(t) = b_0 + t(b_1-b_0) =&gt; b_0(t) = (1-t)b_0 + tb_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord mathnormal">t</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><br>
 <img src="bz_alge1.png" alt="ba-a" title="eg"><br>
 In general, it’s like binomial distribution. This equation also works for 3d points.<br>
@@ -395,7 +395,7 @@ P(X=k): Probability of k successes in n trials.<br>
 p: Probability of success.<br>
 1−p: Probability of failure.</p>
 <p><img src="bz_alge3.png" alt="ba-a" title="Bernstein Polynomials"></p>
-<h3><span id="properties">Properties</span></h3>
+<h3 id="properties">Properties</h3>
 <ul>
 <li>Interpolates endpoints
 <ul>
@@ -419,14 +419,14 @@ p: Probability of success.<br>
 </ul>
 </li>
 </ul>
-<h3><span id="piecewise-bezier-curves">Piecewise Bezier Curves</span></h3>
+<h3 id="piecewise-bezier-curves">Piecewise Bezier Curves</h3>
 <p>Instead use multiple points to create high-order Bezier curves directly, we chain many low-order Bezier curves. Piecewise cubic Bezier (given four points) curves is most common.</p>
 <p>PS: C0 and C1 continuity.<br>
 PPS: To review splines, see CS7496 Computer Animation GT.</p>
-<h2><span id="bezier-surface">Bezier Surface</span></h2>
+<h2 id="bezier-surface">Bezier Surface</h2>
 <p><img src="bsurf.png" alt="bs" title="Bezier surface"></p>
 <p><img src="bsurf1.png" alt="bs" title="Bezier surface"></p>
-<h2><span id="mesh-operations">Mesh Operations</span></h2>
+<h2 id="mesh-operations">Mesh Operations</h2>
 <ol>
 <li>Mesh subdivision (upsampling)
 <ul>
@@ -445,13 +445,13 @@ PPS: To review splines, see CS7496 Computer Animation GT.</p>
 </ul>
 </li>
 </ol>
-<h3><span id="subdivision">Subdivision</span></h3>
+<h3 id="subdivision">Subdivision</h3>
 <p>Common subdivision rule for triangle meshes.</p>
 <ul>
 <li>First, create more triangles (vertices)</li>
 <li>Second, tune their positions</li>
 </ul>
-<h4><span id="loop-subdivision-loop-is-the-name-of-the-author">Loop subdivision (Loop is the name of the author)</span></h4>
+<h4 id="loop-subdivision-loop-is-the-name-of-the-author">Loop subdivision (Loop is the name of the author)</h4>
 <p>It is based on the idea of recursively refining the mesh by splitting each triangle into smaller triangles and adjusting the positions of the vertices to produce a smoother surface.</p>
 <p><strong>Steps in Loop Subdivision:</strong></p>
 <ol>
@@ -467,15 +467,15 @@ Existing vertices are repositioned to improve smoothness. Their new positions ar
 New (Child) Vertices:<br>
 The new vertices added at the edge midpoints are also repositioned. Their positions are computed as a weighted average of the two endpoints of the edge and the neighboring vertices of those endpoints.</li>
 </ol>
-<h4><span id="catmull-clark-subdivision">Catmull-Clark subdivision</span></h4>
+<h4 id="catmull-clark-subdivision">Catmull-Clark subdivision</h4>
 <p>This is for <strong>general meshes</strong> - what if the meshes are not triangles?<br>
 <img src="catmull_clark.png" alt="catmull_clark" title="catmull_clark"></p>
 <p>Assume that we have n non-quad faces (非四边形面) and m extrodinary points. See the figure below, after the first division, there are m+n extrodinary points and 0 non-quad faces. This is to say, the first catmull-clark subdivision clear all non-quad faces and increase extrodinary points accordingly. Then in the folloing subdivisions, the number of non-quad faces won’t increase.<br>
 <img src="catmull_clark1.png" alt="catmull_clark" title="catmull_clark first subdivision"></p>
 <p>Catmull-Clark update rule.<br>
 <img src="catmull_clark2.png" alt="catmull_clark" title="catmull_clark update rule"></p>
-<h3><span id="simplification">Simplification</span></h3>
-<h4><span id="edge-collapse-边坍缩">edge collapse （边坍缩）</span></h4>
+<h3 id="simplification">Simplification</h3>
+<h4 id="edge-collapse-边坍缩">edge collapse （边坍缩）</h4>
 <p>Key idea:<br>
 Find the optimal position of the new vertex so that the the quadric error is minimized.<br>
 <img src="edge_collapse.png" alt="edge collapse" title="edge collapse"></p>
@@ -487,15 +487,15 @@ Which edges? Assign score with quadric error metric*</p>
 <li>greedy algorithm… great results!<br>
 (Garland &amp; Heckbert 1997)</li>
 </ul>
-<h1><span id="shadow-mapping">Shadow Mapping</span></h1>
-<h2><span id="basics">Basics</span></h2>
+<h1 id="shadow-mapping">Shadow Mapping</h1>
+<h2 id="basics">Basics</h2>
 <ul>
 <li>An lmage-space Algorithm</li>
 <li>No knowledge of scene’s geometry during shadowcomputation</li>
 <li>Must deal with aliasing artifacts</li>
 <li>Key idea: the points NOT in shadow must be seen bothby the light and by the camera</li>
 </ul>
-<h2><span id="steps">Steps</span></h2>
+<h2 id="steps">Steps</h2>
 <ol>
 <li>Render from light source</li>
 </ol>
@@ -516,7 +516,7 @@ Which edges? Assign score with quadric error metric*</p>
 <li>After reprojected, if the corresponding depths in the depth image recorded at the light source is the same as the depth recorded at eye, the point is visible.</li>
 <li>After reprojected, depths from light and eye are not the same. This point is blocked.</li>
 </ul>
-<h2><span id="problems-with-shadow-maps">Problems with shadow maps</span></h2>
+<h2 id="problems-with-shadow-maps">Problems with shadow maps</h2>
 <ul>
 <li>Hard shadows (point lights only)<br>
 <img src="softshadow.png" alt="hsshadow" title="hard shadow vs. soft shadow"><br>
@@ -689,9 +689,6 @@ As shown in the figurer, only when the light source has volumn can we get soft s
 
 
 
-  
-
-
 
   
 
@@ -842,44 +839,6 @@ As shown in the figurer, only when the light source has volumn can we get soft s
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

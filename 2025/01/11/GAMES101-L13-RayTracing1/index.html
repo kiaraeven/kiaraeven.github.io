@@ -89,7 +89,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -293,7 +293,7 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="why-ray-tracing">Why Ray Tracing</span></h1>
+                <h1 id="why-ray-tracing">Why Ray Tracing</h1>
 <p>Rasterization couldn’t handle global effects well</p>
 <ul>
 <li>(Soft) shadows</li>
@@ -306,23 +306,23 @@
 </ul>
 </li>
 </ul>
-<h1><span id="light-ray">Light Ray</span></h1>
+<h1 id="light-ray">Light Ray</h1>
 <ol>
 <li>Light travels in straight lines (though this is wrong)</li>
 <li>Light rays do not “collide” with each other if they cross(though this is still wrong)</li>
 <li>Light rays travel from the light sources to the eye (but the physics is invariant under path reversal -reciprocity).</li>
 </ol>
-<h1><span id="ray-casting">Ray Casting</span></h1>
+<h1 id="ray-casting">Ray Casting</h1>
 <ol>
 <li>Generate an image by casting one ray per pixel</li>
 <li>Check for shadows by sending a ray to the light<br>
 In the figure below, first generate eye ray, and then shading pixels.<br>
 <img src="pinhole.png" alt="pinhole" title="pinhole model"></li>
 </ol>
-<h2><span id="recursive-ray-tracing">Recursive Ray Tracing</span></h2>
+<h2 id="recursive-ray-tracing">Recursive Ray Tracing</h2>
 <p>Adding up each ray’s shading result in the corresponding pixel (assume perfect reflection).<br>
 <img src="recursive_raytracing.png" alt="recursive ray tracing" title="recursive ray tracing"></p>
-<h2><span id="ray-surface-intersection">Ray-Surface Intersection</span></h2>
+<h2 id="ray-surface-intersection">Ray-Surface Intersection</h2>
 <p><img src="RayEquation.png" alt="ray equation" title="ray equation"><br>
 The objective is to calculate the t when the ray reach the surface.<br>
 <img src="ray_inter_sphere.png" alt="ray intersect sphere" title="ray intersect sphere"><br>
@@ -344,12 +344,12 @@ PS: Ray method to check if a point is inside/outside a close shape/object (works
 And so we can calculate the ray’s intersection with plane, and then check if the intersection is within the triangle.</p>
 <p>We also have a faster method to compute the ray’s intersection with a triangle directly, which is called the Möller Trumbore Algorithm. Here we use barycentric coordinate to represent the point in the plane. As long as all barycentric coordinates are positive, we assure that the point is inside the triangle.<br>
 <img src="MT_Algo.png" alt="MT" title="MT"></p>
-<h2><span id="performance-challenge">Performance Challenge</span></h2>
+<h2 id="performance-challenge">Performance Challenge</h2>
 <p>Simple ray-scene intersection exhaustively tests ray-intersection with every object to find the closest hit (with minimum t), which can be very slow.<br>
 Naive algorithm = #pixels x #objects (x #bounces)</p>
-<h2><span id="accelerate-ray-tracing">Accelerate Ray Tracing</span></h2>
+<h2 id="accelerate-ray-tracing">Accelerate Ray Tracing</h2>
 <p>What if we have a complex scene with a lot of triangles? Accelerating ray tracing is important.</p>
-<h3><span id="bounding-volume">Bounding Volume</span></h3>
+<h3 id="bounding-volume">Bounding Volume</h3>
 <ul>
 <li>Quick way to avoid intersections: bound complex objectwith a simple volume</li>
 <li>Object is fully contained in the volumelf it doesn’t hit the volume, it doesn’t hit the object</li>
@@ -362,7 +362,7 @@ i.e. any side of the BB is along either x, y, or zaxis</p>
 <p><strong>Why use AABB?</strong><br>
 In this case we avoid dot product with the normal vector of the plane (we can find an axis perpendicular to the plane directly), so that improve computation efficiency.<br>
 <img src="aabb.png" alt="AABB" title="why aabb"></p>
-<h3><span id="ray-intersection-with-aabb">Ray Intersection with AABB</span></h3>
+<h3 id="ray-intersection-with-aabb">Ray Intersection with AABB</h3>
 <p><img src="ray_intersect_aabb.png" alt="Ray Intersection with AABB" title="Ray Intersection with AABB"></p>
 <p>Recall: a box (3D)= three pairs of infinitely large slabs<br>
 Key ideas</p>
@@ -382,8 +382,8 @@ If t_exit &gt;= 0 and t_enter &lt; 0?</li>
 </ul>
 <p>In summary, ray and AABB intersect iff (当且仅当)<br>
 t_enter &lt; t_exit &amp;&amp; texit &gt;= 0</p>
-<h3><span id="uniform-spatial-partitions-grids">Uniform Spatial Partitions (Grids)</span></h3>
-<h4><span id="steps">Steps</span></h4>
+<h3 id="uniform-spatial-partitions-grids">Uniform Spatial Partitions (Grids)</h3>
+<h4 id="steps">Steps</h4>
 <ol>
 <li>Preprocess - build acceleration grids</li>
 </ol>
@@ -397,25 +397,25 @@ t_enter &lt; t_exit &amp;&amp; texit &gt;= 0</p>
 Step through grid in ray traversal order. Not traversing all grids one by one, instead we can traverse the grid like the method we use to draw a line.<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">For each grid cell<br>    Test intersection <span class="hljs-keyword">with</span> <span class="hljs-built_in">all</span> objects stored at that cell <span class="hljs-comment"># if the cell doesn&#x27;t objects, skip it</span><br></code></pre></td></tr></table></figure>
 </li>
 </ol>
-<h4><span id="effect">Effect</span></h4>
+<h4 id="effect">Effect</h4>
 <p>Grid Resolution?</p>
 <ul>
 <li>One grid: No speedup.</li>
 <li>Too many cells: Inefficiency due to extraneous grid traversal.</li>
 <li>Heuristic results: <span class="katex-error" title="ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲cells = Constan…">#cells = Constant * #objs</span>, C is aproximately equivalent to 27 in 3D</li>
 </ul>
-<h4><span id="reflection">Reflection</span></h4>
+<h4 id="reflection">Reflection</h4>
 <p>When unifor grids succeed?<br>
 Grids work well on large collections of objects that are distributed evenly in size and space.<br>
 Otherwise (“Teapot in a stadium” problem), grids fail.</p>
-<h3><span id="spatial-partitions">Spatial Partitions</span></h3>
-<h4><span id="examples">Examples</span></h4>
+<h3 id="spatial-partitions">Spatial Partitions</h3>
+<h4 id="examples">Examples</h4>
 <ul>
 <li>Oct-Tree 八叉树</li>
 <li>KT-Tree</li>
 <li>BSP-Tree</li>
 </ul>
-<h4><span id="kd-tree">KD-Tree</span></h4>
+<h4 id="kd-tree">KD-Tree</h4>
 <p>Given a complex scene, we construct a KD-Tree first then perform ray intersection.</p>
 <p><strong>Data Structure</strong></p>
 <p><img src="KTTree.png" alt="KT" title="KT"></p>
@@ -440,9 +440,9 @@ Otherwise (“Teapot in a stadium” problem), grids fail.</p>
 <li>Given a bbox, it’s hard to check if a triangle intersects with the bbox.</li>
 <li>Redundant storage of objects in multiple leaf nodes if an object overlaps several cells.</li>
 </ul>
-<h3><span id="object-partitions-amp-bounding-volume-hierarchy-bvh">Object Partitions &amp; Bounding Volume Hierarchy (BVH)</span></h3>
+<h3 id="object-partitions-amp-bounding-volume-hierarchy-bvh">Object Partitions &amp; Bounding Volume Hierarchy (BVH)</h3>
 <p>To solve the problems in KT-Tree, we use BVH.</p>
-<h4><span id="building-bvh">Building BVH</span></h4>
+<h4 id="building-bvh">Building BVH</h4>
 <ul>
 <li>Find bounding box</li>
 <li>Recursively split set of objects in two subsets</li>
@@ -451,7 +451,7 @@ Otherwise (“Teapot in a stadium” problem), grids fail.</p>
 <li>Store objects in each leafnode<br>
 <img src="BVH.png" alt="BVH" title="BVH"></li>
 </ul>
-<h4><span id="building-bvh-strategies">Building BVH - Strategies</span></h4>
+<h4 id="building-bvh-strategies">Building BVH - Strategies</h4>
 <ul>
 <li>
 <p>How to subdivide a node?</p>
@@ -496,7 +496,7 @@ Heuristic #2: Split node at location of median object (given n elements we can f
 <ul>
 <li>If the array has only one element, return it as the result.</li>
 </ul>
-<h4><span id="data-structure">Data Structure</span></h4>
+<h4 id="data-structure">Data Structure</h4>
 <p>Internal nodes store:</p>
 <ul>
 <li>Bounding box</li>
@@ -511,9 +511,9 @@ Heuristic #2: Split node at location of median object (given n elements we can f
 <ul>
 <li>All objects in subtree</li>
 </ul>
-<h4><span id="pseudo-code">Pseudo Code</span></h4>
+<h4 id="pseudo-code">Pseudo Code</h4>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">Intersect</span>(Ray ray，BVH node)&#123;<br>  <span class="hljs-keyword">if</span>(ray misses node.bbox)<br>    <span class="hljs-keyword">return</span>;<br>  <span class="hljs-keyword">if</span>(node is a leaf node)&#123;<br>    test intersection with all objs;<br>    <span class="hljs-keyword">return</span> closest intersection;<br>  &#125;<br>  hit1 = <span class="hljs-built_in">Intersect</span>(ray,node.child1);<br>  hit2 = <span class="hljs-built_in">Intersect</span>(ray,node.child2);<br>  <span class="hljs-keyword">return</span> the closer of hitl,hit2;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h4><span id="strengths">Strengths</span></h4>
+<h4 id="strengths">Strengths</h4>
 <ol>
 <li>It assures that each triangle will only be stored in one bbox.</li>
 <li>BBoxes are computed based on triangles, so triangles are completely contained within the bboxes. That is to say, there’s no need to concern calculate intersections between triangles and bboxes.</li>
@@ -521,7 +521,7 @@ Heuristic #2: Split node at location of median object (given n elements we can f
 <!-- 3. KD-Trees are static structures, meaning that rebuilding or updating them for dynamic scenes (scenes with moving objects) is computationally expensive. In modern ray tracing applications like real-time rendering in games, dynamic or animated scenes are common. Alternatives like Bounding Volume Hierarchies (BVH) are more flexible and efficient because they allow incremental updates and refitting without rebuilding the entire structure.
 3. KD-Trees do not handle coherent rays (like those generated by primary rays or shadow rays in ray tracing) as efficiently as BVH. This is because KD-Trees subdivide space rigidly, which can result in more traversal steps for coherent rays. BVH, with its bounding volumes, can encapsulate large regions of space, allowing coherent rays to skip traversal of unnecessary regions more effectively. -->
 <p>BVH is now the de-facto standard in ray tracing because it is more flexible and efficient for ray traversal, especially for scenes with complex geometries or animations.</p>
-<h4><span id="spatial-vs-object-partition">Spatial vs. Object Partition</span></h4>
+<h4 id="spatial-vs-object-partition">Spatial vs. Object Partition</h4>
 <p><strong>Spatial partition</strong> (e.g.KD-tree)</p>
 <ul>
 <li>Partition space into non-overlapping regions</li>
@@ -697,9 +697,6 @@ Heuristic #2: Split node at location of median object (given n elements we can f
 
 
 
-  
-
-
 
   
 
@@ -850,44 +847,6 @@ Heuristic #2: Split node at location of median object (given n elements we can f
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

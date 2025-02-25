@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -282,13 +282,13 @@
                 
                 <p>This workflow is common when we’re working with someone else’s repository and want to make our own changes while staying updated with their changes.</p>
 <hr>
-<h3><span id="steps">Steps</span></h3>
-<h4><span id="1-clone-the-other-persons-repository">1. <strong>Clone the Other Person’s Repository</strong></span></h4>
+<h3 id="steps">Steps</h3>
+<h4 id="1-clone-the-other-persons-repository">1. <strong>Clone the Other Person’s Repository</strong></h4>
 <p>Clone the repository you want to work on:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/otheruser/otherrepo.git<br><span class="hljs-built_in">cd</span> otherrepo<br></code></pre></td></tr></table></figure>
 <p>By default, the <code>origin</code> remote will point to <code>https://github.com/otheruser/otherrepo.git</code>.</p>
 <hr>
-<h4><span id="2-add-a-new-remote-for-your-own-repository">2. <strong>Add a New Remote for Your Own Repository</strong></span></h4>
+<h4 id="2-add-a-new-remote-for-your-own-repository">2. <strong>Add a New Remote for Your Own Repository</strong></h4>
 <p>Create a new repository in your Git hosting service (e.g., GitHub, GitLab, etc.). Copy its URL and add it as a new remote:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git remote add myrepo https://github.com/yourusername/yourrepo.git<br></code></pre></td></tr></table></figure>
 <p>Now you have two remotes:</p>
@@ -299,18 +299,18 @@
 <p>Check your remotes to confirm:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git remote -v<br></code></pre></td></tr></table></figure>
 <hr>
-<h4><span id="3-pull-the-latest-changes-from-the-original-repository">3. <strong>Pull the Latest Changes from the Original Repository</strong></span></h4>
+<h4 id="3-pull-the-latest-changes-from-the-original-repository">3. <strong>Pull the Latest Changes from the Original Repository</strong></h4>
 <p>To stay updated with the other person’s repository:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git pull origin main  <span class="hljs-comment"># Replace &#x27;main&#x27; with the appropriate branch name</span><br></code></pre></td></tr></table></figure>
 <p>If there are merge conflicts, resolve them before proceeding.</p>
 <hr>
-<h4><span id="4-push-your-changes-to-your-own-repository">4. <strong>Push Your Changes to Your Own Repository</strong></span></h4>
+<h4 id="4-push-your-changes-to-your-own-repository">4. <strong>Push Your Changes to Your Own Repository</strong></h4>
 <p>After making your changes locally, commit them:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">git add .<br>git commit -m <span class="hljs-string">&quot;My changes&quot;</span><br></code></pre></td></tr></table></figure>
 <p>Then push the changes to your own repository:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git push myrepo main  <span class="hljs-comment"># Replace &#x27;main&#x27; with your branch name</span><br></code></pre></td></tr></table></figure>
 <hr>
-<h3><span id="keeping-both-repositories-updated">Keeping Both Repositories Updated</span></h3>
+<h3 id="keeping-both-repositories-updated">Keeping Both Repositories Updated</h3>
 <ul>
 <li><strong>To get updates from the original repository</strong>:<br>
 Use <code>git pull origin main</code> periodically.</li>
@@ -318,7 +318,7 @@ Use <code>git pull origin main</code> periodically.</li>
 Always use <code>git push myrepo main</code>.</li>
 </ul>
 <hr>
-<h3><span id="tips">Tips</span></h3>
+<h3 id="tips">Tips</h3>
 <ol>
 <li>
 <p><strong>Tracking Branches Separately:</strong><br>
@@ -495,9 +495,6 @@ Instead of directly cloning the original repository, consider forking it on plat
 
 
 
-  
-
-
 
   
 
@@ -648,44 +645,6 @@ Instead of directly cloning the original repository, consider forking it on plat
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

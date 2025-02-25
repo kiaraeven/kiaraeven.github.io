@@ -90,7 +90,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -294,23 +294,23 @@
             
               <div class="markdown-body">
                 
-                <h2><span id="radiometry">Radiometry</span></h2>
-<h3><span id="definition">Definition</span></h3>
+                <h2 id="radiometry">Radiometry</h2>
+<h3 id="definition">Definition</h3>
 <ul>
 <li>Radiometry studies the measurement of electromagnetic radiation, including visible light.</li>
 <li>Radiometry quantifies radiation in terms of its physical power (energy per unit time) and spatial distribution.</li>
 </ul>
-<h3><span id="photons">Photons</span></h3>
+<h3 id="photons">Photons</h3>
 <ul>
 <li>A photon is an elementary particle, the quantum of the electromagnetic field.</li>
 <li>Photons have different ways of interaction: absorption, emission, scattering, etc.</li>
 <li>In computer rendering, <strong>photon mapping</strong> is a global illumination technique for simulating caustics and soft shadows.</li>
 <li>We measure energy by “counting photons”.</li>
 </ul>
-<h4><span id="units">Units</span></h4>
+<h4 id="units">Units</h4>
 <p>Each photon carries energy.</p>
 <p><img src="units.png" alt="units"></p>
-<h3><span id="radiometry-properties">Radiometry Properties</span></h3>
+<h3 id="radiometry-properties">Radiometry Properties</h3>
 <ol>
 <li>Flux <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span></span></span></span></li>
 </ol>
@@ -371,21 +371,21 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
 <img src="lambertian1.png" alt="lambertian model"><br>
 <img src="lambertian2.png" alt="lambertian model"><br>
 <img src="cosine_law.png" alt="cosine law"></p>
-<h4><span id="summary">Summary</span></h4>
+<h4 id="summary">Summary</h4>
 <p><img src="radiometry.png" alt="summary"></p>
-<h3><span id="radiance-and-ray">Radiance and Ray</span></h3>
+<h3 id="radiance-and-ray">Radiance and Ray</h3>
 <ul>
 <li>Fundamental quantity for ray tracing</li>
 <li>Remains constant along a ray in a vacuum-like media (类真空介质)</li>
 <li>Varys spatially along a ray in a participating media (参与介质，Participating media may absorb, emit and/or scatter light. )</li>
 <li>Incident radiance at one point can be expressed as outgoing radiance at another point: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>ω</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>L</mi><mi>o</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo separator="true">,</mo><mo>−</mo><mi>ω</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">L_i(x, \omega) = L_o(y, -\omega)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">o</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span></span></span></span></li>
 </ul>
-<h3><span id="expressing-flux-with-radiance">Expressing flux with radiance</span></h3>
+<h3 id="expressing-flux-with-radiance">Expressing flux with radiance</h3>
 <p><img src="radiance_flux.png" alt="Integrate radiance over hemisphere and area"></p>
-<h2><span id="bidirectional-reflectance-distribution-function-brdf">Bidirectional Reflectance Distribution Function (BRDF)</span></h2>
-<h3><span id="brdf-definition">BRDF Definition</span></h3>
+<h2 id="bidirectional-reflectance-distribution-function-brdf">Bidirectional Reflectance Distribution Function (BRDF)</h2>
+<h3 id="brdf-definition">BRDF Definition</h3>
 <p><img src="BRDF_definition.png" alt="definition"></p>
-<h4><span id="brdf-for-ideal-diffuse-reflection">BRDF for Ideal Diffuse Reflection</span></h4>
+<h4 id="brdf-for-ideal-diffuse-reflection">BRDF for Ideal Diffuse Reflection</h4>
 <p>Reflected radiance is a (hemi)spherical integral of incident radiance from all directions:</p>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><msub><mover accent="true"><mi>ω</mi><mo>⃗</mo></mover><mi>r</mi></msub><mo stretchy="false">)</mo><mo>=</mo><msub><mo>∫</mo><msup><mi>H</mi><mn>2</mn></msup></msub><msub><mi>f</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><msub><mover accent="true"><mi>ω</mi><mo>⃗</mo></mover><mi>i</mi></msub><mo separator="true">,</mo><msub><mover accent="true"><mi>ω</mi><mo>⃗</mo></mover><mi>r</mi></msub><mo stretchy="false">)</mo><msub><mi>L</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><msub><mover accent="true"><mi>ω</mi><mo>⃗</mo></mover><mi>i</mi></msub><mo stretchy="false">)</mo><mi>c</mi><mi>o</mi><mi>s</mi><msub><mi>θ</mi><mi>i</mi></msub><mi>d</mi><msub><mi>ω</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">L_r(x, \vec{\omega}_r) = \int _{H^2} f_r(x, \vec{\omega}_i, \vec{\omega}_r) L_i(x, \vec{\omega}_i) cos\theta _i d\omega _i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.714em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2355em;"><span class="overlay" style="height:0.714em;width:0.471em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.471em" height="0.714em" style="width:0.471em" viewbox="0 0 471 714" preserveaspectratio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
 3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
@@ -425,9 +425,9 @@ c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></spa
 -7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
 H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
 c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> (BRDF) is a constant, which means scattering light equal in all directions.</p>
-<h4><span id="brdf-for-ideal-specular-reflection">BRDF for Ideal Specular Reflection</span></h4>
+<h4 id="brdf-for-ideal-specular-reflection">BRDF for Ideal Specular Reflection</h4>
 <p><img src="BRDF_specular.png" alt="BRDF for Ideal Specular Reflection"></p>
-<h3><span id="brdf-properties">BRDF Properties</span></h3>
+<h3 id="brdf-properties">BRDF Properties</h3>
 <p>Real/physically-plausible BRDFs obey:</p>
 <ul>
 <li>
@@ -481,16 +481,16 @@ H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
 c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></p>
 </li>
 </ul>
-<h4><span id="isotropic-and-anisotropic-brdfs">Isotropic and Anisotropic BRDFs</span></h4>
+<h4 id="isotropic-and-anisotropic-brdfs">Isotropic and Anisotropic BRDFs</h4>
 <ul>
 <li>If the BRDF is unchanged as the material is rotated around the normal, then it is isotropic, otherwise it is anisotropic.</li>
 <li>Isotropic BRDFs are functions of just 3 variables (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>θ</mi><mi>r</mi></msub><mo separator="true">,</mo><mi>δ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\theta_i, \theta_r, \delta \phi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal">ϕ</span></span></span></span>).</li>
 </ul>
 <p><img src="IsotropicAnisotropic.png" alt="Isotropic and Anisotropic"></p>
-<h3><span id="brdf-connection-to-phong-shading">BRDF connection to Phong Shading</span></h3>
+<h3 id="brdf-connection-to-phong-shading">BRDF connection to Phong Shading</h3>
 <p>The connection between <strong>BRDF (Bidirectional Reflectance Distribution Function)</strong> and <strong>Phong shading</strong> lies in how both describe the way light reflects off surfaces, but they differ in complexity and realism.</p>
 <hr>
-<h4><span id="brdf-bidirectional-reflectance-distribution-function"><strong>BRDF (Bidirectional Reflectance Distribution Function)</strong></span></h4>
+<h4 id="brdf-bidirectional-reflectance-distribution-function"><strong>BRDF (Bidirectional Reflectance Distribution Function)</strong></h4>
 <ul>
 <li>
 <p><strong>What it is:</strong> A mathematical function that describes how light is reflected at an opaque surface.</p>
@@ -512,7 +512,7 @@ Where:</p>
 <p><strong>Purpose:</strong> Used in physically based rendering (PBR) to simulate realistic material reflections (like metal, wood, plastic).</p>
 </li>
 </ul>
-<h4><span id="phong-shading-model"><strong>Phong Shading Model</strong></span></h4>
+<h4 id="phong-shading-model"><strong>Phong Shading Model</strong></h4>
 <ul>
 <li>
 <p><strong>What it is:</strong> A simple, empirical model for approximating light reflection on shiny surfaces.</p>
@@ -696,9 +696,6 @@ Where:</p>
 
 
 
-  
-
-
 
   
 
@@ -849,44 +846,6 @@ Where:</p>
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

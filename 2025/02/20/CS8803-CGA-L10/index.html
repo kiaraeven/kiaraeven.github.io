@@ -87,7 +87,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -291,10 +291,10 @@
             
               <div class="markdown-body">
                 
-                <h2><span id="acceleration-data-structures-for-nerf">Acceleration Data Structures for NeRF</span></h2>
+                <h2 id="acceleration-data-structures-for-nerf">Acceleration Data Structures for NeRF</h2>
 <p>The NeRF representation takes position and direction as inputs, and produces color and density as outputs. Recall that in L09 we learned the effectiveness of input encoding - positional encoding that can improve the results significantly with a few lines of code (see <a href="/2025/02/13/CS8803-CGA-L09/#positional-encoding"> L09-Positional Encoding</a>).</p>
 <p>Next step, what is the best data structure for NeRF? Recall the previously mentioned data structures for geometry: meshes (small memory footprint but hard to optimize), voxels (easy to optimize but large memory footprint).</p>
-<h3><span id="plenoxels">Plenoxels</span></h3>
+<h3 id="plenoxels">Plenoxels</h3>
 <p>Idea I: Let’s try to get rid of MLP.</p>
 <p>(Yu*, Friedovich-Keil* et al. 2021, Plenoxels: Radiance Fields without Neural Networks)</p>
 <p>Plenoxels are essentially a “voxel grid + spherical harmonics” approach to storing and rendering a 3D scene without the need for a large MLP network. Instead of learning a neural function (MLP) that outputs density and color at every point, Plenoxels store these quantities directly in a dense 3D grid:</p>
@@ -324,7 +324,7 @@
 </li>
 </ol>
 <p>In short, Plenoxels turn the 3D volume into a big “lookup table” of densities and SH basis coefficients. This approach sidesteps the complexity and runtime cost of a learned MLP, while still leveraging spherical harmonics for compact, direction-dependent color.</p>
-<h3><span id="instant-ngp">Instant NGP</span></h3>
+<h3 id="instant-ngp">Instant NGP</h3>
 <p>Idea II: Let’s try hybrid representations.</p>
 <p>(T. Müller et al. 2022, Instant Neural Graphics Primitives with a Multiresolution Hash Encoding)</p>
 <p>This article shows an approach that enables super-resolution rendering of neural radiance field in real-time and accommodates a new neural representation structure by hybridizing networks and octrees.</p>
@@ -357,7 +357,7 @@ Once the MLP outputs (e.g., color, density, SDF, etc.) are known, Instant‐NGP 
 </li>
 </ol>
 <p>Put differently, the <em>hash‐based multi‐resolution grid</em> learns a coarse‐to‐fine mapping that acts almost like a highly efficient “lookup table” for local geometry or appearance. The small neural net then only has to learn <em>residual</em> details, so it converges much faster. This combination of “spatial hashing + small MLP + specialized GPU implementation” underpins Instant‐NGP’s ability to train and render neural graphics <em>extremely</em> rapidly. Instant NGP is good at rendering really complex scenes, e.g., an open space with many details.</p>
-<h2><span id="separating-nerf-geometry-and-appearance">Separating NeRF Geometry and Appearance</span></h2>
+<h2 id="separating-nerf-geometry-and-appearance">Separating NeRF Geometry and Appearance</h2>
 <ul>
 <li>NeRF “bakes” appearance / color information into scene geometry, so when scene is re-lit, this requires training of a new NeRF.</li>
 <li>Multiple approaches have focused on disentangling (分解) geometry and appearance information
@@ -369,16 +369,16 @@ Once the MLP outputs (e.g., color, density, SDF, etc.) are known, Instant‐NGP 
 </ul>
 <p>Recall Phong Shading with separated terms for Diffuse and Specular Terms (diffuse + specular + ambient). The key idea is that instead of using SH coefficients, the MLP directly outputs density, diffuse colors, and specular features. Both the diffuse colors and the features are volume-rendered, and a final MLP evaluation is performed at the end to transform the diffuse color and features into the final color.</p>
 <p><img src="sep_nerf.png" alt="Separating NeRF Geometry and Appearance"></p>
-<h2><span id="anti-aliasing">Anti-Aliasing</span></h2>
+<h2 id="anti-aliasing">Anti-Aliasing</h2>
 <p>Challenges: Multi-Resolution.</p>
 <p>NeRF Rendering at Full Resolution: Produces high-quality, photorealistic results.<br>
 NeRF at Different Distances/Resolutions: Introduces noticeable aliasing artifacts (“jaggies”).<br>
 Training NeRF on Multi-resolution Data: Slightly improves low-resolution performance but degrades high-resolution quality, making it ineffective.<br>
 Introducing <strong>mip-NeRF</strong>: Trained on the same data, it maintains high-resolution rendering across multiple scales.<br>
 Key Advantage of mip-NeRF: Unlike NeRF, its performance does not degrade when trained on multiscale data.</p>
-<h3><span id="pre-filtering-with-a-mip-map">Pre-filtering with a mip-map</span></h3>
+<h3 id="pre-filtering-with-a-mip-map">Pre-filtering with a mip-map</h3>
 <p>The problem is solved with prefiltering, precomputing images at different scales, a technique known as mipmap or image pyramid. With a prefiltered representation, <strong>trilinear interpolation</strong> can efficiently retrieve a properly downsampled image at the correct location and scale, a method widely used in real-time graphics for <strong>texture mapping</strong>. So, mipmaps reduce image aliasing, mip-NeRF reduces NeRF aliasing.</p>
-<h3><span id="difference-between-standard-nerf-and-mip-nerf">Difference between standard NeRF and mip-NeRF</span></h3>
+<h3 id="difference-between-standard-nerf-and-mip-nerf">Difference between standard NeRF and mip-NeRF</h3>
 <p><strong>Standard NeRF</strong> treats every sample on a ray as a single 3D point and applies a “positional encoding” (the sin/cos expansions) to just that point. By contrast, <strong>Mip‐NeRF</strong> recognizes that each sample is really a small <em>conical</em> region along the ray, so it <em>integrates</em> the positional encoding over that region instead of evaluating it only at a single point.</p>
 <p><img src="mipnerf1.png" alt="standard NeRF"></p>
 <p><img src="mipnerf2.png" alt="mip-NeRF"></p>
@@ -389,9 +389,9 @@ Key Advantage of mip-NeRF: Unlike NeRF, its performance does not degrade when tr
 which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
 <p><img src="mipnerf3.png" alt="mip-NeRF integrates the basis functions over the portion of space the ray covers"></p>
 <p>By representing samples more accurately (with an integral rather than a point), mip‐NeRF significantly reduces aliasing artifacts and improves multi‐scale consistency in the rendered scenes.</p>
-<h2><span id="large-scale-rendering">Large-Scale Rendering</span></h2>
+<h2 id="large-scale-rendering">Large-Scale Rendering</h2>
 <p>When rendering large scenes, since regular spacing does not scale, how to march efficiently?</p>
-<h3><span id="idea-i-exponential-stepping">Idea I: Exponential Stepping</span></h3>
+<h3 id="idea-i-exponential-stepping">Idea I: Exponential Stepping</h3>
 <ul>
 <li>How to march efficiently?
 <ul>
@@ -404,7 +404,7 @@ which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
 </ul>
 </li>
 </ul>
-<h3><span id="idea-ii-skipping-empty-space">Idea II: Skipping Empty Space</span></h3>
+<h3 id="idea-ii-skipping-empty-space">Idea II: Skipping Empty Space</h3>
 <ul>
 <li>Exponential stepping does not help (air in front of camera, where steps are most dense)</li>
 <li>Geometry not known in advance (training data are RGB images)</li>
@@ -416,10 +416,10 @@ which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
 </ul>
 </li>
 </ul>
-<h2><span id="temporally-stable-training">Temporally Stable Training</span></h2>
+<h2 id="temporally-stable-training">Temporally Stable Training</h2>
 <p>During training, a NeRF’s weights can “wander” in parameter space from step to step—often causing flickering (闪烁) or noisy updates when viewed as a running render. <strong>Temporally stable training</strong> addresses that by applying a <em>temporal low‐pass filter</em> (in practice, an exponential moving average) to the network weights as they are being optimized.</p>
 <p>Concretely, we still train the network weights in the usual way, but keep a running average of those weights over recent training steps. For inference (i.e., for final rendering or evaluation), use the smoothed (EMA) weights rather than the moment‐to‐moment weights. Because the EMA filters out quick oscillations in parameter space, the resulting rendered views appear more stable over time, eliminating much of the flicker and noise that can come from raw, per‐step weights.</p>
-<h2><span id="future-research-directions">Future Research Directions</span></h2>
+<h2 id="future-research-directions">Future Research Directions</h2>
 <p>Challenges to Address</p>
 <ul>
 <li>Neural scene representations do not (yet) “fully” disentangle all scene attributes.</li>
@@ -589,9 +589,6 @@ which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
 
 
 
-  
-
-
 
   
 
@@ -742,44 +739,6 @@ which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   

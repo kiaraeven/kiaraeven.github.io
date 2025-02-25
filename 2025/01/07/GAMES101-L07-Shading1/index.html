@@ -104,7 +104,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -308,9 +308,9 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="shading-the-process-of-applying-a-material-to-an-object">Shading - the process of applying a material to an object</span></h1>
-<h2><span id="a-simple-shading-model-blinn-phong-reflectance-model">A Simple Shading Model (Blinn-Phong Reflectance Model)</span></h2>
-<h3><span id="shading-is-local">Shading is local</span></h3>
+                <h1 id="shading-the-process-of-applying-a-material-to-an-object">Shading - the process of applying a material to an object</h1>
+<h2 id="a-simple-shading-model-blinn-phong-reflectance-model">A Simple Shading Model (Blinn-Phong Reflectance Model)</h2>
+<h3 id="shading-is-local">Shading is local</h3>
 <p>Compute light reflected toward camera at a spacific shading point.</p>
 <p>Inputs:</p>
 <ul>
@@ -324,7 +324,7 @@
 <li>v, n, l are all unit vectors.</li>
 <li>shading != shadow. No shadow will be generated.</li>
 </ul>
-<h3><span id="diffuse-reflection">Diffuse Reflection</span></h3>
+<h3 id="diffuse-reflection">Diffuse Reflection</h3>
 <ul>
 <li>Light is scattered uniformly in all directions</li>
 <li>Surface color is the same for all viewing directions</li>
@@ -340,7 +340,7 @@
 <p>So, the equation for diffusion reflection should be as:<br>
 <img src="diffusion_reflection3.png" alt="Diffusion Reflection" title="Lambertian (diffuse) shading"><br>
 If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">k_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 1, all energy will be reflected. If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">k_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 0, all energy will be absorbed (no evergy reflected, black).</p>
-<h3><span id="specular-term-高光项">Specular term (高光项)</span></h3>
+<h3 id="specular-term-高光项">Specular term (高光项)</h3>
 <ul>
 <li>Intensity depends on view direction.</li>
 <li>Bright near mirror reflection direction.<br>
@@ -350,16 +350,16 @@ If the view direction is close to the mirror reflection direction, we get the sp
 <img src="specular_term.png" alt="Specular term" title="Specular term"><br>
 Use exponent p because specular can be seen only when the unit vectors are close enough (p can be 100 - 200 in practice).<br>
 <img src="specular_term2.png" alt="Specular term" title="Cosin power plot"></p>
-<h3><span id="ambient-term-环境光">Ambient term (环境光)</span></h3>
+<h3 id="ambient-term-环境光">Ambient term (环境光)</h3>
 <ul>
 <li>Shading that does not depend on anything</li>
 <li>Add constant color to account for disregarded illumination and fill in black shadows</li>
 <li>This is approximate / fake!<br>
 <img src="ambient_term.png" alt="Ambient term" title="Ambient term"></li>
 </ul>
-<h3><span id="summary">Summary</span></h3>
+<h3 id="summary">Summary</h3>
 <p>L (Blinn-Phong reflection) = <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>a</mi></msub><mo>+</mo><msub><mi>L</mi><mi>s</mi></msub><mo>+</mo><msub><mi>L</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">L_a + L_s + L_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
-<h2><span id="shading-frequencies">Shading Frequencies</span></h2>
+<h2 id="shading-frequencies">Shading Frequencies</h2>
 <ol>
 <li>Flat shading</li>
 </ol>
@@ -401,24 +401,24 @@ Improved scheme: weighted average surround face normals considering face areas</
 <li>Barycentric interpolation (introducing soon) of vertex normals</li>
 <li>Normalize the interpolated directions</li>
 </ul>
-<h1><span id="graphics-real-time-rendering-pipeline">Graphics (Real-time Rendering) Pipeline</span></h1>
+<h1 id="graphics-real-time-rendering-pipeline">Graphics (Real-time Rendering) Pipeline</h1>
 <p><img src="GP1.png" alt="Graphics Pipeline" title="Graphics Pipeline"></p>
-<h2><span id="shader-program-着色器">Shader program (着色器)</span></h2>
+<h2 id="shader-program-着色器">Shader program (着色器)</h2>
 <ul>
 <li>Program vertex and fragment processing stages.</li>
 <li>Describe operation on a single vertex (or fragment).</li>
 <li>Shader function executesonce per fragment.</li>
 <li>Outputs color of surfaceat the current fragment’s screen sample position.</li>
 </ul>
-<h2><span id="gpus-graphics-pipeline-implementation">GPUs - Graphics Pipeline Implementation</span></h2>
+<h2 id="gpus-graphics-pipeline-implementation">GPUs - Graphics Pipeline Implementation</h2>
 <p>Specialized processors for executing graphics pipeline computations.</p>
-<h1><span id="texture-mapping">Texture Mapping</span></h1>
+<h1 id="texture-mapping">Texture Mapping</h1>
 <p>(think of in map progection in GIS)<br>
 Each triangle vertex is assigned a texture coordinate (u, v).<br>
 <img src="tt_mapping.png" alt="tt_mapping" title="uv coordinates"><br>
 u and v are always ranged in [0, 1]</p>
 <p>Texture can be used multiple times, so designing tilable texture is important.</p>
-<h2><span id="interpolation-across-triangles-barycentric-coordinates-重心坐标">Interpolation Across Triangles: Barycentric Coordinates (重心坐标)</span></h2>
+<h2 id="interpolation-across-triangles-barycentric-coordinates-重心坐标">Interpolation Across Triangles: Barycentric Coordinates (重心坐标)</h2>
 <ul>
 <li>Why do we want to interpolate?
 <ul>
@@ -432,7 +432,7 @@ u and v are always ranged in [0, 1]</p>
 </ul>
 </li>
 </ul>
-<h3><span id="barycentric-coordinates">Barycentric Coordinates</span></h3>
+<h3 id="barycentric-coordinates">Barycentric Coordinates</h3>
 <p><strong>Definition</strong><br>
 It defines a coordinate system to locate points with triangle vertices. If all coordinates are positive, the point must be inside the triangle.<br>
 <img src="BarycentricCoordinates.png" alt="BC" title="Barycentric Coordinates"><br>
@@ -449,11 +449,11 @@ Also, we can calculate the barycentric coordinate for any point. No need to reme
 Finally, interpolate any attribute based on barycentric coordinates.<br>
 <img src="BarycentricCoordinates5.png" alt="BC" title="Interpolation"><br>
 Note: Barycentric coordinates are not invariant under projection, so if we need to perform interpolation for 3d objects attributes, we should use 3d coordinates of the triangle vertices. For example, when interpolating z values, since the triangles have been projected onto 2d screen, we need to perform an inverse transform to get the 3d coordinates again and do the calculation.</p>
-<h2><span id="applying-texture">Applying Texture</span></h2>
-<h3><span id="simpie-texture-mapping-diffuse-color">Simpie Texture Mapping: Diffuse Color</span></h3>
+<h2 id="applying-texture">Applying Texture</h2>
+<h3 id="simpie-texture-mapping-diffuse-color">Simpie Texture Mapping: Diffuse Color</h3>
 <p>Usually a pixel’s center</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> each rasterized screen sample (x,y):<br>  (u,v) = evaluate texture coordinate at (x,y) <span class="hljs-comment"># Usually a pixel&#x27;s center</span><br>  texcolor = texture.sample(u,v) <span class="hljs-comment"># Using barycentric coordinates</span><br>  <span class="hljs-comment"># set sample&#x27;s color to texcolor</span><br>  <span class="hljs-comment"># Here the texcolor usually refers the diffuse albedo Kd(recall the Blinn-Phong reflectance model)</span><br></code></pre></td></tr></table></figure>
-<h3><span id="texture-magnification">Texture Magnification</span></h3>
+<h3 id="texture-magnification">Texture Magnification</h3>
 <p><strong>What if the texture is too small?</strong></p>
 <p>Texture magnification occurs when a texture image is stretched over a surface, and the texture’s resolution is smaller than the resolution of the rendered object. This means there are fewer texels (texture pixels) in the texture than screen pixels in the rendered object. As a result, the rendering process must decide how to fill in the extra pixel information for the surface.</p>
 <p><strong>Key Problems in Texture Magnification</strong></p>
@@ -512,7 +512,7 @@ Blurriness: Using linear filtering may smooth the texture too much, losing detai
 </ul>
 </li>
 </ol>
-<h3><span id="texture-minification">Texture Minification</span></h3>
+<h3 id="texture-minification">Texture Minification</h3>
 <p><strong>What if the texture is too large?</strong></p>
 <p>When the texture is too large (i.e., the resolution of the texture is much higher than the resolution of the rendered object on the screen), the graphics pipeline must handle texture minification, where multiple texels map to a single screen pixel.</p>
 <p><strong>Problems with Large Textures</strong></p>
@@ -598,7 +598,7 @@ Adds computational overhead.</li>
 </ul>
 </li>
 </ol>
-<h2><span id="practical-use-of-texture">Practical use of texture</span></h2>
+<h2 id="practical-use-of-texture">Practical use of texture</h2>
 <p>In modern GPUs, <strong>texture = memory + range query</strong> (filtering)</p>
 <ul>
 <li>General method to bring data to fragment calculationsMany applications</li>
@@ -613,7 +613,7 @@ Adds computational overhead.</li>
 <li>Volume rendering</li>
 <li>…</li>
 </ul>
-<h3><span id="bump-mapping">Bump mapping</span></h3>
+<h3 id="bump-mapping">Bump mapping</h3>
 <ul>
 <li>
 <p>Textures doesn’t have to only represent colors</p>
@@ -659,14 +659,14 @@ Adds computational overhead.</li>
 </li>
 </ul>
 <p>Note that the above methods are in local coordinates, so that the original normal is (0,1) or (0,0,1). We can calculate the perturbed normal in this local coordinates and convert it to world coordinate space later.</p>
-<h3><span id="displacement-mapping-位移贴图">Displacement mapping (位移贴图)</span></h3>
+<h3 id="displacement-mapping-位移贴图">Displacement mapping (位移贴图)</h3>
 <ul>
 <li>a more advanced approach</li>
 <li>Uses the same texture as in bumping mapping</li>
 <li>Actually moves the vertices</li>
 </ul>
 <p>Unlike bump mapping, which only simulates surface detail by modifying how light interacts with it, displacement mapping alters the underlying surface geometry itself. For each point (vertex) on the surface, the displacement map is sampled, and the vertex’s position is moved (displaced) along the surface normal by an amount proportional to the map’s value.</p>
-<h3><span id="3d-procedural-noise-solid-modeling">3D Procedural Noise + Solid Modeling</span></h3>
+<h3 id="3d-procedural-noise-solid-modeling">3D Procedural Noise + Solid Modeling</h3>
 <p>Procedural noise is a mathematical method for generating pseudo-random patterns in 3D space that can be used to create natural effects like wood grain, marble, clouds, and terrain. Solid modeling is the representation of 3D objects with full volumetric and geometric information. It goes beyond surface models (which only represent the shell) to include the interior structure of objects.<br>
 n solid modeling, 3D procedural noise is often used as a modifier to shape or texture the solid object. For instance:</p>
 <ul>
@@ -838,9 +838,6 @@ n solid modeling, 3D procedural noise is often used as a modifier to shape or te
 
 
 
-  
-
-
 
   
 
@@ -991,44 +988,6 @@ n solid modeling, 3D procedural noise is often used as a modifier to shape or te
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
 
   <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
 
 
   
