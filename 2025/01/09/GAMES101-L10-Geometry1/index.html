@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/edge_collapse.png">
 <meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/softshadow.png">
 <meta property="article:published_time" content="2025-01-09T18:42:18.102Z">
-<meta property="article:modified_time" content="2025-01-12T03:07:50.829Z">
+<meta property="article:modified_time" content="2025-03-26T05:17:06.330Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="GAMES101">
@@ -491,9 +491,9 @@ Which edges? Assign score with quadric error metric*</p>
 <h2 id="basics">Basics</h2>
 <ul>
 <li>An lmage-space Algorithm</li>
-<li>No knowledge of scene’s geometry during shadowcomputation</li>
+<li>No knowledge of scene’s geometry during shadow computation</li>
 <li>Must deal with aliasing artifacts</li>
-<li>Key idea: the points NOT in shadow must be seen bothby the light and by the camera</li>
+<li>Key idea: the points NOT in shadow must be seen both by the light and by the camera</li>
 </ul>
 <h2 id="steps">Steps</h2>
 <ol>
@@ -514,7 +514,7 @@ Which edges? Assign score with quadric error metric*</p>
 <ul>
 <li>Project visible points in eye view back to light source</li>
 <li>After reprojected, if the corresponding depths in the depth image recorded at the light source is the same as the depth recorded at eye, the point is visible.</li>
-<li>After reprojected, depths from light and eye are not the same. This point is blocked.</li>
+<li>After reprojected, if depths from light and eye are not the same. This point is blocked.</li>
 </ul>
 <h2 id="problems-with-shadow-maps">Problems with shadow maps</h2>
 <ul>
