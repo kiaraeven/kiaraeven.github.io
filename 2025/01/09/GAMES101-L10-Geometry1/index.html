@@ -1,0 +1,871 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Implicit representation of geometry Based on classifying points. Describe geometry with relationships or conditions without providing the exact set of points. Points satisfy some specified relationshi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit&#x2F;explicit geometry + shadow mapping)">
+<meta property="og:url" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Implicit representation of geometry Based on classifying points. Describe geometry with relationships or conditions without providing the exact set of points. Points satisfy some specified relationshi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/CSG.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/levelset.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz1.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz2.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz3.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz4.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz_alge1.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz_alge2.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bz_alge3.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bsurf.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/bsurf1.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/catmull_clark.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/catmull_clark1.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/catmull_clark2.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/edge_collapse.png">
+<meta property="og:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/softshadow.png">
+<meta property="article:published_time" content="2025-01-09T18:42:18.102Z">
+<meta property="article:modified_time" content="2025-03-26T05:28:13.155Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/09/GAMES101-L10-Geometry1/CSG.png">
+  
+  
+  
+  <title>GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping) - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-09 13:42" pubdate>
+          January 9, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          409 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          4 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="implicit-representation-of-geometry">Implicit representation of geometry</h1>
+<p>Based on classifying points. Describe geometry with relationships or conditions without providing the exact set of points.<br>
+Points satisfy some specified relationship.<br>
+E.g. sphere: all points in 3D, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup><mo>+</mo><msup><mi>z</mi><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^2 + y^2 + z^2 = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0085em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span><br>
+More generally, f(x,y,z) = 0</p>
+<ul>
+<li>Sampling can be hard</li>
+<li>Inside / outside can be easy</li>
+</ul>
+<h2 id="more-implicit-representations">More implicit representations</h2>
+<ol>
+<li>Algebraic Surfaces<br>
+Surface is zero set of a polynomial in x, y, z.</li>
+<li>Constructive Solid Geometry (构造实体几何)<br>
+<img src="CSG.png" alt="CSG" title="CSG"></li>
+<li>Distance function<br>
+Instead of Booleans, gradually blend surfaces together using distance functions (giving minimum distance (could be signed distance -&gt; SDF) from anywhere to object). To restore the original geometry, just figure out the positions where SDF == 0.</li>
+<li>Level Set (水平集) Methods<br>
+<img src="levelset.png" alt="levelset" title="levelset"><br>
+(think of contour lines 等高线)</li>
+<li>Fractals (分型)
+<ul>
+<li>Exhibit self-similarity, detail at all scales (recursively)</li>
+<li>“Language” for describing natural phenomena</li>
+<li>Hard to control shape!</li>
+</ul>
+</li>
+</ol>
+<h2 id="pros">Pros:</h2>
+<ul>
+<li>compact description (e.g., a function) saves memory</li>
+<li>certain queries easy (inside object, distance to surface)</li>
+<li>good for ray-to-surface intersection</li>
+<li>for simple shapes, exact description / no sampling error</li>
+<li>easy to handle changes in topology (e.g., fluid)</li>
+</ul>
+<h1 id="explicit-representation-of-geometry">Explicit representation of geometry</h1>
+<p>All points are given directly or via parameter mapping (generally, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>:</mo><msup><mi>R</mi><mn>2</mn></msup><mo>→</mo><msup><mi>R</mi><mn>3</mn></msup><mo separator="true">;</mo><mo stretchy="false">(</mo><mi>u</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo><mo>→</mo><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo separator="true">,</mo><mi>z</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f : R^2 → R^3; (u, v)→(x, y, z)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal">u</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mclose">)</span></span></span></span>)</p>
+<ul>
+<li>Sampling is easy (just plug in (u, v) to get the point (x, y, z))</li>
+<li>Inside / outside can be hard</li>
+</ul>
+<h2 id="more-explicit-representations">More explicit representations</h2>
+<ol>
+<li>Polygon meshes
+<ul>
+<li>Store vertices &amp; polygons (often triangles or quads)</li>
+<li>Easier to do processing / simulation, adaptive sampling</li>
+<li>More complicated data structures</li>
+<li>Perhaps most common representation in graphics</li>
+<li>The Wavefront Object File (.obj) Format
+<ul>
+<li>Commonly used in Graphics research</li>
+<li>Just a text file that specifies vertices, normals, texture coordinates and their connectivities</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Bezier surfaces</li>
+<li>subdivision surfaces</li>
+<li>NURBS</li>
+<li>point clouds
+<ul>
+<li>Easiest representation: list of points (x,y,z)</li>
+<li>Easily represent any kind of geometry</li>
+<li>Useful for LARGE datasets (&gt;&gt;1 point/pixel)</li>
+<li>Often converted into polygon mesh</li>
+<li>Difficult to draw in undersampled regions</li>
+</ul>
+</li>
+</ol>
+<h2 id="bezier-curves">Bezier Curves</h2>
+<p>The curve must start at (pass) p0 and end at (pass) p3. The tangent line at p0 passes p1 (the first control point) and the tagent line at p3 passes p2 (the second control point).</p>
+<h3 id="de-casteljau-algorithm">de Casteljau Algorithm</h3>
+<p>Consider given three points to draw a quadratic Bezier (二次贝塞尔). The key is to determine the point the curve passes at each moment t in [0, 1] to form the curve.</p>
+<p>First, insert two points in each edge using linear interpolation.<br>
+<img src="bz1.png" alt="bz" title="1"><br>
+Repeat recursively.<br>
+<img src="bz2.png" alt="bz" title="2"><br>
+Run the same algorithm for every t in [0, 1].<br>
+<img src="bz3.png" alt="bz" title="3"></p>
+<p>Similarly, given four points to draw a Bezier curve. Each time we decrease the number of edges and points we considered, until there’s only two points and one edge on which we can determine a point at t.<br>
+<img src="bz4.png" alt="bz" title="4"></p>
+<h3 id="algebraic-formula">Algebraic Formula</h3>
+<p>Note: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><mo stretchy="false">(</mo><msub><mi>b</mi><mn>1</mn></msub><mo>−</mo><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mo>&gt;</mo><msub><mi>b</mi><mn>0</mn></msub><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><msub><mi>b</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">b_0(t) = b_0 + t(b_1-b_0) =&gt; b_0(t) = (1-t)b_0 + tb_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord mathnormal">t</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><br>
+<img src="bz_alge1.png" alt="ba-a" title="eg"><br>
+In general, it’s like binomial distribution. This equation also works for 3d points.<br>
+<img src="bz_alge2.png" alt="ba-a" title="general equations"></p>
+<p>Think of Binomial Probability Mass Function (PMF)<br>
+The probability of getting exactly k successes in n trials is given by the formula:<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>X</mi><mo>=</mo><mi>k</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mo fence="true">(</mo><mfrac linethickness="0px"><mi>n</mi><mi>k</mi></mfrac><mo fence="true">)</mo></mrow><msup><mi>p</mi><mi>k</mi></msup><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false">)</mo><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msup></mrow><annotation encoding="application/x-tex">P(X=k) = \binom{n}{k}p^k(1-p)^{n-k}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mord"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size1">(</span></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7454em;"><span style="top:-2.355em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span style="top:-3.144em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size1">)</span></span></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0991em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>Where:<br>
+P(X=k): Probability of k successes in n trials.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo fence="true">(</mo><mfrac linethickness="0px"><mi>n</mi><mi>k</mi></mfrac><mo fence="true">)</mo></mrow><mo>=</mo><mi>n</mi><mo stretchy="false">!</mo><mi mathvariant="normal">/</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">!</mo><mo stretchy="false">(</mo><mi>n</mi><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo><mo stretchy="false">!</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\binom{n}{k} = n!/(k!(n-k)!)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mord"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size1">(</span></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7454em;"><span style="top:-2.355em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span style="top:-3.144em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size1">)</span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">!</span><span class="mord">/</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">!</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)!)</span></span></span></span>: Binomial coefficient, representing the number of ways to choose k successes from n trials.<br>
+p: Probability of success.<br>
+1−p: Probability of failure.</p>
+<p><img src="bz_alge3.png" alt="ba-a" title="Bernstein Polynomials"></p>
+<h3 id="properties">Properties</h3>
+<ul>
+<li>Interpolates endpoints
+<ul>
+<li>For cubic Bézier: b(0) = b_0; b(1) = b_3</li>
+</ul>
+</li>
+<li>Tangent to end segments
+<ul>
+<li>Cubic case: b’(0) = 3(b_1-b_0); b’(1) = 3(b_3-b_2)</li>
+</ul>
+</li>
+<li>Affine transformation property
+<ul>
+<li>Transform curve by transforming control points</li>
+<li>However, for projection (3d-&gt;2d) it’s not invariant.</li>
+</ul>
+</li>
+<li>Convex hull property
+<ul>
+<li>Curve is within convex hull of control points</li>
+</ul>
+</li>
+</ul>
+<h3 id="piecewise-bezier-curves">Piecewise Bezier Curves</h3>
+<p>Instead use multiple points to create high-order Bezier curves directly, we chain many low-order Bezier curves. Piecewise cubic Bezier (given four points) curves is most common.</p>
+<p>PS: C0 and C1 continuity.<br>
+PPS: To review splines, see CS7496 Computer Animation GT.</p>
+<h2 id="bezier-surface">Bezier Surface</h2>
+<p><img src="bsurf.png" alt="bs" title="Bezier surface"></p>
+<p><img src="bsurf1.png" alt="bs" title="Bezier surface"></p>
+<h2 id="mesh-operations">Mesh Operations</h2>
+<ol>
+<li>Mesh subdivision (upsampling)
+<ul>
+<li>increase resolution</li>
+</ul>
+</li>
+<li>Mesh simplification (downsampling)
+<ul>
+<li>decrease resolution</li>
+<li>try to preserve shape / appearance</li>
+</ul>
+</li>
+<li>Mesh regularization
+<ul>
+<li>modify sample distribution to improve quality</li>
+</ul>
+</li>
+</ol>
+<h3 id="subdivision">Subdivision</h3>
+<p>Common subdivision rule for triangle meshes.</p>
+<ul>
+<li>First, create more triangles (vertices)</li>
+<li>Second, tune their positions</li>
+</ul>
+<h4 id="loop-subdivision-loop-is-the-name-of-the-author">Loop subdivision (Loop is the name of the author)</h4>
+<p>It is based on the idea of recursively refining the mesh by splitting each triangle into smaller triangles and adjusting the positions of the vertices to produce a smoother surface.</p>
+<p><strong>Steps in Loop Subdivision:</strong></p>
+<ol>
+<li>Split Each Edge (Edge Split):<br>
+For each edge in the mesh, a new vertex (called a “child vertex”) is added at the midpoint of the edge.<br>
+This step effectively splits each triangle into four smaller triangles.</li>
+<li>Create New Faces:<br>
+After splitting the edges, each triangle is divided into four smaller triangles.<br>
+The process connects the new midpoints with the old vertices to form the new faces.</li>
+<li>Adjust Vertex Positions:<br>
+Old (Parent) Vertices:<br>
+Existing vertices are repositioned to improve smoothness. Their new positions are computed as a weighted average of their neighboring vertices.<br>
+New (Child) Vertices:<br>
+The new vertices added at the edge midpoints are also repositioned. Their positions are computed as a weighted average of the two endpoints of the edge and the neighboring vertices of those endpoints.</li>
+</ol>
+<h4 id="catmull-clark-subdivision">Catmull-Clark subdivision</h4>
+<p>This is for <strong>general meshes</strong> - what if the meshes are not triangles?<br>
+<img src="catmull_clark.png" alt="catmull_clark" title="catmull_clark"></p>
+<p>Assume that we have n non-quad faces (非四边形面) and m extrodinary points. See the figure below, after the first division, there are m+n extrodinary points and 0 non-quad faces. This is to say, the first catmull-clark subdivision clear all non-quad faces and increase extrodinary points accordingly. Then in the folloing subdivisions, the number of non-quad faces won’t increase.<br>
+<img src="catmull_clark1.png" alt="catmull_clark" title="catmull_clark first subdivision"></p>
+<p>Catmull-Clark update rule.<br>
+<img src="catmull_clark2.png" alt="catmull_clark" title="catmull_clark update rule"></p>
+<h3 id="simplification">Simplification</h3>
+<h4 id="edge-collapse-边坍缩">edge collapse （边坍缩）</h4>
+<p>Key idea:<br>
+Find the optimal position of the new vertex so that the the quadric error is minimized.<br>
+<img src="edge_collapse.png" alt="edge collapse" title="edge collapse"></p>
+<p>Iteratively collapse edges.<br>
+Which edges? Assign score with quadric error metric*</p>
+<ul>
+<li>approximate distance to surface as sum of distances to planes containing triangles</li>
+<li>iteratively collapse edge with smallest score (use heap / priority queue, collapse an edge and update the affected edges accordingly)</li>
+<li>greedy algorithm… great results!<br>
+(Garland &amp; Heckbert 1997)</li>
+</ul>
+<h1 id="shadow-mapping">Shadow Mapping</h1>
+<h2 id="basics">Basics</h2>
+<ul>
+<li>An lmage-space Algorithm</li>
+<li>No knowledge of scene’s geometry during shadow computation</li>
+<li>Must deal with aliasing artifacts</li>
+<li>Key idea: the points NOT in shadow must be seen both by the light and by the camera</li>
+</ul>
+<h2 id="steps">Steps</h2>
+<ol>
+<li>Render from light source</li>
+</ol>
+<ul>
+<li>Record a depth image of the scene from the light source (look at the scene from the light source)</li>
+</ul>
+<ol start="2">
+<li>Render from eye</li>
+</ol>
+<ul>
+<li>record a standard image (with depth) from eye</li>
+</ul>
+<ol start="3">
+<li>Project to light</li>
+</ol>
+<ul>
+<li><strong>Project visible points in eye view back to light source</strong></li>
+<li>After reprojected, if the corresponding depths in the depth image recorded at the light source is the same as the depth recorded at eye, the point is visible.</li>
+<li>After reprojected, if depths from light and eye are not the same. This point is blocked.</li>
+</ul>
+<h2 id="problems-with-shadow-maps">Problems with shadow maps</h2>
+<ul>
+<li>Hard shadows (point lights only)<br>
+<img src="softshadow.png" alt="hsshadow" title="hard shadow vs. soft shadow"><br>
+As shown in the figurer, only when the light source has volumn can we get soft shadows.</li>
+<li>Quality depends on shadow map resolution(general problem with image-based techniques)</li>
+<li>Involves equality comparison of floating point depthvalues means issues of scale, bias, tolerance</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)</div>
+      <div>http://example.com/2025/01/09/GAMES101-L10-Geometry1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 9, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/11/GAMES101-L13-RayTracing1/" title="GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/07/GAMES101-L07-Shading1/" title="GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)">
+                        <span class="hidden-mobile">GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

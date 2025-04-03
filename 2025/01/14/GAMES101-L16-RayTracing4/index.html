@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Monte Carlo Integration Why: we want to solve an integral (definite integral 定积分), but it can be too difficultto solve analytically. PS: Indefinite Integral and Definite Integral  Definite integral:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAMES 101 L16-Ray Tracing 4 (Monte Carlo Path Tracing)">
+<meta property="og:url" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Monte Carlo Integration Why: we want to solve an integral (definite integral 定积分), but it can be too difficultto solve analytically. PS: Indefinite Integral and Definite Integral  Definite integral:">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/monte_carlo.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/CornellBox.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/monte_carlo_sol1.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/monte_carlo_sol2.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/path_tracing.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/A_SR.png">
+<meta property="og:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/mc_da.png">
+<meta property="article:published_time" content="2025-01-14T06:12:25.704Z">
+<meta property="article:modified_time" content="2025-04-02T21:17:12.189Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/14/GAMES101-L16-RayTracing4/monte_carlo.png">
+  
+  
+  
+  <title>GAMES 101 L16-Ray Tracing 4 (Monte Carlo Path Tracing) - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GAMES 101 L16-Ray Tracing 4 (Monte Carlo Path Tracing)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-14 01:12" pubdate>
+          January 14, 2025 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          577 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          5 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GAMES 101 L16-Ray Tracing 4 (Monte Carlo Path Tracing)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="monte-carlo-integration">Monte Carlo Integration</h1>
+<p><strong>Why</strong>: we want to solve an integral (definite integral 定积分), but it can be too difficultto solve analytically.</p>
+<p>PS: <strong>Indefinite Integral and Definite Integral</strong></p>
+<ul>
+<li>Definite integral:
+<ul>
+<li>It computes the net area under a curve between two specific limits (boundaries).</li>
+<li>Notation: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\int_{a}^bf(x)dx</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3998em;vertical-align:-0.3558em;"></span><span class="mop"><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0006em;">∫</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.044em;"><span style="top:-2.3442em;margin-left:-0.1945em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span style="top:-3.2579em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3558em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord mathnormal">d</span><span class="mord mathnormal">x</span></span></span></span>, where a and b are the lower and upper limits of integration.</li>
+<li>The result is a numerical value representing the total accumulation (e.g., area under the curve) between a and b.</li>
+</ul>
+</li>
+<li>Indefinite integral:
+<ul>
+<li>An indefinite integral represents a family of antiderivative functions of a given function.</li>
+<li>Notation: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∫</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\int f(x)dx</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1111em;vertical-align:-0.3061em;"></span><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0006em;">∫</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord mathnormal">d</span><span class="mord mathnormal">x</span></span></span></span>, without limits of integration.</li>
+<li>The result is a function, plus a constant of integration C, since antiderivatives differ by a constant.</li>
+</ul>
+</li>
+<li>Relationship:
+<ul>
+<li>A definite integral can be evaluated using an indefinite integral by applying the Fundamental Theorem of Calculus: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∫</mo><mi>a</mi><mi>b</mi></msubsup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi>d</mi><mi>x</mi><mo>=</mo><mi>F</mi><mo stretchy="false">(</mo><mi>b</mi><mo stretchy="false">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false">(</mo><mi>a</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\int_{a}^bf(x)dx = F(b) - F(a)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3998em;vertical-align:-0.3558em;"></span><span class="mop"><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0006em;">∫</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.044em;"><span style="top:-2.3442em;margin-left:-0.1945em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span style="top:-3.2579em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3558em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord mathnormal">d</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord mathnormal">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord mathnormal">a</span><span class="mclose">)</span></span></span></span>, where F(x) is the indefinite integral (antiderivative) of f(x).</li>
+</ul>
+</li>
+</ul>
+<p><strong>What &amp; How</strong>: estimate the integral of a function by averaging random samples of the function’s value.</p>
+<p><strong>Basic Idea</strong>:</p>
+<p>Instead of calculating the exact area under a curve or in a multidimensional space, randomly sample points within a domain.<br>
+Use the fraction of points that “fall under the curve” to estimate the integral.</p>
+<p><img src="monte_carlo.png" alt="Monte Carlo Integration"></p>
+<h1 id="path-tracing-路径追踪">Path Tracing (路径追踪)</h1>
+<h2 id="whitted-style-ray-tracing">Whitted-style ray tracing</h2>
+<ul>
+<li>Always perform specular reflections /refractions</li>
+<li>Stop bouncing at difuse surfaces</li>
+</ul>
+<h3 id="problems">Problems</h3>
+<ul>
+<li>Where should the ray be reflected for glossy materials (different from mirror materials)?</li>
+<li>No reflections between diffuse materials? (See the figurer below, with global illumination, the left side of the taller box looks red because of the red wall, which is called color bleeding)<br>
+<img src="CornellBox.png" alt="CornellBox"></li>
+</ul>
+<p>Now we know that Whitted-style ray tracing is wrong, but the rendering equation is correct. The next problem is how to calculate a definite integral over the hemisphere and perform the recursive execution.</p>
+<h2 id="a-simple-monte-carlo-solution">A Simple Monte Carlo Solution</h2>
+<p>Here, we temporarily ignore the emitted radiance term in the rendering equaiton. Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false">(</mo><msub><mi>ω</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mi mathvariant="normal">/</mi><mn>2</mn><mi>π</mi></mrow><annotation encoding="application/x-tex">p(\omega_i) = 1/2\pi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">p</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1/2</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span></span></span></span> because the solid angle corresponding to a sphere is 4pi and the solid angle corresponding to a hemisphere is 2pi.<br>
+<img src="monte_carlo_sol1.png" alt="a simple Monte Carlo solution"></p>
+<p>And thus, we can get a correct shading algorithm for direct illumination, as shown in the figure below. Here, BRDF is related to surface materials and lighting conditions, we can consider them as constants.<br>
+<img src="monte_carlo_sol2.png" alt="a simple Monte Carlo solution"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(p, wo):<br>    Randomly choose N directions wi~pdf<br>    Lo = <span class="hljs-number">0.0</span> <span class="hljs-comment"># Total L at P</span><br>    <span class="hljs-keyword">for</span> each wi:<br>        Trace a ray r(p, wi)<br>        <span class="hljs-keyword">if</span> ray r hit the light:<br>            Lo += (<span class="hljs-number">1</span>/N) * Li * fr * cosine / pdf(wi)<br>    <span class="hljs-keyword">return</span> Lo<br></code></pre></td></tr></table></figure>
+<p>One more step, if a ray hits an object Q, Q will also reflects light to Point P. We can consider it as computing the direct illumination at Q. Therefore, we can get an algorithm for global illumination by simply adding a branch to the algorithm above. Here, we use -wi in shade(q, -wi) because we assume all directions are outward by default.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(p, wo):<br>    Randomly choose N directions wi~pdf<br>    Lo = <span class="hljs-number">0.0</span> <span class="hljs-comment"># Total L at P</span><br>    <span class="hljs-keyword">for</span> each wi:<br>        <span class="hljs-comment"># Trace a ray from point p in direction wi.</span><br>        <span class="hljs-comment"># This checks whether the ray intersects a light source or another object in the scene.</span><br>        Trace a ray r(p, wi)<br>        <span class="hljs-keyword">if</span> ray r hit the light:<br>            Lo += (<span class="hljs-number">1</span>/N) * Li * fr * cosine / pdf(wi)<br>            <span class="hljs-comment"># Li: The radiance emitted by the light source.</span><br>            <span class="hljs-comment"># fr: The BRDF (Bidirectional Reflectance Distribution Function) at p, which defines how light reflects at the surface.</span><br>            <span class="hljs-comment"># cosine: cos(θi), the angle between the surface normal and wi (accounts for incident light angle).</span><br>            <span class="hljs-comment"># pdf(wi): Probability density of sampling direction wi.</span><br>            <span class="hljs-comment"># (1/N): Monte Carlo integration weight (averaging over N samples).</span><br>        <span class="hljs-keyword">else</span> If r hit an <span class="hljs-built_in">object</span> at q:<br>            <span class="hljs-comment"># If the ray hits another object at point q, recursively compute the light at q.</span><br>            Lo += (<span class="hljs-number">1</span>/N) * shade(q, -wi) * fr * cosine / pdf(wi)<br>            <span class="hljs-comment"># Recursively call shade() for point q, with -wi as the outgoing direction.</span><br>            <span class="hljs-comment"># This adds the indirect illumination contribution (light bouncing off other objects).</span><br>    <span class="hljs-keyword">return</span> Lo<br></code></pre></td></tr></table></figure>
+<h2 id="problems-and-solutions">Problems and Solutions</h2>
+<p>However, we still have problems.</p>
+<ol>
+<li>
+<p>Explosion of the number of rays as the number of bounces goes up.<br>
+<code>#rays = N^#bounces$</code><br>
+We notice that <code>#rays</code>increases exponentially as<code>#bounces</code>increases. However, if N (sampling number in monte carlo integration) is equal to 1,<code>#rays</code> won’t increase. So from now on, we always assume that only 1 ray is traced at each shading point:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(p, wo):<br>    Randomly choose ONE directions wi~pdf<br>    Lo = <span class="hljs-number">0.0</span> <span class="hljs-comment"># Total L at P</span><br>    <span class="hljs-keyword">for</span> each wi:<br>        Trace a ray r(p, wi)<br>        <span class="hljs-keyword">if</span> ray r hit the light:<br>            Lo += (<span class="hljs-number">1</span>/N) * Li * fr * cosine / pdf(wi)<br>        <span class="hljs-keyword">else</span> If r hit an <span class="hljs-built_in">object</span> at q:<br>            Lo += (<span class="hljs-number">1</span>/N) * shade(q, -wi) * fr * cosine / pdf(wi)<br>    <span class="hljs-keyword">return</span> Lo<br></code></pre></td></tr></table></figure>
+<p><strong>With N = 1, we have the path tracing</strong> (although there’s a lot of noise) (when N!=1 it’s called distributed ray tracing). Although it will be noisy with only one sampling, we can solve this problem by tracing more paths through each pixel and average their radiance (pseudocode as below).<br>
+<img src="path_tracing.png" alt="path tracing with multiple paths"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">ray_generation(camPos, pixel):<br>    Uniformly choose N sample positions within the pixel<br>    pixel_radiance = <span class="hljs-number">0.0</span><br>    <span class="hljs-keyword">for</span> each sample <span class="hljs-keyword">in</span> the pixel:<br>        Shoot a ray r(camPos,cam_to_sample)<br>        <span class="hljs-keyword">if</span> ray rhit the scene at p<br>            pixel_radiance += <span class="hljs-number">1</span> / N * shade(p, sample_to_cam)<br>    <span class="hljs-keyword">return</span> pixel radiance<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>The recursive algorithm will never stop - we need a base case. The dilemma is that, in the real world the light does not stop bouncing indeed. Cutting <code>#bouncing</code> == cutting energy.<br>
+To solve this, we use Russian Roulette (RR, 俄罗斯轮盘赌), which is all about probability.</p>
+<ul>
+<li>With probability 0 &lt; P &lt; 1, you are fine</li>
+<li>With probability 1 - P, otherwise</li>
+</ul>
+</li>
+</ol>
+<p>Previously, we always shoot a ray at a shading point and get the shading result Lo.<br>
+Now suppose we manually set a probability P (0 &lt; P &lt; 1),</p>
+<ul>
+<li>with probability P, shoot a ray and return the shading result divided by P: Lo / P</li>
+<li>with probability 1-P, don’t shoot a ray and we’ll get 0<br>
+In this way, we can still expect to get Lo: E = P*(Lo/P) + (1-P)*0 = Lo</li>
+</ul>
+<p>With RR, we get a <strong>correct</strong> path tracing method as the pseudocode below shows:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(p，wo):<br>    Manually specify a probability P RR<br>    Randomly select ksi <span class="hljs-keyword">in</span> a uniform dist. <span class="hljs-keyword">in</span> [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>]<br>    <span class="hljs-keyword">if</span> (ksi &gt; PRR):<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0.0</span><br>    Randomly choose ONE direction wi~pdf(w)<br>    Trace a ray r(p,wi)<br>    <span class="hljs-keyword">if</span> ray r hit the light:<br>        <span class="hljs-keyword">return</span> Li*fr*cosine / pdf(wi) /PRR<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ray r hit an <span class="hljs-built_in">object</span> at q:<br>        <span class="hljs-keyword">return</span> shade(q,-wi) * fr * cosine / pdf(wi) / PRR<br></code></pre></td></tr></table></figure>
+<ol start="3">
+<li>After 2., we have got a correct path tracing method, but it’s not that efficient. This is because if we uniformly sample the hemisphere at a shading point and emit a lot of rays from the point, most rays will be wasted (only a few hit the light source).</li>
+</ol>
+<p>Monte Carlo methods allows any sampling methods, so we can sample the <strong>light</strong> rather than the shading point (therefore no rays are “wasted”).<br>
+Assume uniformly sampling on the light:<br>
+pdf = 1/A (because <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∫</mo><mi>p</mi><mi>d</mi><mi>f</mi><mi>d</mi><mi>A</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\int pdf dA = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1111em;vertical-align:-0.3061em;"></span><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0006em;">∫</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">p</span><span class="mord mathnormal">dfd</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>).<br>
+But the rendering equation integrates on the solid angle: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>o</mi></msub><mo>=</mo><mo>∫</mo><msub><mi>L</mi><mi>i</mi></msub><msub><mi>f</mi><mi>r</mi></msub><mi>c</mi><mi>o</mi><mi>s</mi><mi>d</mi><mi>ω</mi></mrow><annotation encoding="application/x-tex">L_o = \int L_i f_r cos d\omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">o</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1111em;vertical-align:-0.3061em;"></span><span class="mop op-symbol small-op" style="margin-right:0.19445em;position:relative;top:-0.0006em;">∫</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathnormal">cos</span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span></span></span>, and monte carlo integration requires “sample on x and integrate on x”. Therefore, we need to convert the rendering equation to an integration of dA rather than dw. See the figure below, think of scalene triangle (相似三角形) and the definition of solid angle. To build a relationship between dA and dw, we can imagine we have a unit sphere (r=1), on which dw (solid angle) is equal to the area corresponding to the solid angle on the sphere surface. Also imagine another sphere, whose r = ||x’-x||, and the corresponding area on the sphere surface is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>A</mi><mi>c</mi><mi>o</mi><mi>s</mi><msup><mi>θ</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">dAcos\theta&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7519em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">A</span><span class="mord mathnormal">cos</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span>. In this case, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>ω</mi><mi mathvariant="normal">/</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">d\omega/1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mord">/1</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>A</mi><mi>c</mi><mi>o</mi><mi>s</mi><msup><mi>θ</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mi mathvariant="normal">/</mi><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∣</mi><msup><mi>x</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>−</mo><mi>x</mi><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">dAcos\theta&#x27;/||x&#x27;-x||</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0019em;vertical-align:-0.25em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">A</span><span class="mord mathnormal">cos</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mord">/∣∣</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">x</span><span class="mord">∣∣</span></span></span></span> represents the same solid angle, and so we got the equation.<br>
+<img src="A_SR.png" alt="light source area and solid angle"><br>
+Then we can rewrite the rendering equation as follows. Now it’s an integration on the light.<br>
+Monte Carlo integration:</p>
+<ul>
+<li>“f(x)”: everything inside</li>
+<li>PDF = 1/A<br>
+<img src="mc_da.png" alt="rewrite"></li>
+</ul>
+<p>Previously, we assume the light is “accidentally” shot by uniform hemisphere sampling. Now we consider the radiance coming from two parts:</p>
+<ul>
+<li>light source (direct, no need to have RR)</li>
+<li>other reflectors (indirect, RR)</li>
+</ul>
+<p>Finally, the pseudocode is as follows.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(P，wo):<br>    <span class="hljs-comment"># Contribution from the light source.</span><br>    Uniformly sample the light at x_prime (pdf_light=<span class="hljs-number">1</span>/A)<br>    L_dir = Li * fr * cos_theta * cos_theta_prime / |x_prime-p|^<span class="hljs-number">2</span> / pdf_light<br>    <span class="hljs-comment"># Contribution from other reflectors.</span><br>    L_indir = <span class="hljs-number">0.0</span><br>    Test Russian Roulette <span class="hljs-keyword">with</span> probability P_RR<br>    Uniformly sample the hemisphere toward wi(pdf_hemi = <span class="hljs-number">1</span> / 2pi)<br>    Trace a ray r(p, wi)<br>    <span class="hljs-keyword">if</span> ray r hit a non-emitting <span class="hljs-built_in">object</span> at q:<br>        L_indir = shade(q,-wi) * fr * cos_theta / pdf_hemi / P_RR<br>    <span class="hljs-keyword">return</span> L_dir + L_indir<br></code></pre></td></tr></table></figure>
+<ol start="4">
+<li>One final thing: how do we know if the sample on the light is blocked or not? We can cast a ray from the shading point p to the sampling point x at the light source, and see if this ray is blocked.</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">shade(P，wo):<br>    <span class="hljs-comment"># Contribution from the light source.</span><br>    L_dir =<span class="hljs-number">0.0</span><br>    Uniformly sample the light at x_prime (pdf_light=<span class="hljs-number">1</span>/A)<br>    Shoot a ray <span class="hljs-keyword">from</span> p to x (p <span class="hljs-keyword">is</span> the shading point <span class="hljs-keyword">and</span> x <span class="hljs-keyword">is</span> the sampling point at the light source)<br>    <span class="hljs-keyword">if</span> the ray <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> blocked <span class="hljs-keyword">in</span> the middle:<br>        L_dir = Li * fr * cos_theta * cos_theta_prime / |x_prime-p|^<span class="hljs-number">2</span> / pdf_light<br>    <span class="hljs-comment"># Contribution from other reflectors.</span><br>    L_indir = <span class="hljs-number">0.0</span><br>    Test Russian Roulette <span class="hljs-keyword">with</span> probability P_RR<br>    Uniformly sample the hemisphere toward wi(pdf_hemi = <span class="hljs-number">1</span> / 2pi)<br>    Trace a ray r(p, wi)<br>    <span class="hljs-keyword">if</span> ray r hit a non-emitting <span class="hljs-built_in">object</span> at q:<br>        L_indir = shade(q,-wi) * fr * cos_theta / pdf_hemi / P_RR<br>    <span class="hljs-keyword">return</span> L_dir + L_indir<br></code></pre></td></tr></table></figure>
+<p>Now the path tracing is finally done!</p>
+<h2 id="a-few-further-questions">A few further questions</h2>
+<ul>
+<li>Uniformly sampling the hemisphere
+<ul>
+<li>How? And in general, how to sample any function? (sampling)</li>
+</ul>
+</li>
+<li>Monte Carlo integration allows arbitrary pdfs
+<ul>
+<li>What’s the best choice? (importance sampling)</li>
+</ul>
+</li>
+<li>Do random numbers matter?
+<ul>
+<li>Yes! (low discrepancy sequences)</li>
+</ul>
+</li>
+<li>I can sample the hemisphere and the light
+<ul>
+<li>Can I combine them? Yes! (multiple importance sampling)</li>
+</ul>
+</li>
+<li>The radiance of a pixel is the average of radiance on all paths passing through it
+<ul>
+<li>Why? (pixel reconstruction filter)</li>
+</ul>
+</li>
+<li>Is the radiance of a pixel the color of a pixel?
+<ul>
+<li>No.(gamma correction, curves, color space)</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GAMES 101 L16-Ray Tracing 4 (Monte Carlo Path Tracing)</div>
+      <div>http://example.com/2025/01/14/GAMES101-L16-RayTracing4/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 14, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/15/CS8803-CGA-L02/" title="CS 8803 CGA - SDF Foundation">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CS 8803 CGA - SDF Foundation</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/13/GAMES101-L15-RayTracing3/" title="GAMES 101 L15-Ray Tracing 3 (Radiometry + BRDF + Probability Review)">
+                        <span class="hidden-mobile">GAMES 101 L15-Ray Tracing 3 (Radiometry + BRDF + Probability Review)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

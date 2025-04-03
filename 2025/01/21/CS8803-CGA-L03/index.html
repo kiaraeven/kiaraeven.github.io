@@ -1,0 +1,723 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="SDF Primitive Transformations Examples: Tanslating Circle&#x2F;Box SDF 1234567891011sdf_circle(vec2 p, float r)&#123;  return length(p) - r; &#x2F;&#x2F; sdf to a circle centered at (0,0)&#125;&#x2F;&#x2F; extend this sdf fun">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS 8803 CGA - SDF Transformation and Combination">
+<meta property="og:url" content="http://example.com/2025/01/21/CS8803-CGA-L03/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="SDF Primitive Transformations Examples: Tanslating Circle&#x2F;Box SDF 1234567891011sdf_circle(vec2 p, float r)&#123;  return length(p) - r; &#x2F;&#x2F; sdf to a circle centered at (0,0)&#125;&#x2F;&#x2F; extend this sdf fun">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Union.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Intersect.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Complement.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Substraction.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Substraction_math.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/BooleanOpsTakeaways.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/CSG_TREE_EG.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/smooth_min.png">
+<meta property="og:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Deform.png">
+<meta property="article:published_time" content="2025-01-22T03:35:37.844Z">
+<meta property="article:modified_time" content="2025-02-21T05:26:53.844Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="SDF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/21/CS8803-CGA-L03/SDF_Union.png">
+  
+  
+  
+  <title>CS 8803 CGA - SDF Transformation and Combination - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CS 8803 CGA - SDF Transformation and Combination"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-21 22:35" pubdate>
+          January 21, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          380 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          4 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CS 8803 CGA - SDF Transformation and Combination</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="sdf-primitive-transformations">SDF Primitive Transformations</h2>
+<h3 id="examples-tanslating-circlebox-sdf">Examples: Tanslating Circle/Box SDF</h3>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs glsl">sdf_circle(<span class="hljs-type">vec2</span> p, <span class="hljs-type">float</span> r)<br>&#123;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">length</span>(p) - r; <span class="hljs-comment">// sdf to a circle centered at (0,0)</span><br>&#125;<br><br><span class="hljs-comment">// extend this sdf function to a circle with an arbitrary center c</span><br><br>sdf_circle(<span class="hljs-type">vec2</span> p, <span class="hljs-type">vec2</span> c, <span class="hljs-type">float</span> r)<br>&#123;<br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">length</span>(p-c) - r;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs glsl">sdf_box(<span class="hljs-type">vec2</span> p, <span class="hljs-type">vec2</span> b)<br>&#123;<br>  <span class="hljs-comment">// Use abs(p) to assume p.x and p.y are both positive</span><br>  <span class="hljs-comment">// If p is inside the box, d will have both components negative.</span><br>  <span class="hljs-type">vec2</span> d = <span class="hljs-built_in">abs</span>(p)-b; <span class="hljs-comment">// b = (Rx/2, Ry/2), Rx and Ry are the half width and half height of the box</span><br>  <span class="hljs-comment">// max(d, 0.0) keeps only the non-negative components of d, effectively ignoring the negative parts. This means it captures how far each component of p is outside of the box.</span><br>  <span class="hljs-comment">// min(max(d.x, d.y), 0.0) adds a correction for points inside the box by taking the maximum coordinate, which could be negative, ensuring that the signed distance remains an accurate representation of how far inside the box p is.</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">length</span>(<span class="hljs-built_in">max</span>(d, <span class="hljs-number">0.0</span>)) + <span class="hljs-built_in">min</span>(<span class="hljs-built_in">max</span>(d.x, d.y), <span class="hljs-number">0.0</span>);<br>&#125;<br><br><span class="hljs-comment">// extend this sdf function to a box with an arbitrary center c</span><br><br>sdf_box(<span class="hljs-type">vec2</span> p, <span class="hljs-type">vec2</span> c, <span class="hljs-type">vec2</span> b)<br>&#123;<br>  <span class="hljs-type">vec2</span> d = <span class="hljs-built_in">abs</span>(p-c)-b; <span class="hljs-comment">// p&#x27; = p - c</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">length</span>(<span class="hljs-built_in">max</span>(d, <span class="hljs-number">0.0</span>)) + <span class="hljs-built_in">min</span>(<span class="hljs-built_in">max</span>(d.x, d.y), <span class="hljs-number">0.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="general-approach">General Approach</h3>
+<p>Recall the transformation matrices, we can get a transformed result simply by a matrix-vector multiplication.</p>
+<p>To transform an SDF object, the key idea is to transform the query point instead of the SDF object. We simply <strong>transform the query point with the inverse of the transformation</strong> used to transform the object.</p>
+<p>For example, if we want to translate an SDF object by (+1, -2), what we need to do is to translate every query point p by (-1, +2) and use it to query from the original SDF.</p>
+<p>Similarly, we can use the same idea to rotate or scale an SDF object. For example, if we want to rotate an SDF by 30 degrees CCW, we can rotate the query point by 30 degrees CW and then query.</p>
+<h3 id="example-for-matrix-based-transformation">Example for matrix-based transformation</h3>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs glsl">sdf_box(<span class="hljs-type">vec2</span> p, <span class="hljs-type">float</span> a, <span class="hljs-type">vec2</span> b)<br>&#123;<br><span class="hljs-type">mat2</span> rot = <span class="hljs-type">mat2</span>(<span class="hljs-built_in">cos</span>(-a), -<span class="hljs-built_in">sin</span>(-a), <span class="hljs-built_in">sin</span>(-a), <span class="hljs-built_in">cos</span>(-a));<br><span class="hljs-type">vec2</span> rotated_p = rot * p;<br><span class="hljs-type">vec2</span> d = <span class="hljs-built_in">abs</span>(rotated_p)-b;<br><span class="hljs-keyword">return</span> <span class="hljs-built_in">length</span>(<span class="hljs-built_in">max</span>(d, <span class="hljs-number">0.0</span>)) + <span class="hljs-built_in">min</span>(<span class="hljs-built_in">max</span>(d.x, d.y), <span class="hljs-number">0.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="sdf-primitive-combinations">SDF Primitive Combinations</h2>
+<h3 id="boolean-operations">Boolean operations</h3>
+<h4 id="sdf-union-mathematical-explaination">SDF Union: Mathematical Explaination</h4>
+<p>As shown in the figure below, the union of two SDFs is the shape that contains all points that are inside at least one of the two shapes.</p>
+<ul>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">\phi1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">1</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\phi2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">2</span></span></span></span> are both positive, then the point lies outside both shapes. The result is the shape closer to the surface.</li>
+<li>If one function is negative (inside a shape) and the other is positive, the result is inside the corresponding shape.</li>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">\phi1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">1</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\phi2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">2</span></span></span></span> are both negative, then the point lies inside both shapes. The min operation ensures that the result is still inside the shape.</li>
+<li>Therefore, for union, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mi>m</mi><mi>i</mi><mi>n</mi><mo stretchy="false">(</mo><mi>ϕ</mi><mn>1</mn><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>ϕ</mi><mn>2</mn><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p) = min(\phi1(p), \phi2(p))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">min</span><span class="mopen">(</span><span class="mord mathnormal">ϕ</span><span class="mord">1</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">2</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">))</span></span></span></span></li>
+</ul>
+<p><img src="SDF_Union.png" alt="SDF Union"></p>
+<h4 id="sdf-intersection-mathematical-explaination">SDF Intersection: Mathematical Explaination</h4>
+<p>The intersection of two SDFs is the shape that contains all points that are inside both shapes.</p>
+<ul>
+<li>If both SDFs are negative, the point lies inside both shapes. The result is the shape that contains the intersection of both.</li>
+<li>If one function is negative (inside a shape) and the other is positive, the result is outside the corresponding shape.</li>
+<li>If both SDFs are positive, the point lies outside both shapes. The result is the shape closer to the surface of the intersection.</li>
+<li>Therefore, for intersection, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false">(</mo><mi>ϕ</mi><mn>1</mn><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>ϕ</mi><mn>2</mn><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(p) = max(\phi1(p), \phi2(p))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ma</span><span class="mord mathnormal">x</span><span class="mopen">(</span><span class="mord mathnormal">ϕ</span><span class="mord">1</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">2</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mclose">))</span></span></span></span></li>
+</ul>
+<p><img src="SDF_Intersect.png" alt="SDF Intersection"></p>
+<h4 id="sdf-complement">SDF Complement</h4>
+<ul>
+<li>Calculating the complement of a given SDF is simply negating its sign</li>
+<li>If a point is inside the shape (-), then it is outside the complement of the shape (+); the distance value remains the same.</li>
+</ul>
+<p><img src="SDF_Complement.png" alt="SDF Complement"></p>
+<h4 id="sdf-intersection-mathematical-explaination">SDF Intersection: Mathematical Explaination</h4>
+<ul>
+<li>The subtraction of two SDFs is the shape that contains all points that are inside one but not the other.</li>
+<li>The easiest way to understand subtraction is to think of it as the intersection (where the max operation comes from) between the first shape (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">\phi1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">1</span></span></span></span>) and the complement of the second shape (−<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">\phi2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mord">2</span></span></span></span>).</li>
+<li>Therefore, for substraction, <span class="katex-error" title="ParseError: KaTeX parse error: Undefined control sequence: \- at position 25: … max(\phi1(p), \̲-̲phi2(p))">\phi(p) = max(\phi1(p), \-phi2(p))</span></li>
+</ul>
+<p><img src="SDF_Substraction.png" alt="SDF Substraction"><br>
+<img src="SDF_Substraction_math.png" alt="SDF Substraction"></p>
+<h4 id="key-takeaways-for-sdf-boolean-operations">Key Takeaways for SDF Boolean Operations</h4>
+<p><img src="BooleanOpsTakeaways.png" alt="Key Takeaways for SDF Boolean Operations"></p>
+<p><strong>Boolean operations including union, intersection, and substraction can be easily extended to 3D.</strong></p>
+<h3 id="constructive-solid-geometry-csg">Constructive Solid Geometry (CSG)</h3>
+<ul>
+<li>CSG creates complex shapes by combining simpler ones</li>
+<li>It represents 3D objects through Boolean operations on primitive shapes</li>
+<li>Typically, we use a <strong>CSG tree</strong> to represent a 3D object in terms of its primitive shapes (e.g., sphere, cube, cylinder) and the Boolean operations (union, intersection, subtraction).</li>
+</ul>
+<h4 id="csg-tree">CSG tree</h4>
+<h5 id="definition">Definition</h5>
+<ul>
+<li>A CSG tree is a hierarchical data structure used to represent a 3D object with its primitive shapes and the Boolean operations.</li>
+<li>The leaf nodes of the tree represent the basic primitives.</li>
+<li>The internal nodes represent the Boolean operations applied to the primitives or other subtrees.</li>
+<li>We typically construct a CSG tree in a bottom-up manner.</li>
+</ul>
+<h5 id="construction">Construction</h5>
+<p>Construct a CSG tree based on primitives and operations in a bottom-up manner:</p>
+<ul>
+<li>Start with primitives: Use basic shapes like cubes, spheres, cones, cylinders, etc., as the leaves of the tree.</li>
+<li>Apply boolean operations: Combine primitives using Union, Intersection, or Subtraction. Internal nodes represent these operations.</li>
+<li>Build the tree recursively: Start from the leaf nodes (primitives) and apply the operations recursively. The root node represents the final operation that combines all primitives into the desired object.</li>
+</ul>
+<h5 id="example-construct-csg-tree">Example: Construct CSG tree</h5>
+<p>Call the SDF Boolean operations step by step in a bottom-up way</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl">s6 = sdfIntersection(s1, s2);<br>s7 = sdfUnion(s4, s5);<br>s8 = sdfUnion(s3, s7);<br>s = sdfSubtraction(s6, s8);<br></code></pre></td></tr></table></figure>
+<p><img src="CSG_TREE_EG.png" alt="CSG Example"></p>
+<h2 id="sdf-primitive-smooth-combinations">SDF Primitive Smooth Combinations</h2>
+<p>We expect to get rid of the visible edges between primitives caused by sculpting organic shapes by the union operation.</p>
+<h3 id="sdf-smooth-combination">SDF Smooth Combination</h3>
+<p>Key Idea: Use a smooth version of min() and max() in Boolean operations to smooth the transition between two shapes.<br>
+<img src="smooth_min.png" alt="SDF Smooth Combination"></p>
+<h3 id="how-to-define-a-smooth-minmax">How to define a smooth min/max()</h3>
+<p>One of the simple examples is:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo></mrow></msub><mo>=</mo><mo>−</mo><mi>k</mi><mi>l</mi><mi>o</mi><msub><mi>g</mi><mn>2</mn></msub><mo stretchy="false">(</mo><msup><mn>2</mn><mrow><mo>−</mo><mi>a</mi><mi mathvariant="normal">/</mi><mi>k</mi></mrow></msup><mo>+</mo><msup><mn>2</mn><mrow><mo>−</mo><mi>b</mi><mi mathvariant="normal">/</mi><mi>k</mi></mrow></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">S_{min(a, b)} = -klog_2(2^{-a/k} + 2^{-b/k})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0385em;vertical-align:-0.3552em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.5198em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">a</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">b</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3552em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight">a</span><span class="mord mtight">/</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight">b</span><span class="mord mtight">/</span><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></p>
+<ul>
+<li>When a and b are similar: If a and b are close to each other, the exponential terms will be similarly sized, and the smooth minimum will be a value close to a and b.</li>
+<li>When a and b differ significantly: If one of the values is much larger than the other, the exponential terms will decay faster for the larger value, and the smooth minimum will approximate the smaller value more closely.</li>
+<li>When k is small, the function becomes less “smooth” and approximates a hard minimum. The transition between a and b happens more abruptly.</li>
+<li>When k is large, the function becomes smoother and the transition between a and b is gradual. The function behaves more like a weighted average than a minimum.</li>
+</ul>
+<p><em>See IQ’s website for more implementations.</em></p>
+<h2 id="sdf-primitive-deformations">SDF Primitive Deformations</h2>
+<p>Add a small displacement field onto the original SDF field to model the small bumps on a surface.<br>
+<img src="SDF_Deform.png" alt="SDF Deformations"></p>
+<p><em>Similar to the displacement mapping.</em></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/SDF/" class="print-no-link">#SDF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CS 8803 CGA - SDF Transformation and Combination</div>
+      <div>http://example.com/2025/01/21/CS8803-CGA-L03/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 21, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/23/CS8803-CGA-L04/" title="CS 8803 CGA - SDF Rendering">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CS 8803 CGA - SDF Rendering</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/19/GAMES101-L18-AdvancedTopics/" title="GAMES 101 L18-Advanced Topics">
+                        <span class="hidden-mobile">GAMES 101 L18-Advanced Topics</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
