@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/KDTree.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/BVH.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-04-03T03:09:13.352Z">
+<meta property="article:modified_time" content="2025-04-03T06:37:04.277Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          17k words
+          18k words
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          145 mins
+          151 mins
         
       </span>
     
@@ -1163,7 +1163,8 @@ Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br
 <h3 id="8-多边形相交如何判定两个不规则多边形发生碰撞">(8) 多边形相交/如何判定两个不规则多边形发生碰撞</h3>
 <h2 id="16-view-矩阵-和-projection-矩阵的推导">16. view 矩阵 和 projection 矩阵的推导</h2>
 <p>view 矩阵推导见：<a href="/2025/04/02/view-mat/"> view 矩阵推导</a><br>
-projection 矩阵推导见：</p>
+projection 矩阵推导见：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/122411512"> 推导透视矩阵</a>; <a target="_blank" rel="noopener" href="https://www.zhyingkun.com/perspective/perspective/"> 深入理解透视矩阵</a></p>
+<p>无论是正交投影还是透视投影矩阵，都是通过裁剪操作移除那些不在视锥体内的部分，只保留可见的部分。两者都将视锥体（只不过正交投影假设视锥体是一个长方体，而透视投影假设视锥体是一个平头锥）映射到一个标准化的立方体 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">[−1,1]^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span> 范围内。这种标准化确保了所有在视锥体内的点都被统一处理，便于后续的裁剪和光栅化。</p>
 <h2 id="17-多线程下-opengl-的-share_context-的哪些类型可以正常读写vbo-fbo-vao-programe">17. 多线程下 opengl 的 share_context 的哪些类型可以正常读写（vbo fbo vao programe）</h2>
 <h2 id="18-drawcall-shader-的优化经验-少用除法-改用乘法">18. Drawcall Shader 的优化经验 （少用除法 改用乘法）</h2>
 <h2 id="19-欧拉角-矩阵-四元数表示旋转的区别和优缺点">19. 欧拉角、矩阵、四元数表示旋转的区别和优缺点</h2>
@@ -1171,17 +1172,41 @@ projection 矩阵推导见：</p>
 <p>（1）欧拉角：定义了绕着三个坐标轴的旋转角，来确定刚体的旋转位置的方式，包括俯仰角 pitch，偏航角 yaw 和滚动角 roll；它的优点是比较直观，而且单个维度上的角度也比较容易插值；缺点是它不能进行任意方向的插值，而且会导致万向节死锁的问题，旋转的次序对结果也有影响</p>
 <p>（2）矩阵：优点是不受万向节死锁的影响，可以独一无二的表达任意旋转，并且可以通过矩阵乘法来对点或矢量进行旋转变换；现在多数 CPU 以及所有 GPU 都有内置的硬件加速点积和矩阵乘法；缺点是不太直观，而且需要比较大的存储空间，也不太容易进行插值计算。</p>
 <p>（3）四元数：四元数的好处是能够串接旋转；能把旋转直接作用于点或者矢量；而且能够进行旋转插值；另外它所占用的存储空间也比矩阵小；四元数可以解决万向节死锁的问题。</p>
-<h2 id="20">20.</h2>
+<h2 id="20-切线空间法线-切线-副切线">20. 切线空间（法线、切线、副切线）</h2>
+<ul>
+<li>切线空间 (Tangent Space) 是指以每个表面点为中心建立的一个局部坐标系，通常由 三个正交单位向量 组成：
+<ul>
+<li>法线向量 (Normal, N)：指向垂直于表面的方向</li>
+<li>切线向量 (Tangent, T)：沿着表面 UV 坐标的 U 方向</li>
+<li>副切线 (Binormal/Bitangent, B)：沿着表面 UV 坐标的 V 方向</li>
+<li>通常通过叉乘计算：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mi>N</mi><mo>×</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">B = N \times T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span></span></span></span></li>
+</ul>
+</li>
+<li>切线空间的 最大作用：
+<ul>
+<li>将<strong>纹理空间</strong>（UV 坐标系）中的法线信息，转换到<strong>世界空间或视图空间</strong>参与光照计算。</li>
+<li>在 法线贴图 (Normal Mapping) 中，纹理中的法线是 Tangent Space 法线，渲染时必须 将其变换到世界空间或视图空间，与光源方向、视线方向进行正确的光照运算。</li>
+<li>Tangent Space 转换时通常会构造：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>B</mi><mi>N</mi><mo>=</mo><mo stretchy="false">[</mo><mi>T</mi><mo separator="true">,</mo><mi>B</mi><mo separator="true">,</mo><mi>N</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">TBN = [T,B,N]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">TBN</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">]</span></span></span></span>，用于将 Tangent Space 法线 转换到 世界空间法线 公式：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mrow><mi>w</mi><mi>o</mi><mi>r</mi><mi>l</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>T</mi><mi>B</mi><mi>N</mi><mo>×</mo><msub><mi>N</mi><mrow><mi>t</mi><mi>a</mi><mi>n</mi><mi>g</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">N_{world} = TBN \times N_{tangent}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">TBN</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">an</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+</li>
+<li>优势：<br>
+  - <strong>可重用性</strong>与纹理空间绑定：切线空间法线贴图是与模型 UV 坐标绑定的，只需要一张法线贴图，就可以在<strong>不同位置、不同旋转、不同缩放下复用</strong>，与模型变换无关。如果你存储世界空间法线贴图：模型一旦旋转、移动，法线方向就不正确了，每次变换都要重新生成法线贴图，不现实。<br>
+  - 节省存储：切线空间法线贴图的法线始终在 局部切线空间，可以紧凑<strong>存储为 RGB 纹理</strong> (3 个分量)，即<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>R</mi><mo separator="true">,</mo><mi>G</mi><mo separator="true">,</mo><mi>B</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo separator="true">,</mo><mi>z</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(R,G,B) = (x,y,z)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">G</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mclose">)</span></span></span></span>。z 分量通常可以通过 x、y 推导，存为 2 通道节省空间。而世界空间法线贴图需要额外存储变换信息，且无法复用，存储成本更高<br>
+  - <strong>适应动态变形模型</strong>：比如 骨骼动画、顶点动画、形变网格。切线空间法线贴图可以随着模型变形自动适应，因为法线贴图信息是 相对于表面 UV 坐标系 的，不需要重新生成法线贴图</li>
+</ul>
 <h2 id="21-vulkan-renderpass-subpass-理解-透明物体放同一个-renderpass-还是不同">21. vulkan renderpass subpass 理解 透明物体放同一个 renderpass 还是不同</h2>
 <h2 id="22-vulkan-memorybarrir">22. vulkan memorybarrir</h2>
 <h2 id="23-vulkan-的-shader-buffer-类型-如何区分频繁更新和偶尔更新">23. vulkan 的 shader buffer 类型 如何区分频繁更新和偶尔更新</h2>
-<h2 id="24">24.</h2>
+<h2 id="24-什么是齐次坐标齐次坐标有什么作用">24. 什么是齐次坐标，齐次坐标有什么作用</h2>
+<ul>
+<li>统一表示仿射变换：在欧几里得空间，<strong>平移不能用矩阵乘法表示</strong>，必须用加法。而在齐次坐标空间，所有 平移、旋转、缩放、投影都可以用 4×4 矩阵乘法统一表达，大大简化了图形变换的计算和管线设计。</li>
+</ul>
 <h2 id="25-隐式欧拉积分-显式欧拉积分">25. 隐式欧拉积分 显式欧拉积分</h2>
 <h2 id="26-ibl-原理">26. IBL 原理</h2>
 <h2 id="27-xpbd-原理">27. XPBD 原理</h2>
 <h2 id="28">28.</h2>
-<h2 id="29-什么是齐次坐标齐次坐标有什么作用">29. 什么是齐次坐标，齐次坐标有什么作用</h2>
-<h2 id="30-切线空间顶点的法线-切线-副切线">30. 切线空间（顶点的法线、切线、副切线）</h2>
+<h2 id="29">29.</h2>
+<h2 id="30">30.</h2>
 <h2 id="31">31.</h2>
 <h1 id="references">References</h1>
 <ul>
