@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-05T21:11:58.465Z">
+<meta property="article:modified_time" content="2025-04-07T04:51:56.541Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          296 words
+          2.2k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          3 mins
+          19 mins
         
       </span>
     
@@ -283,13 +283,16 @@
                 
                 <p>I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer network and os part? Let’s see if we have enough room for these two parts in this blog, or we need another new blog for them …). Anyway, let’s review cpp basics. Again, this is for interviews in Chinese, so I’ll use English only when it’s necessary.</p>
 <h1 id="c-basics">C++ Basics</h1>
-<ol>
-<li>
-<p>虚函数<br>
-(1) 多态虚函数原理<br>
-(2) 不实现虚函数会报错吗？什么错？<br>
-(3) 构建空间是否连续</p>
-</li>
+<h2 id="1-虚函数">1. 虚函数</h2>
+<p>虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当用基类的指针来操作一个派生类的时候，这张虚函数表就指明了实际应该调用的函数。</p>
+<h3 id="1-多态虚函数原理">(1) 多态虚函数原理</h3>
+<h3 id="2-不实现虚函数会报错吗什么错">(2) 不实现虚函数会报错吗？什么错？</h3>
+<h3 id="3-构建空间是否连续">(3) 构建空间是否连续</h3>
+<h3 id="4-创建-10-个实例有几个虚函数表">(4) 创建 10 个实例有几个虚函数表？</h3>
+<h3 id="5-哪些函数不能是虚函数">(5) 哪些函数不能是虚函数</h3>
+<p>构造、内联、静态成员、lamda 函数</p>
+<p>1 个，虚函数表数量与实例的对象数量无关</p>
+<ol start="2">
 <li>
 <p>智能指针<br>
 (1) 智能指针类型<br>
@@ -301,7 +304,7 @@
 <li>
 <p>move<br>
 (1) 左值右值<br>
-(2) move 原理<br>
+(2) move 原理 / 移动语义的概念和优势<br>
 (3) 完美转发 (使用场景)</p>
 </li>
 <li>
@@ -323,22 +326,144 @@
 <li>
 <p>c++的源码到 exe 的过程</p>
 </li>
+</ol>
+<h2 id="11-c的动态链接静态链接">11. c++的动态链接静态链接</h2>
+<h2 id="12-c的运行内存分区">12. c++的运行内存分区</h2>
+<p>栈：目前绝大部分 CPU 体系都是基于栈来运行程序，栈中主要存放函数的局部变量、函数参数、返回地址等，栈空间一般由操作系统进行默认分配或者程序指定分配，栈空间在进程生存周期一直都存在，当进程退出时，操作系统才会对栈空间进行回收。</p>
+<p>堆：动态申请的内存空间，就是由 malloc 函数或者 new 函数分配的内存块，由程序控制它的分配和释放，可以在程序运行周期内随时进行申请和释放，如果进程结束后还没有释放，操作系统会自动回收。</p>
+<p>全局区/静态存储区：存放全局变量和静态变量，程序运行结束操作系统自动释放。虚函数表存储在这里。</p>
+<p>常量存储区：存放的是常量，不允许修改，程序运行结束自动释放。</p>
+<p>代码区：存放代码，不允许修改，但可以执行。编译后的二进制文件存放在这里。</p>
+<h3 id="1-如何在栈上分配一定的内存会有什么问题">(1) 如何在栈上分配一定的内存？会有什么问题？</h3>
+<h3 id="2-如何检查和处理内存泄露的问题">(2) 如何检查和处理内存泄露的问题？</h3>
+<ol start="13">
 <li>
-<p>c++的动态链接静态链接</p>
+<p>如何构造一个只能在堆上创建对象的类？如何构造一个只能在栈上创建对象的类？</p>
 </li>
 <li>
-<p>c++的运行内存分配<br>
-(1) 如何在栈上分配一定的内存？会有什么问题？<br>
-(2) 如何检查和处理内存泄露的问题？</p>
+<p>简单解释一下 C++异常处理机制（try-catch）的工作原理。</p>
+</li>
+<li>
+<p>为什么不鼓励使用 auto？</p>
+</li>
+<li>
+<p>c++ 11 新特性</p>
+</li>
+<li>
+<p>是否了解函数的调用约定？</p>
 </li>
 </ol>
+<ul>
+<li>调用函数与被调用函数之间堆栈的平衡是如何实现的？</li>
+<li>函数调用的堆栈平衡具体如何实现？</li>
+<li>栈帧是调用函数生成还是被调用函数生成？</li>
+</ul>
+<h2 id="18-new-和-malloc-的区别-delete-和-free-有什么区别">18. new 和 malloc 的区别 / delete 和 free 有什么区别</h2>
+<ul>
+<li>
+<p>new 和 malloc 的区别</p>
+<ul>
+<li>new 在申请内存的同时，会调用对象的构造函数，对象会进行初始化，malloc 仅仅在堆中申请一块指定大小的内存空间，并不会对内存和对象进行初始化。</li>
+<li>new 是 c++ 中的一个操作符，而 malloc 是 C 中的一个函数。</li>
+<li>new 作为一个运算符可以进行重载，而 malloc 作为一个函数不支持重载。</li>
+<li>new 内存分配成功，返回该对象类型的指针，分配失败，抛出 bad_alloc 异常；而 malloc 成功申请到内存，返回指向该内存的指针；分配失败，返回 NULL 指针。</li>
+<li>new 的空间大小由编译器会自动计算，而 malloc 则需要指定空间大小。</li>
+</ul>
+</li>
+<li>
+<p>delete 和 free 有什么区别</p>
+<ul>
+<li>delete 是 C++ 中的一个操作符，可以进行重载；而 free 是 C 中的一个函数，不能进行重载。</li>
+<li>free 只会释放指向的内存，不会执行对象的析构函数；delete 则可以执行对象的析构函数。</li>
+</ul>
+</li>
+</ul>
+<h2 id="19-lambda-函数">19. Lambda 函数</h2>
+<h2 id="20-指针和引用的区别">20. 指针和引用的区别</h2>
+<ul>
+<li>指针是一个变量，只不过这个变量存储的是一个地址，指向内存的一个存储单元，即指针是一个实体；而引用跟原来的变量实质上是一个东西，只不过是原变量的一个别名而已。</li>
+<li>可以有 const 指针，但是没有 const 引用；</li>
+<li>指针可以有多级，但是引用只能是一级；</li>
+<li>指针的值可以为空，但是引用的值不能为 NULL，并且引用在定义的时候必须初始化；</li>
+<li>指针的值在初始化后可以改变，即指向其它的存储单元，而引用在进行初始化后就不会再改变。</li>
+</ul>
+<h2 id="21-指针常量-和-常量指针">21. 指针常量 和 常量指针</h2>
+<ul>
+<li>
+<p>记忆方法</p>
+<ul>
+<li>指针常量：指针本身是一个常量。<code>const</code> <strong>靠近指针名</strong>，说明指针本身是常量，地址不能变。</li>
+<li>常量指针：常量的指针。<code>const</code> <strong>靠近数据类型</strong>，说明指针指向的内容是常量，内容不能变。</li>
+</ul>
+</li>
+<li>
+<p>指针常量</p>
+<ul>
+<li>定义：指针本身是一个常量，它的地址不能改变，但可以改变它指向的内容。</li>
+<li>语法：<code>数据类型 *const 指针名;</code></li>
+<li><code>const</code> 关键字修饰的是指针本身。</li>
+<li>特点：
+<ul>
+<li>指针的地址在初始化后不能更改。</li>
+<li>指针指向的内容可以修改。</li>
+</ul>
+</li>
+<li><strong>例子</strong>：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>, b = <span class="hljs-number">20</span>;<br><span class="hljs-type">int</span> *<span class="hljs-type">const</span> ptr = &amp;a;  <span class="hljs-comment">// ptr 是一个指针常量，指向 a</span><br>*ptr = <span class="hljs-number">30</span>;            <span class="hljs-comment">// 允许修改 a 的值为 30</span><br><span class="hljs-comment">// ptr = &amp;b;          // 错误：不能改变 ptr 的地址</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>常量指针</p>
+<ul>
+<li>定义：指针指向的内容是常量，不能修改，但指针本身的地址可以改变。</li>
+<li>语法：<code>const 数据类型 *指针名;</code> 或 <code>数据类型 const *指针名;</code></li>
+<li><code>const</code> 关键字修饰的是指针指向的内容。</li>
+<li>特点：
+<ul>
+<li>指针的地址可以更改。</li>
+<li>指针指向的内容不能修改。</li>
+</ul>
+</li>
+<li>例子：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>, b = <span class="hljs-number">20</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span> *ptr = &amp;a;  <span class="hljs-comment">// ptr 是一个常量指针，指向 a</span><br><span class="hljs-comment">// *ptr = 30;         // 错误：不能修改 a 的值</span><br>ptr = &amp;b;             <span class="hljs-comment">// 允许：可以改变 ptr 的地址，指向 b</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>应用场景</p>
+<ul>
+<li>指针常量：当需要一个固定指向某个地址的指针时，比如硬件寄存器的地址。</li>
+<li>常量指针：当需要保护数据不被意外修改时，比如传递给函数的参数。</li>
+</ul>
+</li>
+</ul>
+<h2 id="22-构造函数和析构函数能不能为虚函数">22. 构造函数和析构函数能不能为虚函数？</h2>
+<ul>
+<li>构造函数不能声明为虚函数：虚函数的调用依赖于对象的虚表（vtable），而虚表的初始化是在构造函数中完成的。在构造函数执行时，对象尚未完全初始化，虚表也未完全构建。如果构造函数是虚函数，就会形成逻辑上的矛盾：虚表尚未初始化，虚函数机制无法正常工作。</li>
+<li>析构函数一般声明为虚函数：析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数，会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。</li>
+</ul>
+<h2 id="23-vector">23. vector</h2>
+<h3 id="1-vector-里加入-10-万数据游戏中有对象的指针指向这些数据这可能有什么问题">(1) vector 里加入 10 万数据，游戏中有对象的指针指向这些数据，这可能有什么问题？</h3>
+<p>这和上一个问题，vector 的扩容息息相关，vector 发生扩容时会分配更大的内存，将原内存数据拷贝过来，然后释放之前的内存，如果有指针指向此前的地址，释放之后，指针将不能正常访问到此前的数据。</p>
+<h3 id="2-vector-如何快速删除内部对象-要求-o1时间复杂度">(2) vector 如何快速删除内部对象。（要求 O(1)时间复杂度）</h3>
+<p>将要删除的对象和尾部对象 swap，然后直接 pop_back 即可。</p>
+<h2 id="24-多线程的锁有哪些分别有什么区别">24. 多线程的锁有哪些？分别有什么区别？</h2>
 <h1 id="计算机网络">计算机网络</h1>
-<ol>
-<li>TCP UDP 原理和区别</li>
-<li>moba 设计 UDP TCP 的选择</li>
-<li>TCP 粘包</li>
-<li>可靠 UDP 的实现思路</li>
-</ol>
+<h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
+<h2 id="2-tcp-udp-原理和区别">2. TCP UDP 原理和区别</h2>
+<ul>
+<li>
+<p>UDP 是无连接的，TCP 是面向连接的；</p>
+</li>
+<li>
+<p>UDP 是不可靠传输，TCP 是可靠传输；</p>
+</li>
+<li>
+<p>UDP 是面向报文传输，TCP 是面向字节流传输。</p>
+</li>
+</ul>
+<h2 id="3-moba-设计-udp-tcp-的选择">3. moba 设计 UDP TCP 的选择</h2>
+<h2 id="4-tcp-粘包">4. TCP 粘包</h2>
+<h2 id="5-可靠-udp-的实现思路">5. 可靠 UDP 的实现思路</h2>
 <h1 id="操作系统">操作系统</h1>
 <ol>
 <li>
@@ -350,6 +475,10 @@
 <li>
 <p>线程/进程通讯及切换原理</p>
 </li>
+</ol>
+<p>进程间通讯的方式？</p>
+<p>管道通信，消息队列，共享内存，socket，串口都可以实现。</p>
+<ol start="4">
 <li>
 <p>两个函数同一个地址执行问题</p>
 </li>
@@ -360,6 +489,10 @@
 <p>共享内存的实现</p>
 </li>
 </ol>
+<h1 id="设计模式">设计模式</h1>
+<h2 id="1-工厂模式">1. 工厂模式</h2>
+<p>Resources:<br>
+<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30556448622">https://zhuanlan.zhihu.com/p/30556448622</a></p>
 
                 
               </div>
