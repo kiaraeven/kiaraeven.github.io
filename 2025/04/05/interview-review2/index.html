@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-10T06:29:10.426Z">
+<meta property="article:modified_time" content="2025-04-11T04:25:06.084Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.5k words
+          3.5k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          21 mins
+          29 mins
         
       </span>
     
@@ -283,30 +283,42 @@
                 
                 <p>I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer network and os part? Let’s see if we have enough room for these two parts in this blog, or we need another new blog for them …). Anyway, let’s review cpp basics. Again, this is for interviews in Chinese, so I’ll use English only when it’s necessary.</p>
 <h1 id="c-basics">C++ Basics</h1>
-<h2 id="1-虚函数">1. 虚函数</h2>
+<h2 id="1-多态虚函数">1. 多态/虚函数</h2>
 <p>虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当用基类的指针来操作一个派生类的时候，这张虚函数表就指明了实际应该调用的函数。</p>
-<h3 id="1-多态虚函数原理">(1) 多态虚函数原理</h3>
-<h3 id="2-不实现虚函数会报错吗什么错">(2) 不实现虚函数会报错吗？什么错？</h3>
-<h3 id="3-构建空间是否连续">(3) 构建空间是否连续</h3>
-<h3 id="4-创建-10-个实例有几个虚函数表">(4) 创建 10 个实例有几个虚函数表？</h3>
-<h3 id="5-哪些函数不能是虚函数">(5) 哪些函数不能是虚函数</h3>
-<p>构造、内联、静态成员、lamda 函数</p>
+<h3 id="1-多态的定义-原理-实现">(1) 多态的定义、原理、实现</h3>
+<h3 id="2-多态虚函数原理">(2) 多态虚函数原理</h3>
+<h3 id="3-虚表指针什么时候产生虚函数表如何生成是和类还是对象绑定创建-10-个实例有几个虚函数表">(3) 虚表指针什么时候产生？虚函数表如何生成？是和类还是对象绑定？创建 10 个实例有几个虚函数表？</h3>
 <p>1 个，虚函数表数量与实例的对象数量无关</p>
-<ol start="2">
-<li>
-<p>智能指针<br>
-(1) 智能指针类型<br>
-(2) shared_ptr 线程安全</p>
-</li>
-<li>
-<p>dynamic_cast / const_cast / static_cast</p>
-</li>
-<li>
-<p>move<br>
-(1) 左值右值<br>
-(2) move 原理 / 移动语义的概念和优势<br>
-(3) 完美转发 (使用场景)</p>
-</li>
+<h3 id="4-不实现虚函数会报错吗什么错">(4) 不实现虚函数会报错吗？什么错？</h3>
+<h3 id="5-构建空间是否连续">(5) 构建空间是否连续</h3>
+<h3 id="6-纯虚函数">(6) 纯虚函数</h3>
+<h3 id="7-哪些函数不能是虚函数">(7) 哪些函数不能是虚函数</h3>
+<p>构造、内联、静态成员、lamda 函数</p>
+<h3 id="8-重载重写覆盖的区别子类重写了虚函数会对虚函数表有什么影响">(8) 重载重写覆盖的区别？子类重写了虚函数会对虚函数表有什么影响？</h3>
+<h3 id="9-菱形继承下的类大小">(9) 菱形继承下的类大小</h3>
+<h3 id="10-构造函数和析构函数能不能为虚函数">(10) 构造函数和析构函数能不能为虚函数？</h3>
+<ul>
+<li>构造函数不能声明为虚函数：虚函数的调用依赖于对象的虚表（vtable），而虚表的初始化是在构造函数中完成的。在构造函数执行时，对象尚未完全初始化，虚表也未完全构建。如果构造函数是虚函数，就会形成逻辑上的矛盾：虚表尚未初始化，虚函数机制无法正常工作。</li>
+<li>析构函数一般声明为虚函数：析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数 或 子类析构函数未实现，则会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。</li>
+</ul>
+<h2 id="2-智能指针">2. 智能指针</h2>
+<h3 id="1-智能指针类型及各自原理">(1) 智能指针类型及各自原理</h3>
+<h3 id="2-shared_ptr-线程安全">(2) shared_ptr 线程安全</h3>
+<h3 id="3-shared_ptr-怎么实现多指针指向同一个地址">(3) shared_ptr 怎么实现多指针指向同一个地址</h3>
+<h3 id="4-引用计数如何保证不同类实例的指针之间共享同步">(4) 引用计数如何保证不同类实例的指针之间共享同步</h3>
+<h3 id="5-循环引用会在什么情况下产生如何解决解决的原理">(5) 循环引用会在什么情况下产生，如何解决，解决的原理</h3>
+<h3 id="6-shared_ptr-的代码实现主要是构造-赋值和析构">(6) shared_ptr 的代码实现（主要是构造、赋值和析构）</h3>
+<p>PS: weak_ptr 的实现？</p>
+<h3 id="7-智能指针构造与析构时间">(7) 智能指针构造与析构时间</h3>
+<h3 id="8-野指针的产生原因解决方法">(8) 野指针的产生原因，解决方法</h3>
+<h2 id="3-dynamic_cast-const_cast-static_cast">3. dynamic_cast / const_cast / static_cast</h2>
+<h2 id="4-move">4. move</h2>
+<h3 id="1-左值右值">(1) 左值右值</h3>
+<h3 id="2-move-原理-移动语义的概念和优势">(2) move 原理 / 移动语义的概念和优势</h3>
+<h3 id="3-引用折叠">(3) 引用折叠</h3>
+<h3 id="4-完美转发-使用场景">(4) 完美转发 (使用场景)</h3>
+<h3 id="5-类中默认的构造函数有哪些拷贝构造函数和移动构造函数的区别">(5) 类中默认的构造函数有哪些？拷贝构造函数和移动构造函数的区别？</h3>
+<ol start="5">
 <li>
 <p>stl 是什么 内部容器的原理和时间复杂度</p>
 </li>
@@ -320,13 +332,12 @@
 <li>
 <p>类默认成员函数</p>
 </li>
-<li>
-<p>c++内存对齐机制 sizeof（）使用</p>
-</li>
-<li>
-<p>c++的源码到 exe 的过程</p>
-</li>
 </ol>
+<h2 id="9-c内存对齐机制-sizeof使用-为什么要内存对齐">9. c++内存对齐机制 sizeof（）使用 为什么要内存对齐？</h2>
+<h2 id="10-struct-大小">10. struct 大小</h2>
+<h3 id="1-定义一个-struct有-int-xchar-c-两个成员这个结构体的大小">(1) 定义一个 struct，有 int x，char c 两个成员，这个结构体的大小？</h3>
+<h3 id="2-如果增加一个-static-int-这个结构体大小怎么变化">(2) 如果增加一个 static int 这个结构体大小怎么变化？</h3>
+<h3 id="3-如果在结构体里定义一个虚函数结构体大小怎么变化">(3) 如果在结构体里定义一个虚函数，结构体大小怎么变化？</h3>
 <h2 id="11-c的动态链接静态链接">11. c++的动态链接静态链接</h2>
 <h2 id="12-c的运行内存分区">12. c++的运行内存分区</h2>
 <p>栈：目前绝大部分 CPU 体系都是基于栈来运行程序，栈中主要存放函数的局部变量、函数参数、返回地址等，栈空间一般由操作系统进行默认分配或者程序指定分配，栈空间在进程生存周期一直都存在，当进程退出时，操作系统才会对栈空间进行回收。</p>
@@ -436,11 +447,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="22-构造函数和析构函数能不能为虚函数">22. 构造函数和析构函数能不能为虚函数？</h2>
-<ul>
-<li>构造函数不能声明为虚函数：虚函数的调用依赖于对象的虚表（vtable），而虚表的初始化是在构造函数中完成的。在构造函数执行时，对象尚未完全初始化，虚表也未完全构建。如果构造函数是虚函数，就会形成逻辑上的矛盾：虚表尚未初始化，虚函数机制无法正常工作。</li>
-<li>析构函数一般声明为虚函数：析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数 或 子类析构函数未实现，则会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。</li>
-</ul>
+<h2 id="22-extern-关键字">22. extern 关键字</h2>
 <h2 id="23-vector">23. vector</h2>
 <h3 id="1-vector-里加入-10-万数据游戏中有对象的指针指向这些数据这可能有什么问题">(1) vector 里加入 10 万数据，游戏中有对象的指针指向这些数据，这可能有什么问题？</h3>
 <p>这和上一个问题，vector 的扩容息息相关，vector 发生扩容时会分配更大的内存，将原内存数据拷贝过来，然后释放之前的内存，如果有指针指向此前的地址，释放之后，指针将不能正常访问到此前的数据。</p>
@@ -482,6 +489,25 @@
 </ul>
 </li>
 </ul>
+<h2 id="26">26.</h2>
+<h2 id="27-如何在-main-之前执行一个函数">27. 如何在 main 之前执行一个函数</h2>
+<ul>
+<li>
+<p>方法一：全局/静态对象的构造函数。C++ 会在 main() 调用之前 自动调用全局/静态对象的构造函数。</p>
+<ul>
+<li>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">InitBeforeMain</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">InitBeforeMain</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;初始化代码在 main() 前执行！&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br>InitBeforeMain run_before_main;  <span class="hljs-comment">// 全局对象</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="28-inline">28. inline</h2>
+<h3 id="1-inline-与宏区别">(1) inline 与宏区别?</h3>
+<h3 id="2-inline-函数与普通函数区别">(2) inline 函数与普通函数区别？</h3>
+<h2 id="29-浅拷贝-和-深拷贝">29. 浅拷贝 和 深拷贝</h2>
+<h2 id="30-模板">30. 模板</h2>
+<h3 id="1-模板声明与实现如何能不在同一个头文件">(1) 模板声明与实现如何能不在同一个头文件</h3>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <h2 id="2-tcp-udp-原理和区别">2. TCP UDP 原理和区别</h2>
@@ -526,8 +552,72 @@
 </ol>
 <h1 id="设计模式">设计模式</h1>
 <h2 id="1-工厂模式">1. 工厂模式</h2>
-<p>Resources:<br>
-<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30556448622">https://zhuanlan.zhihu.com/p/30556448622</a></p>
+<h2 id="2-单例模式">2. 单例模式</h2>
+<h3 id="1-概念">(1) 概念</h3>
+<ul>
+<li>定义：一个类在程序运行过程中只能存在一个实例，并提供全局访问。常用于资源管理类（如日志、数据库连接池、配置管理器等）。它通过将构造函数私有化，并提供一个公共的静态方法来获取唯一实例。</li>
+<li>懒汉模式 vs. 饿汉模式
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>懒汉模式（Lazy）</th>
+<th>饿汉模式（Eager）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实例创建时机</td>
+<td><strong>第一次调用 <code>getInstance()</code> 时</strong> 创建</td>
+<td>程序启动时（类加载时）创建</td>
+</tr>
+<tr>
+<td>是否延迟加载</td>
+<td>是（节省资源）</td>
+<td>否（占资源，但初始化快）</td>
+</tr>
+<tr>
+<td>实现难度</td>
+<td>稍高，需要考虑线程安全问题</td>
+<td>简单，但无条件创建实例</td>
+</tr>
+<tr>
+<td>线程安全处理</td>
+<td>需要手动加锁或使用现代 C++ 特性</td>
+<td>靠静态变量初始化，天然线程安全</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<h3 id="2-实现">(2) 实现</h3>
+<ul>
+<li>
+<p>实现时需要：</p>
+<ul>
+<li>将构造函数和析构函数私有化（private）</li>
+<li>定义一个 public 的函数用于获取唯一实例</li>
+<li>手动禁用拷贝构造函数（Singleton(const Singleton&amp;)）和赋值操作符（Singleton&amp; operator=(const Singleton&amp;)）
+<ul>
+<li>如果没有禁用，则可以在程序运行中获得多个实例，打破了唯一性。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Singleton&amp; a = Singleton::<span class="hljs-built_in">getInstance</span>();<br>Singleton b = a;              <span class="hljs-comment">// 调用拷贝构造，复制一份</span><br>Singleton c;<br>c = Singleton::<span class="hljs-built_in">getInstance</span>(); <span class="hljs-comment">// 调用赋值操作符，复制一份</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>懒汉 + C++11 局部静态变量（线程安全）<br>
+在 C++11 及以后标准中，局部静态变量（function-local static）的初始化是线程安全的。编译器会确保<strong>只会有一个线程执行初始化代码</strong>，其它线程等待初始化完成后再访问，从而保证了懒汉式单例的线程安全性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> Singleton&amp; <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-type">static</span> Singleton instance;  <span class="hljs-comment">// C++11: 线程安全的懒汉初始化</span><br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot; Singleton working!\n&quot;</span>;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-built_in">Singleton</span>()  &#123; std::cout &lt;&lt; <span class="hljs-string">&quot; Constructor called\n&quot;</span>; &#125;<br>    ~<span class="hljs-built_in">Singleton</span>() &#123; std::cout &lt;&lt; <span class="hljs-string">&quot; Destructor called\n&quot;</span>; &#125;<br><br>    <span class="hljs-built_in">Singleton</span>(<span class="hljs-type">const</span> Singleton&amp;) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 拷贝构造函数</span><br>    Singleton&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> Singleton&amp;) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 赋值操作符</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>  Singleton::<span class="hljs-built_in">getInstance</span>().<span class="hljs-built_in">doSomething</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>饿汉</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> Singleton&amp; <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-built_in">Singleton</span>() &#123; std::cout &lt;&lt; <span class="hljs-string">&quot;Constructor called (Eager)\n&quot;</span>; &#125;<br>    <span class="hljs-type">static</span> Singleton instance;  <span class="hljs-comment">// 初始化时就创建</span><br>&#125;;<br><br>Singleton Singleton::instance;  <span class="hljs-comment">// 全局初始化</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="resources">Resources:</h1>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30556448622">https://zhuanlan.zhihu.com/p/30556448622</a><br>
+<a target="_blank" rel="noopener" href="https://www.nowcoder.com/discuss/353159115046330368">https://www.nowcoder.com/discuss/353159115046330368</a></p>
 
                 
               </div>

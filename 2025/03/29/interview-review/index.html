@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-04-10T07:52:58.982Z">
+<meta property="article:modified_time" content="2025-04-11T04:57:04.239Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          31k words
+          33k words
         
       </span>
     
@@ -256,7 +256,7 @@
         
         
         
-          263 mins
+          279 mins
         
       </span>
     
@@ -943,7 +943,7 @@ m_2 = \mathbb{E}[d^2] \quad (\text{平均深度平方})
 <h2 id="9-延迟渲染-deferred-rendering">9. 延迟渲染 (Deferred Rendering)</h2>
 <h3 id="1-延迟渲染概念流程">(1) 延迟渲染概念/流程</h3>
 <ul>
-<li>概念：延迟渲染是一种将光照计算延后到几何信息采集之后的渲染方法。核心思路是先把场景几何信息存到缓冲区 (<strong>G-Buffer</strong>)，再在单独的 Pass 中进行光照计算。它主要为了解决传统正向渲染（Forward Rendering）在<strong>多光源场景</strong>下性能下降的问题。</li>
+<li>概念：核心思路是先把场景几何信息存到缓冲区 (<strong>G-Buffer</strong>)，再在单独的 Pass 中进行光照计算。它主要为了解决传统正向渲染（Forward Rendering）在<strong>多光源场景</strong>下性能下降的问题。</li>
 <li>流程
 <ul>
 <li>a. Geometry Pass：首先将场景渲染一次，获取到的待渲染对象的各种几何信息存储到名为 G-buffer 的缓冲区中<br>
@@ -1025,6 +1025,121 @@ Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br
 </ul>
 </li>
 </ul>
+<h3 id="3-如何改进正向渲染">(3) 如何改进正向渲染？</h3>
+<ul>
+<li>
+<p>a. Forward+（Forward Plus）</p>
+<ul>
+<li>把屏幕分成小块（Tile），每个 Tile 预计算出有哪些光源会影响它，然后片元阶段只处理这些光</li>
+<li>实现步骤：
+<ul>
+<li>使用 Compute Shader（compute shader 不参与图形渲染流水线（不输出像素），而是用于在 GPU 上执行任意并行计算任务）扫描所有光源，根据光源影响范围（球体包围）将它们分配到屏幕 Tile</li>
+<li>把光源 ID 存到一个 光源列表缓冲区（light index list）</li>
+<li>在每个片元 Shader 中读取当前 Tile 的光源列表，只遍历这些光源</li>
+</ul>
+</li>
+<li>优点：
+<ul>
+<li>可以处理上百个动态光源（比传统 Forward 更快）</li>
+<li>保持前向渲染支持透明、MSAA 的优势</li>
+<li>启用光照剪裁，避免浪费计算</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>b. Clustered Forward Rendering</p>
+<ul>
+<li>进一步将空间划分成 3D 格子（Screen Tile × Depth Slice）</li>
+<li>实现步骤：
+<ul>
+<li>像 Forward+ 一样划分 Tile</li>
+<li>加入 Z 轴（视锥深度），构成立体格子（Cluster）</li>
+<li>把每个光源分配到对应的 Cluster 列表中</li>
+<li>片元 Shader 中定位所在 Cluster，读取它的光源</li>
+</ul>
+</li>
+<li>优点：
+<ul>
+<li>精度更高（近处 Tile 更小，光源分配更精准）</li>
+<li>支持大量光源（常用于 VR、AR、移动端）</li>
+<li>很适合方向光、点光、聚光等混合情况</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>常见引擎使用的方法</p>
+<table>
+<thead>
+<tr>
+<th>游戏 / 引擎</th>
+<th>渲染方式</th>
+<th>特性说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unity URP（高端）</td>
+<td>Forward+</td>
+<td>基于 Tile 的光源聚合</td>
+</tr>
+<tr>
+<td>Unreal Engine (Mobile)</td>
+<td>Forward+</td>
+<td>支持透明 + 多光源优化</td>
+</tr>
+<tr>
+<td>Doom Eternal</td>
+<td>Clustered Forward</td>
+<td>超高性能 + 大量动态光源</td>
+</tr>
+<tr>
+<td>Godot 4.x</td>
+<td>Clustered Forward</td>
+<td>基于 Vulkan，轻量灵活</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>常见方法对比</p>
+<table>
+<thead>
+<tr>
+<th>改进方式</th>
+<th>是否重写渲染管线</th>
+<th>光源支持能力</th>
+<th>实现难度</th>
+<th>适合平台</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forward</td>
+<td>否</td>
+<td>少量光源</td>
+<td>简单</td>
+<td>普通场景、低端设备</td>
+</tr>
+<tr>
+<td>Forward+</td>
+<td>否</td>
+<td>中等光源</td>
+<td>中</td>
+<td>中高端 PC / 移动</td>
+</tr>
+<tr>
+<td>Clustered Fwd</td>
+<td>是（3D Tile）</td>
+<td>大量光源</td>
+<td>中高</td>
+<td>VR、大型室内场景</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
 <h2 id="10-纹理贴图">10. 纹理贴图</h2>
 <p>将一张二维图像，按照一定的映射关系，将每个像素贴合到物体表面的对应位置。</p>
 <h3 id="1-纹理环绕和纹理过滤采样">(1) 纹理环绕和纹理过滤(采样)</h3>
@@ -1091,6 +1206,11 @@ Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br
 </tr>
 </tbody>
 </table>
+<h3 id="4-虚拟纹理">(4) 虚拟纹理</h3>
+<ul>
+<li>按需加载和分块管理纹理，这样可以使用超高分辨率的大纹理而不会爆显存。</li>
+<li>只在 GPU 上加载当前帧可见区域的纹理块（tile），不可见的部分不加载。</li>
+</ul>
 <h2 id="11-空间加速结构算法">11. 空间加速结构/算法</h2>
 <p>参考：<br>
 <a href="/2025/01/11/GAMES101-L13-RayTracing1/"> GAMES101 Lecture 13-14</a><br>
@@ -1757,7 +1877,195 @@ projection 矩阵推导见：<a target="_blank" rel="noopener" href="https://zhu
 </li>
 <li>如果 GPU 强显示器弱，例如显示器以 60Hz、144Hz 的频率刷新，显示器刷新一次的时间够 GPU 渲染若干帧，导致一帧还没显示完又开始画下一帧，从而造成撕裂。<strong>垂直同步（V-Sync）</strong> 会强制 GPU 等显示器刷新完成后再交换缓冲。</li>
 </ul>
-<h2 id="34-移动端架构是否了解是否有了解过-tbr-和-tbdr你怎么理解-tbdr-中的-d在-tbdr-上处理半透明物体怎么处理">34. 移动端架构是否了解？是否有了解过 TBR 和 TBDR？你怎么理解 TBDR 中的 D？在 TBDR 上处理半透明物体怎么处理？</h2>
+<h2 id="34-移动端-pc-端-gpu-显存架构">34. 移动端、PC 端 GPU 显存架构</h2>
+<h3 id="1-移动端架构和-pc-端架构">(1) 移动端架构和 PC 端架构</h3>
+<ul>
+<li>显存架构的不同</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>移动端 GPU</th>
+<th>PC / 桌面 GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>显存类型</strong></td>
+<td>与 CPU 共享主内存（统一内存）</td>
+<td>独立高速显存（GDDR / HBM）</td>
+</tr>
+<tr>
+<td><strong>带宽</strong></td>
+<td>非常有限（&lt; 100 GB/s）</td>
+<td>非常高（500 GB/s ~ 1 TB/s）</td>
+</tr>
+<tr>
+<td><strong>显存访问延迟</strong></td>
+<td>相对低，但容量受限</td>
+<td>带宽高但更依赖缓存结构优化</td>
+</tr>
+<tr>
+<td><strong>容量限制</strong></td>
+<td>通常小于 8GB（与系统共享）</td>
+<td>独立配置 8~24GB 或更大</td>
+</tr>
+<tr>
+<td><strong>功耗控制</strong></td>
+<td>极端敏感（电池续航约束）</td>
+<td>不敏感，主要靠散热/风扇解决</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>移动端采用<strong>统一内存架构（UMA: Unified Memory Architecture）</strong></p>
+<ul>
+<li>特点：
+<ul>
+<li>GPU 和 CPU 共享一套物理内存（如 LPDDR5）</li>
+<li>减少了显存复制开销</li>
+<li>易于硬件集成（SoC）</li>
+</ul>
+</li>
+<li>问题：
+<ul>
+<li><strong>内存带宽有限</strong>，故渲染/纹理要精打细算</li>
+<li><strong>缓存更重要</strong>，故需要 tile-based 渲染</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>GPU 架构设计的不同</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>移动端 GPU</th>
+<th>PC GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>渲染架构</strong></td>
+<td>Tile-based deferred rendering（TBDR）</td>
+<td>Immediate Rendering（立即渲染）</td>
+</tr>
+<tr>
+<td><strong>目标优化方向</strong></td>
+<td>节能 + 带宽压缩 + tile 缓存</td>
+<td>性能极致 + 多并发 pipeline</td>
+</tr>
+<tr>
+<td><strong>计算能力（ALU 数量）</strong></td>
+<td>少量（适合低分辨率）</td>
+<td>大量（高吞吐浮点并行）</td>
+</tr>
+<tr>
+<td><strong>纹理压缩/访问优化</strong></td>
+<td>极度依赖 ETC/ASTC 等压缩方案</td>
+<td>带宽高+缓存层级多，压缩可选</td>
+</tr>
+<tr>
+<td><strong>合批能力</strong></td>
+<td>强调 batching，避免 state switch</td>
+<td>资源充足，状态切换代价小</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>为什么移动端采用这种解决方案？</p>
+<ul>
+<li>节能</li>
+<li>移动内存带宽有限，因此需要 tile cache + 减少 draw call</li>
+<li>CPU + GPU + RAM 一体封装</li>
+<li>面向中低分辨率</li>
+<li>目标内容简单，不需要复杂后处理和高精度计算</li>
+</ul>
+</li>
+<li>
+<p>总结对比</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>移动端 GPU</th>
+<th>PC / 桌面 GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显存架构</td>
+<td>统一内存（CPU + GPU 共用）</td>
+<td>独立显存（GDDR / HBM）</td>
+</tr>
+<tr>
+<td>渲染架构</td>
+<td>Tile-based 渲染（TBDR）</td>
+<td>Immediate 渲染</td>
+</tr>
+<tr>
+<td>带宽</td>
+<td>低（高效压缩 + 缓存）</td>
+<td>高（大吞吐配合缓存）</td>
+</tr>
+<tr>
+<td>能耗</td>
+<td>超低功耗（数瓦）</td>
+<td>高性能 + 高功耗（百瓦级）</td>
+</tr>
+<tr>
+<td>优化方向</td>
+<td>合批、压缩、剔除、Tile 缓存</td>
+<td>多线程、多流水线并行、宽带宽策略</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>移动端 GPU 为了节能与带宽受限环境而生，采用统一内存 + tile-based 渲染架构；而 PC GPU 则拥有独立显存与超高带宽。两者设计目标不同，因此架构和使用策略差异显著。</p>
+</li>
+</ul>
+<h3 id="2-tbr-和-tbdr">(2) TBR 和 TBDR</h3>
+<ul>
+<li>
+<p>TBR（Tiled-Based Rendering）：将屏幕划分为小块（Tile），然后逐 Tile 进行渲染。</p>
+<ul>
+<li>流程：
+<ul>
+<li>屏幕划分为 Tile 区域（例如 16x16、32x32 像素块）</li>
+<li>将所有三角形投影到屏幕，判断每个三角形影响哪些 Tile（binning）</li>
+<li>逐 Tile 渲染：
+<ul>
+<li>载入 Tile 的相关几何数据、光照、纹理；</li>
+<li>在片上缓存中执行几何和像素着色，片上缓存（On-chip Cache）是集成在 GPU 芯片内部的一块高速缓存，在渲染过程中临时存储数据（如像素颜色、深度、法线等），以避免频繁访问外部内存（RAM）；</li>
+<li>整个 Tile 渲染完后，把结果一次性写入主内存的帧缓冲区。整个 Tile 渲染过程不需要反复访问外部显存（外部访问耗电高延迟大）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优点：
+<ul>
+<li>显著减少内存带宽：Tile 渲染通常在片上缓存中完成</li>
+<li>减少过绘：可在 Tile 内提前剔除遮挡三角形（早 Z）</li>
+<li>更适合移动端：内存资源紧张，带宽节省极大</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>TBDR：在 TBR 基础上引入了 延迟渲染（Deferred Rendering），进一步提升多光源支持和节省内存。</p>
+</li>
+</ul>
+<h3 id="3-在-tbdr-上怎么处理半透明物体">(3) 在 TBDR 上怎么处理半透明物体？</h3>
+<p>分 Pass / 混合渲染</p>
+<ul>
+<li>所有不透明物体：用 TBDR 渲染（走 G-buffer + 光照）</li>
+<li>所有半透明物体：用传统前向渲染（Forward Pass）后处理叠加</li>
+</ul>
 <h2 id="35-帧同步和状态同步">35. 帧同步和状态同步</h2>
 <h3 id="1-帧同步和状态同步">(1) 帧同步和状态同步</h3>
 <p>“所谓同步，就是要多个客户端表现效果是一致的，例如我们玩王者荣耀的时候，需要十个玩家的屏幕显示的英雄位置完全相同、技能释放角度、释放时间完全相同，这个就是同步。而对于大多数游戏，不仅客户端的表现要一致，而且需要客户端和服务端的数据是一致的。所以，同步是一个网络游戏概念，只有网络游戏才需要同步，而单机游戏是不需要同步的。”</p>
@@ -2236,7 +2544,56 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:8.4001em;vertical-align:-3.9501em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.4499em;"><span style="top:-6.4499em;"><span class="pstrut" style="height:10.4em;"></span><span style="width:0.667em;height:8.400em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="8.400em" viewbox="0 0 667 8400"><path d="M403 1759 V84 H666 V0 H319 V1759 v4800 v1759 h347 v-84
 H403z M403 1759 V0 H319 V1759 v4800 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.9501em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.45em;"><span style="top:-6.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span><span style="top:-5.41em;"><span class="pstrut" style="height:3em;"></span><span class="mord"></span></span><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">sin</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span><span style="top:-3.01em;"><span class="pstrut" style="height:3em;"></span><span class="mord"></span></span><span style="top:-1.81em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-0.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"></span></span><span style="top:0.59em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.95em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.45em;"><span style="top:-6.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span><span style="top:-1.81em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:0.59em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.95em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.45em;"><span style="top:-6.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.81em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:0.59em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.95em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.45em;"><span style="top:-6.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.81em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:0.59em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.95em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:4.4499em;"><span style="top:-6.4499em;"><span class="pstrut" style="height:10.4em;"></span><span style="width:0.667em;height:8.400em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="8.400em" viewbox="0 0 667 8400"><path d="M347 1759 V0 H0 V84 H263 V1759 v4800 v1759 H0 v84 H347z
 M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:3.9501em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
-<h2 id="40">40.</h2>
+<h2 id="40-gpu-driven-rendering">40. GPU Driven Rendering</h2>
+<ul>
+<li>概念：GPU Driven Rendering 是一种渲染架构，其中渲染管线的关键调度逻辑（如实例剔除、批次生成、Draw Call 构建）由 GPU 而不是 CPU 来完成。 使用 GPU Driven 后，CPU 只需上传一次数据，后续全部由 GPU 自主驱动完成。</li>
+<li>流程：
+<ul>
+<li>场景数据全部上传 GPU
+<ul>
+<li>Mesh、Transform、材质、LOD、剔除信息、包围盒</li>
+<li>存入 SSBO / StructuredBuffer / Texture Buffer</li>
+</ul>
+</li>
+<li>Compute Shader 执行剔除 + 可见性检测
+<ul>
+<li>视锥剔除（Frustum Culling）</li>
+<li>LOD 判断（根据距离或屏幕大小）</li>
+<li>Occlusion Culling（GPU 压栈）</li>
+</ul>
+</li>
+<li>生成 Indirect DrawCommand
+<ul>
+<li>使用 glDrawIndirect() 或 vkCmdDrawIndirect() 等方式</li>
+<li>动态生成渲染命令，不走 CPU</li>
+</ul>
+</li>
+<li>真正渲染
+<ul>
+<li>GPU 直接使用 Indirect Buffer 来执行渲染</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优势：
+<ul>
+<li>GPU 内部做并行剔除+渲染，减少 CPU-GPU 通信 少量 Command buffer + 低同步成本</li>
+<li>更适合大型场景/海量实例 数百万实例也能流畅运行</li>
+<li>动态内容更新效率更高 可结合 HZB、Instance Buffer 动态调整</li>
+</ul>
+</li>
+<li>实现哪些功能？
+<ul>
+<li>实例剔除：GPU 判断哪些实例在视野内，哪些可以跳过</li>
+<li>LOD 自动切换：按照屏幕尺寸或距离，GPU 自主选择 LOD</li>
+<li>遮挡剔除：使用 HZB 或 Z-buffer 进行可见性测试</li>
+<li>批次生成（Draw Call 生成）：GPU 组装 Indirect Draw Buffer，供后续绘制</li>
+<li>动态物体驱动：如粒子、草地、动画、布料等由 Compute 更新</li>
+<li>海量实例绘制（百万级）：用 GPU Instancing/Cluster 渲染大规模对象</li>
+<li>可见性反馈 / 更新：支持反馈机制（如物体加载、streaming）</li>
+</ul>
+</li>
+</ul>
 <h2 id="41-大世界场景需要注意哪些问题城市场景有什么优化思路">41. 大世界场景需要注意哪些问题/城市场景有什么优化思路？</h2>
 <p>LOD（根据摄像机距离或屏幕空间大小动态选择不同精度模型，远的对象用低模，近的对象用高模）, 场景空间划分，CSM，剔除，纹理过多导致的带宽或者显存问题…</p>
 <h2 id="42-如何生成成千上万相同的对象">42. 如何生成成千上万相同的对象？</h2>
@@ -2247,10 +2604,118 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 </li>
 </ul>
 <h2 id="43-纹理贴图的压缩算法">43. 纹理贴图的压缩算法</h2>
+<p>按平台支持/压缩方式/图像质量来分类。</p>
+<hr>
+<h3 id="1-dxtc-s3tcdirectx-texture-compression">(1) DXTC / S3TC（DirectX Texture Compression）</h3>
+<ul>
+<li>Windows 和主机平台最广泛使用的压缩格式。</li>
+</ul>
+<h4 id="代表算法">代表算法：</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>通道支持</th>
+<th>压缩率</th>
+<th>简介</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DXT1</strong></td>
+<td>RGB (无 alpha)</td>
+<td>1:6（8 bpp → 4 bpp）</td>
+<td>最常用，透明只支持 binary（1bit）</td>
+</tr>
+<tr>
+<td><strong>DXT3</strong></td>
+<td>RGBA (显式 alpha)</td>
+<td>1:4（8 bpp → 8 bpp）</td>
+<td>保留 alpha 通道精度，适合遮罩</td>
+</tr>
+<tr>
+<td><strong>DXT5</strong></td>
+<td>RGBA (渐变 alpha)</td>
+<td>1:4</td>
+<td>用 alpha 插值更平滑</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>OpenGL 里对应叫 <strong>GL_COMPRESSED_RGBA_S3TC_DXT1_EXT</strong> 等</li>
+</ul>
+<h3 id="2-etc-etc2ericsson-texture-compression">(2) ETC / ETC2（Ericsson Texture Compression）</h3>
+<ul>
+<li>用于 <strong>OpenGL ES / Android / 移动平台</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>支持</th>
+<th>简介</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ETC1</strong></td>
+<td>RGB</td>
+<td>只支持 RGB，无 alpha，压缩率约 1:6</td>
+</tr>
+<tr>
+<td><strong>ETC2</strong></td>
+<td>RGBA</td>
+<td>增强版，支持 alpha、sRGB、1/2 通道</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>安卓移动设备默认支持 ETC1/ETC2，适合贴图压缩。</li>
+</ul>
+<h3 id="3-astcadaptive-scalable-texture-compression">(3) ASTC（Adaptive Scalable Texture Compression）</h3>
+<ul>
+<li>现代设备推荐，支持最多特性</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可变分辨率块大小</td>
+<td>4x4 ~ 12x12 任意块，质量 vs 空间可自由权衡</td>
+</tr>
+<tr>
+<td>支持高通道、HDR</td>
+<td>RGBA、RGBE、HDR、sRGB 均可</td>
+</tr>
+<tr>
+<td>高压缩比 + 高质量</td>
+<td>比 DXT/ETC 更清晰，占用更小</td>
+</tr>
+<tr>
+<td>OpenGL 支持版本</td>
+<td>OpenGL ES 3.2+, Vulkan, Apple GPU</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>被认为是“<strong>最先进的纹理压缩算法之一</strong>”</li>
+</ul>
+<h2 id="44-骨骼动画的实现">44. 骨骼动画的实现</h2>
+<h2 id="45-opengl">45. OpenGL</h2>
+<h3 id="1-glfw-是什么">(1) glfw 是什么</h3>
+<h3 id="2-上下文是什么">(2) 上下文是什么</h3>
+<h3 id="3-opengl-与-opengles-区别">(3) opengl 与 openglES 区别</h3>
 <h1 id="references">References</h1>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/430541328">https://zhuanlan.zhihu.com/p/430541328</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/577501864">https://zhuanlan.zhihu.com/p/577501864</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/479490559">https://zhuanlan.zhihu.com/p/479490559</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/410664823">https://zhuanlan.zhihu.com/p/410664823</a></li>
 </ul>
 
                 
