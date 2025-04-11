@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-04-11T04:57:04.239Z">
+<meta property="article:modified_time" content="2025-04-11T20:04:28.328Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          33k words
+          35k words
         
       </span>
     
@@ -256,7 +256,7 @@
         
         
         
-          279 mins
+          291 mins
         
       </span>
     
@@ -450,7 +450,8 @@
 <p>参考：<br>
 <a target="_blank" rel="noopener" href="https://blog.csdn.net/poem_qianmo/article/details/85239398">https://blog.csdn.net/poem_qianmo/article/details/85239398</a><br>
 Realtime Rendering 4th Chapter 9<br>
-<a target="_blank" rel="noopener" href="https://learnopengl.com/PBR/Theory">https://learnopengl.com/PBR/Theory</a></p>
+<a target="_blank" rel="noopener" href="https://learnopengl.com/PBR/Theory">https://learnopengl.com/PBR/Theory</a><br>
+<a target="_blank" rel="noopener" href="https://github.com/QianMo/PBR-White-Paper?tab=readme-ov-file">https://github.com/QianMo/PBR-White-Paper?tab=readme-ov-file</a></p>
 <h3 id="1-概念">(1) 概念：</h3>
 <p>基于物理的渲染（PBR）是指 使用 基于物理的原理 和 微平面理论（microfacet theory） 建模的着色/光照模型，以及使用 从现实中测量的表面参数 来准确表示真实世界材质的渲染理念。PBR 的范畴包括三个方面：基于物理的材质、基于物理的光照、基于物理适配的相机。</p>
 <p>一些基本概念：</p>
@@ -462,7 +463,7 @@ Realtime Rendering 4th Chapter 9<br>
 <p>能量守恒 （Energy Conservation）。出射光线的能量永远不能超过入射光线的能量。随着粗糙度的上升镜面反射区域的面积会增加，作为平衡，镜面反射区域的平均亮度则会下降。</p>
 </li>
 <li>
-<p>菲涅尔反射（Fresnel Reflectance）。光线以<strong>不同角度</strong>入射会有<strong>不同的反射率</strong>。相同的入射角度，不同的物质也会有不同的反射率。万物皆有菲涅尔反射。F0 是即 0 度角入射的菲涅尔反射值。大多数非金属的 F0 范围是 0.02~0.04，大多数金属的 F0 范围是 0.7~1.0。反射光的光量（入射光的一部分）由菲涅尔反射率（Fresnel reflectance）F 来描述，它取决于入射角。</p>
+<p>菲涅尔反射（Fresnel Reflectance）。光线以<strong>不同角度</strong>入射会有<strong>不同的反射率</strong>。相同的入射角度，不同的物质也会有不同的反射率。万物皆有菲涅尔反射。F0 是即 0 度角入射的菲涅尔反射值，即观察方向和表面法线方向在同一方向。F90 则指的是观察方向和表面平行时（grazing angle）的反射率。简单来说，菲涅尔效应即描述视线垂直于表面时反射较弱，而当视线非垂直表面时，夹角越小，反射越明显的一种现象。比如说，当我们站在湖边低头看脚下的湖水，会发现水是透明的，反射不会特别强烈；而如果我们看远处的湖面时，会发现水并不透明，而且反射非常强烈。大多数非金属的 F0 范围是 0.02~0.04，大多数金属的 F0 范围是 0.7~1.0。反射光的光量（入射光的一部分）由菲涅尔反射率（Fresnel reflectance）F 来描述，它取决于入射角。任意角度的菲涅尔反射率可由 F0 和入射角度计算得出，因此一般把 F0 作为材质的特征反射率。</p>
 </li>
 <li>
 <p>线性空间（Linear Space）。光照计算必须在线性空间完成，shader 中输入的 gamma 空间的贴图比如漫反射贴图，需要被转成线性空间，在具体操作时需要根据不同引擎和渲染器的不同做不同的操作。而描述物体表面属性的贴图如粗糙度，高光贴图，金属贴图等必须保证是线性空间。</p>
@@ -498,9 +499,10 @@ Realtime Rendering 4th Chapter 9<br>
 <li>
 <p>D：法线分布函数（Normal Distribution Function, NDF）</p>
 <ul>
-<li>物理意义：描述 微表面法线 与 半角向量 对齐的概率分布。 简单说，它表示“多少微面朝向镜面反射方向”。</li>
+<li>物理意义：描述 <strong>微表面法线 与 半角向量 对齐的概率分布</strong>。 简单说，它表示“多少微面朝向镜面反射方向”。</li>
 <li>微表面越光滑（低粗糙度），D 趋向于锐峰</li>
 <li>表面越粗糙，D 趋向于扁平或宽分布</li>
+<li>一般我们用宏观表面的半矢量 h 来表示微观表面法线 m，因为仅 m = h 的表面点的朝向才会将光线 l 反射到视线 v 的方向，其他朝向的表面点对 BRDF 没有贡献（正负相互抵消）。</li>
 <li>常见模型：
 <ul>
 <li>Beckmann</li>
@@ -541,7 +543,7 @@ Realtime Rendering 4th Chapter 9<br>
 <ul>
 <li>Schlick 近似公式（性能高、接近真实）：<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>F</mi><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>F</mi><mn>0</mn></msub><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>F</mi><mn>0</mn></msub><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>cos</mi><mo>⁡</mo><mi>θ</mi><msup><mo stretchy="false">)</mo><mn>5</mn></msup></mrow><annotation encoding="application/x-tex">F(\theta) = F_0 + (1 - F_0)(1 - \cos\theta)^5
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1141em;vertical-align:-0.25em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span></p>
-其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">F_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 为视角垂直时的反射率（通常为金属颜色或 0.04），<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span>为观察方向与半角向量之间的夹角。</li>
+其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">F_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 为视角垂直时的反射率（通常为金属颜色或 0.04），<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span>为<strong>观察方向与半角向量之间的夹角</strong>。</li>
 </ul>
 </li>
 <li>视觉效果：
@@ -2708,8 +2710,261 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 <h2 id="44-骨骼动画的实现">44. 骨骼动画的实现</h2>
 <h2 id="45-opengl">45. OpenGL</h2>
 <h3 id="1-glfw-是什么">(1) glfw 是什么</h3>
+<p>用于创建 OpenGL / OpenGL ES / Vulkan 窗口、创建并管理 OpenGL 上下文和处理输入（键盘、鼠标、手柄等），支持多平台（Windows, macOS, Linux）。</p>
 <h3 id="2-上下文是什么">(2) 上下文是什么</h3>
+<p>是一块记录所有 OpenGL 状态、资源、渲染命令的“执行环境”，包含着你创建的所有纹理、着色器、缓冲对象、状态机等信息。必须有一个激活的上下文，OpenGL 才能正常运行。</p>
 <h3 id="3-opengl-与-opengles-区别">(3) opengl 与 openglES 区别</h3>
+<p>OpenGL ES 是 OpenGL 的简化版本，专为移动设备和嵌入式系统设计，特性精简但高效，是 Android 和 WebGL 的图形基础。</p>
+<h2 id="46-超分算法">46. 超分算法</h2>
+<h3 id="1-超分算法">(1) 超分算法</h3>
+<ul>
+<li>概念：通过插值、卷积或深度学习等方法重建出高分辨率图像的细节和边缘。</li>
+<li>方法：
+<ul>
+<li>传统插值方法：双线性、双立方插值等，效果有限</li>
+<li>CNN 深度学习方法：如 SRCNN、ESPCN、EDSR，学会补全细节</li>
+<li>实时图形超分：例如 FSR、DLSS，用于实时渲染图像增强</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-实时图形超分算法real-time-super-resolution">(2) 实时图形超分算法（Real-time Super Resolution）</h3>
+<p>这些算法能<strong>用低分辨率渲染图像 + 补充数据重建高分辨率输出</strong>，核心目标是“低成本获得高画质”。</p>
+<ul>
+<li>
+<p>FSR（FidelityFX Super Resolution）</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>原理</th>
+<th>特点与适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FSR 1.0</strong></td>
+<td>空域超分（Spatial SR）</td>
+<td>快速、轻量、无依赖，但边缘模糊</td>
+</tr>
+<tr>
+<td><strong>FSR 2.0+</strong></td>
+<td><strong>时域重建（Temporal SR）</strong></td>
+<td>结合历史帧、深度、运动矢量，质量高</td>
+</tr>
+<tr>
+<td>FSR 3</td>
+<td>支持帧生成（类似 DLSS3）</td>
+<td>添加帧插值，提升流畅度</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>特点：
+<ul>
+<li>开源</li>
+<li>不依赖 AI 模型或特定硬件</li>
+<li>跨平台：PC / Console / Steam Deck</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>DLSS（NVIDIA Deep Learning Super Sampling）</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DLSS 1.0</td>
+<td>早期 AI 超分，效果一般</td>
+</tr>
+<tr>
+<td>DLSS 2.0</td>
+<td>TSR + AI 反锯齿，高质量</td>
+</tr>
+<tr>
+<td><strong>DLSS 3.0</strong></td>
+<td>加入帧插值（Frame Generation）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>特点：
+<ul>
+<li>使用 NVIDIA 专用 Tensor Core 和 AI 模型</li>
+<li>非开源，需 RTX GPU 支持</li>
+<li>图像锐度、边缘清晰度好于 FSR</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>XeSS（Intel Xe Super Sampling）</p>
+<ul>
+<li>类似 DLSS，用 AI 重建图像</li>
+<li>同时支持：
+<ul>
+<li>AI 加速模式（Intel GPU）</li>
+<li>通用模式（无 AI，用 SIMD 实现）</li>
+</ul>
+</li>
+<li>效果介于 DLSS 和 FSR2 之间</li>
+<li>适用于 ARC GPU / PC 平台</li>
+</ul>
+</li>
+<li>
+<p>TAAU（TAA + Upsample）</p>
+<ul>
+<li>Temporal Anti-Aliasing + Upscaling，由 Epic Games 提出（用于 UE4/5）</li>
+<li>特点：
+<ul>
+<li>基于传统 TAA + 运动矢量 + 抖动采样</li>
+<li>效果接近 FSR2.0，但更轻量</li>
+<li>开源免费，广泛应用于虚幻引擎项目</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>CAS + EASU（Contrast Adaptive Sharpening）</p>
+<ul>
+<li>FSR 1.0 的两个组件：
+<ul>
+<li><strong>EASU（Edge Adaptive Spatial Upsample）</strong>：边缘感知放大算法</li>
+<li><strong>CAS（Contrast Adaptive Sharpening）</strong>：锐化图像、增强细节</li>
+</ul>
+</li>
+<li>非常适合移动端 / 轻量渲染 / UI 放大等场景。</li>
+</ul>
+</li>
+<li>
+<p>画质提升基本原理</p>
+<ul>
+<li>
+<p>输入内容：</p>
+<ul>
+<li>当前帧低分图像（color）</li>
+<li>历史帧图像</li>
+<li>深度图（depth）</li>
+<li>运动矢量（motion vectors）</li>
+</ul>
+</li>
+<li>
+<p>重建步骤：</p>
+<ul>
+<li>对历史像素进行重投影</li>
+<li>利用当前帧+历史帧混合补全细节</li>
+<li>检测抖动/鬼影并做反锯齿</li>
+<li>高质量 Upscale 到目标分辨率<br>
+最后加锐化（可选）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="47-vulkan-的同步机制">47. vulkan 的同步机制</h2>
+<h2 id="48-vulkan-中的-fence-semaphorebarrier-有什么区别">48. Vulkan 中的 Fence、Semaphore，Barrier 有什么区别？</h2>
+<h2 id="49-ue-的-rdg">49. UE 的 RDG</h2>
+<h2 id="50-ecsentity-component-system的原理和实现">50. ECS（Entity-Component-System）的原理和实现</h2>
+<ul>
+<li>
+<p>ECS 是一种将游戏对象数据与逻辑分离的架构，核心是：Entity 是纯 ID，Component 是纯数据，System 是纯逻辑，极大地提高了模块化、性能和并发性。</p>
+</li>
+<li>
+<p>为什么 ECS？</p>
+<ul>
+<li>
+<p>传统 OOP 模式中，类继承层次深、耦合高、不宜拓展。例如，有个物体既能移动又能发光。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Enemy</span> : <span class="hljs-keyword">public</span> GameObject &#123;<br>  <span class="hljs-type">int</span> health;<br>  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>ECS 则通过组合取代继承：</p>
+<ul>
+<li>Entity：一个 ID，不携带任何数据，用于唯一标识一个游戏对象</li>
+<li>Component：纯数据结构（无逻辑），用于组织附加在实体上的数据（如 Transform、Velocity）。每个组件代表一个功能单元。例如：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Transform</span> &#123; vec3 pos; &#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Velocity</span> &#123; vec3 vel; &#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>System：对拥有特定组件的实体集合执行逻辑处理。例如：物理系统处理具有 Transform + Velocity 的实体。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">PhysicsSystem</span><span class="hljs-params">(World&amp; world)</span> </span>&#123;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> [e, trans, vel] : world.<span class="hljs-built_in">view</span>&lt;Transform, Velocity&gt;()) &#123;<br>    trans.pos += vel.vel \* deltaTime;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>ECS 的实现机制</p>
+<ul>
+<li>内存结构上：稀疏存储 + SoA（结构体数组） - 所有 Component<t> 存储在连续数组中，提高缓存命中率 - 每类组件独立存储（方便批处理）</t></li>
+<li>Entity -&gt; Component 映射
+<ul>
+<li>使用稀疏数组或哈希表管理 Entity-Component 映射关系</li>
+</ul>
+</li>
+<li>System 会查询“拥有某些组件”的实体列表
+<ul>
+<li>使用 bitmask 或 archetype 进行加速</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="51-主流图形-api-的特性和优劣">51. 主流图形 API 的特性和优劣</h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>OpenGL</th>
+<th>DirectX11</th>
+<th>Vulkan</th>
+<th>DirectX12</th>
+<th>Metal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编程模型</td>
+<td>高级（状态机）</td>
+<td>高级（状态机）</td>
+<td>低级（命令驱动）</td>
+<td>低级（命令驱动）</td>
+<td>类 Vulkan（封装）</td>
+</tr>
+<tr>
+<td>多线程性能支持</td>
+<td>差</td>
+<td>差</td>
+<td>极好</td>
+<td>极好</td>
+<td>好</td>
+</tr>
+<tr>
+<td>跨平台性</td>
+<td>最好</td>
+<td>仅 Windows</td>
+<td>优秀</td>
+<td>仅 Windows</td>
+<td>仅 Apple</td>
+</tr>
+<tr>
+<td>显存控制 / 显式资源管理</td>
+<td>自动</td>
+<td>自动</td>
+<td>完全显式</td>
+<td>完全显式</td>
+<td>显式</td>
+</tr>
+<tr>
+<td>编译时验证 / 管线状态封装</td>
+<td>动态绑定</td>
+<td>动态绑定</td>
+<td>PSO 编译前验证</td>
+<td>PSO 系统</td>
+<td>类似 PSO</td>
+</tr>
+</tbody>
+</table>
 <h1 id="references">References</h1>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/430541328">https://zhuanlan.zhihu.com/p/430541328</a></li>
