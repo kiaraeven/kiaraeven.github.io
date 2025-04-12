@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-11T04:25:06.084Z">
+<meta property="article:modified_time" content="2025-04-12T06:25:25.763Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.5k words
+          4.6k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          29 mins
+          39 mins
         
       </span>
     
@@ -448,6 +448,62 @@
 </li>
 </ul>
 <h2 id="22-extern-关键字">22. extern 关键字</h2>
+<h3 id="1-extern">(1) extern</h3>
+<ul>
+<li>
+<p>用于声明一个变量或函数是在其他文件中定义的，告知编译器“这个符号的定义在别处”，当前只作声明，不要在当前文件重新分配内存或生成代码。</p>
+<ul>
+<li>用于跨源文件共享变量/函数</li>
+<li>避免重复定义（multiple definition）错误</li>
+<li>控制链接属性（external linkage）</li>
+</ul>
+</li>
+<li>
+<p>示例 1：假设有两个 cpp 文件。<br>
+config.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> globalValue = <span class="hljs-number">42</span>;<br></code></pre></td></tr></table></figure>
+<p>main.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> globalValue; <span class="hljs-comment">// 在 main.cpp 中用 extern 声明它，避免重复定义</span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>, globalValue); <span class="hljs-comment">// 输出 42</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>示例 2：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 如果在 .h 中定义 const</span><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> CONST_VALUE = <span class="hljs-number">5</span>; <span class="hljs-comment">// 每个翻译单元都会生成一个副本</span><br><span class="hljs-comment">// 改成这样：</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> CONST_VALUE;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-extern-c">(2) extern “C”</h3>
+<ul>
+<li><code>extern &quot;C&quot;</code>是 cpp 提供的关键字，用于告诉编译器按照 C 语言方式<strong>编译和链接</strong>函数或变量，已解决 C++ <strong>名称修饰</strong>（name mangling）带来的兼容性问题。</li>
+<li>为什么需要 extern “C”?
+<ul>
+<li>C++ <strong>支持函数重载</strong>，所以编译器会在<strong>编译时修改函数名</strong>，加入参数类型信息；C 语言不支持重载，其函数名在编译后不会被修饰。如果 C++ 直接调用 C 语言函数（没有  extern “C”），链接时找不到匹配的名称，会报  undefined reference  错误。</li>
+<li>PS：VS2022 可以打开 Tools-Command line-Developer command prompt，cd 进入.obj（.o）文件所在的文件夹来分析编译的结果，例如查看符号表。</li>
+</ul>
+</li>
+<li>使用（代码实例见：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/oJDsfqiVLdWTLtcnHKL_tQ%EF%BC%89%EF%BC%9A">https://mp.weixin.qq.com/s/oJDsfqiVLdWTLtcnHKL_tQ）：</a>
+<ul>
+<li>C++调用 C 函数</li>
+<li>C 语言调用 C++ 代码</li>
+<li>适用于：（多个）函数、变量、整个头文件。</li>
+<li>不适用于：C++ 类（C 语言不支持类）、函数重载（C 语言不支持重载）</li>
+<li>C++ 调用 C 库、封装 C 接口给其他语言</li>
+<li>extern “C”  只能用于全局作用域，不能嵌套到局部变量或函数内部。</li>
+<li>用  #ifdef __cplusplus （#endif）确保头文件可在 C 和 C++ 两端兼容。</li>
+<li>适用于 函数和变量，但不能用于 类和重载函数</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-inline-和-extern">(3) inline 和 extern</h3>
+<p>由前述可知，extern 修饰某个函数/变量，可以表明该函数/变量的定义在其他文件中，从而避免重复定义。<br>
+如下面的例子，假设有 test.h, test.cpp, and main.cpp 三个文件。test.h 中定义（实现）一个 func1，test.cpp 和 main.cpp 中都 include 了 test.h，并使用 func1。此时编译 main.cpp 会出现错误。</p>
+<p>由前可知，此错误可以用 extern 或 inline 解决，在 test.cpp 中用 extern 声明外部函数 func1。</p>
+<p>而新特性下的 inline 已经不在表明是否内联，是否内联现在完全由编译器决定。新特性下的 inline inline  允许函数在多个文件中定义，编译时合并为一份，避免多重定义错误。每个文件中出现的定义都被认为是“同一个函数的多次定义”，链接器不会报错。这样用法主要用于函数，也可用于变量（C++17 起）。在上述例子中，可以在头文件里用 inline 修饰 func1。值得注意的是，不同文件里的多个定义应该完全一样，因为如果定义不同不同编译器可能随机使用某个定义。</p>
+<p>extern 和 inline 的对比：</p>
+<ul>
+<li>编译器行为：extern 是声明符号，定义在别处；inline 允许多次定义（每个 翻译单元 TU 都有）</li>
+<li>是否生成多次拷贝：extern 只在定义处生成；inline 则每个 .cpp 中可能各自展开。</li>
+<li>使用场景：extern 用于声明全局变量（跨多个文件共享一个全局变量）/ 外部接口；inline 定义 header-only 工具函数 / 模板函数</li>
+</ul>
+<p>PS: 用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号。但是不推荐在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。</p>
 <h2 id="23-vector">23. vector</h2>
 <h3 id="1-vector-里加入-10-万数据游戏中有对象的指针指向这些数据这可能有什么问题">(1) vector 里加入 10 万数据，游戏中有对象的指针指向这些数据，这可能有什么问题？</h3>
 <p>这和上一个问题，vector 的扩容息息相关，vector 发生扩容时会分配更大的内存，将原内存数据拷贝过来，然后释放之前的内存，如果有指针指向此前的地址，释放之后，指针将不能正常访问到此前的数据。</p>
