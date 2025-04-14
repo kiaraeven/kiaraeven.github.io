@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-13T06:07:22.456Z">
+<meta property="article:modified_time" content="2025-04-14T05:14:43.521Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.2k words
+          10k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          77 mins
+          84 mins
         
       </span>
     
@@ -832,9 +832,109 @@ config.cpp</p>
 </ul>
 <p>PS: 用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号。但是不推荐在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。</p>
 <h2 id="23-vector">23. vector</h2>
-<h3 id="1-vector-里加入-10-万数据游戏中有对象的指针指向这些数据这可能有什么问题">(1) vector 里加入 10 万数据，游戏中有对象的指针指向这些数据，这可能有什么问题？</h3>
-<p>这和上一个问题，vector 的扩容息息相关，vector 发生扩容时会分配更大的内存，将原内存数据拷贝过来，然后释放之前的内存，如果有指针指向此前的地址，释放之后，指针将不能正常访问到此前的数据。</p>
-<h3 id="2-vector-如何快速删除内部对象-要求-o1时间复杂度">(2) vector 如何快速删除内部对象。（要求 O(1)时间复杂度）</h3>
+<h3 id="1-vector-底层实现">(1) vector 底层实现</h3>
+<p>基类<code>_Vector_base</code><br>
+内部有一个 struct，其中有三个重要的指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">_Vector_impl</span><br>: <span class="hljs-keyword">public</span> _Tp_alloc_type<br>&#123;<br>  pointer _M_start; <span class="hljs-comment">// 指向数据起始位置</span><br>  pointer _M_finish; <span class="hljs-comment">// 指向当前元素末尾（size）</span><br>  pointer _M_end_of_storage; <span class="hljs-comment">// 指向当前可用容量的末尾（capacity）</span><br><span class="hljs-comment">//.....</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>通过 <code>_M_start</code> 到 <code>_M_finish</code> 管理已有元素，<code>_M_end_of_storage - _M_start</code> 就是容量。</p>
+<ul>
+<li>
+<p>内存管理（动态数组）</p>
+<ul>
+<li>所有元素存储在<strong>连续的堆内存块</strong>中</li>
+<li>初始容量通常为 0，插入时自动扩容</li>
+</ul>
+</li>
+<li>
+<p>插入元素</p>
+<ul>
+<li>插入在最后的位置 (<code>push_back()</code>/<code>emplace_back()</code>)：
+<ul>
+<li>均摊 O(1)</li>
+</ul>
+</li>
+<li>插入不是最后的位置 (<code>insert(pos, x)</code>)：
+<ul>
+<li>把待插入位置之后的元素全部向后平移一位，再插入元素</li>
+<li>O(n)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>删除元素</p>
+<ul>
+<li>删除最后位置的元素 (<code>pop_back()</code>)：
+<ul>
+<li><code>_M_finish</code> 往前移动一位</li>
+<li>调用析构删除元素，不释放现有已经申请的内存</li>
+<li>O(1)</li>
+</ul>
+</li>
+<li>删除不是最后 (<code>erase(pos)</code>)：
+<ul>
+<li>待删除后面所有元素均向前平移一位</li>
+<li>删除元素，不释放现有已经申请的内存</li>
+<li>O(n)</li>
+</ul>
+</li>
+<li>删除所有 (<code>clear()</code>):
+<ul>
+<li>对所有元素调用析构，但不释放内存</li>
+<li>O(n)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>读取元素</p>
+<ul>
+<li>操作符<code>[]</code></li>
+<li>.at({index}) (比<code>[]</code>多了一个检查界的越界动作，如果越界了直接返回一个无效的位置)<br>
+以上两种都是返回具体元素的引用，可以帮助修改元素</li>
+</ul>
+</li>
+<li>
+<p>修改元素</p>
+<ul>
+<li>vector 不支持直接修改某个位置的元素，只能通过读取元素获取引用再修改，或者删除之后再加入（效率低）</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-vector-扩容机制">(2) vector 扩容机制</h3>
+<ul>
+<li>当使用 push_back/emplace_back 添加元素时，如果容量 capacity() 已满，就会触发自动扩容，将容量扩展为当前容量的 1.5 到 2 倍（具体实现依编译器而异）。</li>
+<li>扩容会：
+<ul>
+<li>分配新内存（当前内存的 1.5 到 2 倍）(<code>allocator&lt;T&gt;</code>（默认是 std::allocator）)</li>
+<li>拷贝（或移动）旧元素到新内存</li>
+<li>释放旧内存</li>
+</ul>
+</li>
+<li>优化：如果已知需要存储大量数据，可使用<code>vec.reserve(n)</code>预分配 n 个元素的空间，避免多次扩容。</li>
+</ul>
+<h3 id="3-emplace_back-vs-push_back-区别与性能">(3) emplace_back() vs push_back() 区别与性能</h3>
+<ul>
+<li>push_back() 接收对象实例，也就是说先构造临时对象，再拷贝/移动进 vector</li>
+<li>emplace_back() 接收构造参数，直接在 vector 的尾部<strong>就地构造</strong>对象</li>
+<li>emplace_back(args…)  原地构造对象，<strong>避免了不必要的拷贝/移动</strong>，相比  push_back(a)  更高效，特别适用于存储复杂对象。</li>
+<li>对于简单数据类型，push_back()和 emplace_back()差别不大；对于复杂对象（如 string、自定义类等），优先使用  emplace_back()  以提升性能。</li>
+</ul>
+<h3 id="4-vector-里加入-10-万数据游戏中有对象的指针指向这些数据这可能有什么问题">(4) vector 里加入 10 万数据，游戏中有对象的指针指向这些数据，这可能有什么问题？</h3>
+<p>vector 发生扩容时会分配更大的内存，将原内存数据拷贝过来，然后释放之前的内存，如果有指针指向此前的地址，释放之后，指针将不能正常访问到此前的数据。</p>
+<h3 id="5-clear-后-capacity-是否改变如何释放多余内存">(5) clear() 后 capacity() 是否改变？如何释放多余内存？</h3>
+<ul>
+<li><code>vec.clear()</code> 只销毁所有元素（调用析构），即 size() 变为 0，但不会释放容量，即 capacity() 不变</li>
+<li>如何释放多余内存：
+<ul>
+<li><strong>shrink_to_fit()</strong> 释放多余内存（C++11 起）。但注意<strong>不是强制释放</strong>，只是建议行为，不同 STL 实现可能不生效（如某些 libc++ 实现中）。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (vec.<span class="hljs-built_in">capacity</span>() &gt; vec.<span class="hljs-built_in">size</span>() * <span class="hljs-number">2</span>) &#123;   <br>  vec.<span class="hljs-built_in">shrink_to_fit</span>(); <span class="hljs-comment">// 仅在容量远大于实际使用时调用</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>交换清空法（最稳妥）:创建一个临时空 vector，与 v 交换，原内存立即释放，100% 生效，用来释放大容量 vector 内存 （临时 vector 在语句结束后立即被销毁，释放了内存）。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::<span class="hljs-built_in">vector</span>&lt;<span class="hljs-type">int</span>&gt;().<span class="hljs-built_in">swap</span>(v);<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-vector-如何快速删除内部某个元素-要求-o1时间复杂度">(6) vector 如何快速删除内部某个元素。（要求 O(1)时间复杂度）</h3>
 <p>将要删除的对象和尾部对象 swap，然后直接 pop_back 即可。</p>
 <h2 id="24-多线程的锁有哪些分别有什么区别">24. 多线程的锁有哪些？分别有什么区别？</h2>
 <h2 id="25-从-cpp-源代码到-exe-经过了哪些过程">25. 从 cpp 源代码到 exe 经过了哪些过程？</h2>
