@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-14T23:00:50.382Z">
+<meta property="article:modified_time" content="2025-04-15T06:49:43.972Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          14k words
+          15k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          118 mins
+          124 mins
         
       </span>
     
@@ -345,7 +345,7 @@
 <p><code>std::unique_ptr&lt;T&gt;</code></p>
 <ul>
 <li>独占所有权</li>
-<li>使用移动语义，不能被复制，只能移动（std::move）</li>
+<li>没有拷贝构造函数所以不允许拷贝，但是使用移动语义，允许移动（std::move）。也就是说不允许 <code>b = a</code>，但允许 <code>b = std::move(a)</code>。这样做就意味着 unique_ptr 一定是独占所有权的。</li>
 <li>适用于独占资源管理（如文件、网络连接）、工厂函数返回值、pImpl (指向实现的指针) 模式</li>
 <li>析构函数中自动删除所管理的对象</li>
 <li>用  <code>std::make_unique&lt;T&gt;(args...)</code>  创建（C++14+）</li>
@@ -355,7 +355,8 @@
 <p><code>std::shared_ptr&lt;T&gt;</code></p>
 <ul>
 <li>共享所有权</li>
-<li>采用<strong>引用计数</strong>，多个  shared_ptr  可共享同一对象（多个指针指向同一个资源），引用计数为 0 时调用析构函数，即最后一个销毁时释放资源</li>
+<li>采用<strong>引用计数</strong>，多个 shared_ptr 可共享同一对象（多个指针指向同一个资源），引用计数为 0 时调用析构函数，即最后一个销毁时释放资源</li>
+<li>public 成员函数 use_count() 返回当前引用计数。这个函数是线程安全的因为 use_count 是原子地更新的。</li>
 <li>存在<strong>循环引用</strong>风险，可配合  std::weak_ptr  解决</li>
 <li>用  <code>std::make_shared&lt;T&gt;(args...)</code>  创建，减少内存分配开销</li>
 </ul>
@@ -367,7 +368,7 @@
 <p>弱引用</p>
 </li>
 <li>
-<p>依赖  shared_ptr，但不会增加引用计数</p>
+<p>依赖  shared_ptr，允许拷贝，但不会增加引用计数（没有 use_count() 函数）</p>
 </li>
 <li>
 <p>用于解决  shared_ptr  循环引用问题，缓存中防止指针悬挂</p>
@@ -382,8 +383,6 @@
 <li>始终使用 lock() 访问 weak_ptr 指向的对象，并检查返回值</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span></span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">greet</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Hello from MyClass!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::weak_ptr&lt;MyClass&gt; weakRef;<br><br>    &#123;<br>        <span class="hljs-comment">// 创建一个 shared_ptr</span><br>        std::shared_ptr&lt;MyClass&gt; sharedRef = std::<span class="hljs-built_in">make_shared</span>&lt;MyClass&gt;();<br><br>        <span class="hljs-comment">// 赋值给 weak_ptr（不增加引用计数）</span><br>        weakRef = sharedRef;<br><br>        <span class="hljs-comment">// 尝试通过 lock() 安全访问对象</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">auto</span> locked = weakRef.<span class="hljs-built_in">lock</span>()) &#123;  <span class="hljs-comment">// 返回 shared_ptr</span><br>            locked-&gt;<span class="hljs-built_in">greet</span>();  <span class="hljs-comment">// 输出：Hello from MyClass!</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            std::cout &lt;&lt; <span class="hljs-string">&quot;Object already destroyed!&quot;</span> &lt;&lt; std::endl;<br>        &#125;<br><br>        <span class="hljs-comment">// sharedRef 作用域结束后，对象会被销毁</span><br>    &#125;<br><br>    <span class="hljs-comment">// 再次尝试访问已释放的对象</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">auto</span> locked = weakRef.<span class="hljs-built_in">lock</span>()) &#123;<br>        locked-&gt;<span class="hljs-built_in">greet</span>();  <span class="hljs-comment">// 不会执行</span><br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Object already destroyed!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-</li>
-</ul>
 </li>
 <li>
 <p>观察者模式</p>
@@ -404,22 +403,57 @@
 </li>
 </ul>
 </li>
+<li>
+<p><code>weak_ptr::expired()</code> 来检查判断你观察的对象是否已经被销毁（返回 bool）。只想检测是否过期可以用 expired()，想获取对象 + 安全检查 可以用 lock()。</p>
+</li>
 </ul>
-<h3 id="2-shared_ptr-线程安全">(2) shared_ptr 线程安全</h3>
-<h3 id="3-shared_ptr-怎么实现多指针指向同一个地址">(3) shared_ptr 怎么实现多指针指向同一个地址</h3>
-<h3 id="4-引用计数如何保证不同类实例的指针之间共享同步">(4) 引用计数如何保证不同类实例的指针之间共享同步</h3>
-<h3 id="5-循环引用会在什么情况下产生如何解决解决的原理">(5) 循环引用会在什么情况下产生，如何解决，解决的原理</h3>
-<h3 id="6-shared_ptr-的代码实现主要是构造-赋值和析构">(6) shared_ptr 的代码实现（主要是构造、赋值和析构）</h3>
+</li>
+</ul>
+<h3 id="2-shared_ptr-的代码实现主要是构造-赋值和析构">(2) shared_ptr 的代码实现（主要是构造、赋值和析构）</h3>
+<p>源码见：<br>
+<a target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/include/bits/shared_ptr.h">https://github.com/gcc-mirror/gcc/blob/master/libstdc++-v3/include/bits/shared_ptr.h</a></p>
 <p>内部实现原理</p>
 <ul>
 <li>包含两个指针：一个指向对象，一个指向控制块</li>
 <li>控制块包含引用计数和删除器</li>
+<li>当  shared_ptr  被销毁（例如通过析构函数）或重置（通过  reset  方法）时，计数器减少。</li>
 <li>当引用计数降为 0 时，删除对象和控制块</li>
 </ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MySharedPtr</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">MySharedPtr</span><span class="hljs-params">(T* ptr = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function">        : _m_ptr(ptr), _m_refcount(new size_t(<span class="hljs-number">1</span>)) &#123;</span>&#125;<br><br>    <span class="hljs-comment">// 拷贝构造</span><br>    <span class="hljs-built_in">MySharedPtr</span>(<span class="hljs-type">const</span> MySharedPtr&amp; other)<br>        : _m_ptr(other._m_ptr), _m_refcount(other._m_refcount) &#123;<br>        ++(*_m_refcount);<br>    &#125;<br><br>    <span class="hljs-comment">// 拷贝赋值</span><br>    MySharedPtr&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> MySharedPtr&amp; other) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> != &amp;other) &#123;<br>            <span class="hljs-built_in">release</span>();<br>            _m_ptr = other._m_ptr;<br>            _m_refcount = other._m_refcount;<br>            ++(*_m_refcount);<br>        &#125;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 移动构造</span><br>    <span class="hljs-built_in">MySharedPtr</span>(MySharedPtr&amp;&amp; other) <span class="hljs-keyword">noexcept</span><br>        : _m_ptr(other._m_ptr), _m_refcount(other._m_refcount) &#123;<br>        other._m_ptr = <span class="hljs-literal">nullptr</span>;<br>        other._m_refcount = <span class="hljs-literal">nullptr</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 移动赋值</span><br>    MySharedPtr&amp; <span class="hljs-keyword">operator</span>=(MySharedPtr&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> != &amp;other) &#123;<br>            <span class="hljs-built_in">release</span>();<br>            _m_ptr = other._m_ptr;<br>            _m_refcount = other._m_refcount;<br>            other._m_ptr = <span class="hljs-literal">nullptr</span>;<br>            other._m_refcount = <span class="hljs-literal">nullptr</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    ~<span class="hljs-built_in">MySharedPtr</span>() &#123;<br>        <span class="hljs-built_in">release</span>();<br>    &#125;<br><br>    T&amp; <span class="hljs-keyword">operator</span>*() <span class="hljs-type">const</span> &#123; <span class="hljs-keyword">return</span> *_m_ptr; &#125;<br>    T* <span class="hljs-keyword">operator</span>-&gt;() <span class="hljs-type">const</span> &#123; <span class="hljs-keyword">return</span> _m_ptr; &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">use_count</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> _m_refcount ? *_m_refcount : <span class="hljs-number">0</span>;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    T* _m_ptr = <span class="hljs-literal">nullptr</span>;<br>    <span class="hljs-type">size_t</span>* _m_refcount = <span class="hljs-literal">nullptr</span>;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">release</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (_m_refcount) &#123;<br>            --(*_m_refcount);<br>            <span class="hljs-keyword">if</span> (*_m_refcount == <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">delete</span> _m_ptr;<br>                <span class="hljs-keyword">delete</span> _m_refcount;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<hr>
+<p><strong>解析</strong>：</p>
+<ul>
+<li>
+<p>explicit 用于修饰（单参数）构造函数或转换函数，防止它们被隐式调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">A</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;A constructed with &quot;</span> &lt;&lt; x &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(A a)</span> </span>&#123;&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">foo</span>(<span class="hljs-number">42</span>);  <span class="hljs-comment">// 错误：不允许隐式转换</span><br>    <span class="hljs-built_in">foo</span>(<span class="hljs-built_in">A</span>(<span class="hljs-number">42</span>));  <span class="hljs-comment">// 明确构造才允许</span><br>&#125;<br><br><span class="hljs-comment">// explicit 也可以用于修饰转换函数</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">bool</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; &#125;<br>&#125;;<br><br>B b;<br><span class="hljs-keyword">if</span> (b) &#123; ... &#125;          <span class="hljs-comment">// 可以</span><br><span class="hljs-type">bool</span> x = b;             <span class="hljs-comment">// 错误，不能隐式转换</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>使用 explicit 修饰 shared_ptr 的构造函数是因为：
+<ul>
+<li>阻止隐式构造：避免误用裸指针构造，必须显式创建智能指针</li>
+<li>明确表达所有权转移：让开发者明确知道“我把这块资源交给 shared_ptr 管了”</li>
+<li>与 std::shared_ptr 行为一致</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>GCC 的源码（尤其是 libstdc++）中，经常会看到变量名像 _M_ptr, _M_refcount, _M_impl，这是习惯的命名风格：</p>
+<ul>
+<li><em>M</em> Member variable，表示类的私有成员</li>
+<li><em>S</em> Static variable，表示静态成员变量</li>
+<li>这样命名的好处可以在复杂实现中清晰地区分公共接口 vs 内部字段，避免变量名冲突</li>
+</ul>
+</li>
+</ul>
 <p>PS: weak_ptr 的实现？</p>
-<h3 id="7-智能指针构造与析构时间">(7) 智能指针构造与析构时间</h3>
-<h3 id="8-野指针的产生原因解决方法">(8) 野指针的产生原因，解决方法</h3>
-<h3 id="9-gc-语义">(9) GC 语义</h3>
+<h3 id="3-stdmake_shared-相比-stdshared_ptrlttgtnew-targs-有什么好处">(3) <code>std::make_shared</code>  相比  <code>std::shared_ptr&lt;T&gt;(new T(args...))</code>  有什么好处？</h3>
+<h3 id="4-shared_ptr-线程安全">(4) shared_ptr 线程安全</h3>
+<h3 id="5-shared_ptr-怎么实现多指针指向同一个地址">(5) shared_ptr 怎么实现多指针指向同一个地址</h3>
+<h3 id="6-引用计数如何保证不同类实例的指针之间共享同步">(6) 引用计数如何保证不同类实例的指针之间共享同步</h3>
+<h3 id="7-循环引用会在什么情况下产生如何解决解决的原理">(7) 循环引用会在什么情况下产生，如何解决，解决的原理</h3>
+<h3 id="8-智能指针构造与析构时间">(8) 智能指针构造与析构时间</h3>
+<h3 id="9-野指针-指针悬挂的产生原因解决方法">(9) 野指针、指针悬挂的产生原因，解决方法</h3>
+<h3 id="10-gc-语义">(10) GC 语义</h3>
 <p>GC 语义（Garbage Collection Semantics，垃圾回收语义）是指一种自动内存管理机制，用于自动跟踪和释放程序中不再使用的内存资源。与手动内存管理（如 C++中的<code>new</code>/<code>delete</code>）不同，具有 GC 语义的编程语言通过垃圾回收器（Garbage Collector，GC）来自动处理内存回收，从而减少内存泄漏和悬挂指针的风险。</p>
 <ul>
 <li>
