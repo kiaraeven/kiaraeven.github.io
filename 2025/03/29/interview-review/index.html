@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-04-29T23:28:03.789Z">
+<meta property="article:modified_time" content="2025-05-09T06:39:30.327Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -233,7 +233,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-03-29 15:33" pubdate>
+        <time datetime="2025-03-29 14:33" pubdate>
           March 29, 2025 pm
         </time>
       </span>
@@ -256,7 +256,7 @@
         
         
         
-          291 mins
+          296 mins
         
       </span>
     
@@ -2573,7 +2573,113 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 </ul>
 <h2 id="41-大世界场景需要注意哪些问题城市场景有什么优化思路">41. 大世界场景需要注意哪些问题/城市场景有什么优化思路？</h2>
 <p>LOD（根据摄像机距离或屏幕空间大小动态选择不同精度模型，远的对象用低模，近的对象用高模）, 场景空间划分，CSM，剔除，纹理过多导致的带宽或者显存问题…</p>
-<h2 id="42-如何生成成千上万相同的对象">42. 如何生成成千上万相同的对象？</h2>
+<h2 id="42-gpu-实例化和静态批处理">42. GPU 实例化和静态批处理</h2>
+<h3 id="1-gpu-实例化和静态批处理有什么区别各自有什么优劣">(1) GPU 实例化和静态批处理有什么区别，各自有什么优劣？</h3>
+<p><strong>GPU 实例化（Instancing）</strong> 和 <strong>静态批处理（Static Batching）</strong> 都是用于减少绘制调用（Draw Call）以提升 GPU 渲染性能的技术，但它们适用的对象、原理和优劣点有很大差异。</p>
+<ul>
+<li>
+<p>GPU 实例化（Instancing）：允许使用 <strong>一个 Draw Call</strong> 来渲染<strong>多个几何结构相同但变换、颜色、贴图等不同</strong>的对象。例如，绘制 1000 棵相同模型的树。又如草地、人群、粒子系统等，这些对象需要在每一帧中进行更新和渲染。</p>
+<p>它依赖 GPU 特性，如：</p>
+<ul>
+<li>
+<p><code>glDrawElementsInstanced</code>（OpenGL）</p>
+</li>
+<li>
+<p><code>DrawMeshInstanced</code>（Unity）</p>
+</li>
+<li>
+<p><code>ID3D11DeviceContext::DrawInstanced</code>（DirectX）</p>
+</li>
+<li>
+<p>优点：</p>
+<ul>
+<li><strong>大幅减少 Draw Call 数量</strong>，适合大量重复物体</li>
+<li>保留每个实例的独立变换、颜色等差异（通过 Instance Buffer）</li>
+<li>动态物体可用</li>
+</ul>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>模型必须相同（或结构非常相似）</li>
+<li>不是所有平台/硬件都高效支持大量实例</li>
+<li>每个实例仍有一定 GPU 成本（比如 instance ID 处理）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>静态批处理（Static Batching）：多个静态（不动）物体在加载阶段或运行时被合并为<strong>一个大网格</strong>，作为一个整体发送到 GPU，从而通过<strong>减少顶点提交次数</strong>来优化性能。比如，10 个不动的建筑合并成一个大模型再绘制。</p>
+<ul>
+<li>
+<p>优点：</p>
+<ul>
+<li><strong>非常适合静态场景（建筑、地形、道具等）</strong></li>
+<li>内存消耗较低（合并后只需存一个网格）</li>
+<li>在不支持 Instancing 的平台上也适用</li>
+</ul>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>对象不能移动（Transform 变换代价大）</li>
+<li>不能单独剔除（整体剔除或整体绘制）</li>
+<li>合并过程会占用 CPU 和内存资源</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>对比总结</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>GPU 实例化</th>
+<th>静态批处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象是否可动</td>
+<td>可以</td>
+<td>不可以（静态）</td>
+</tr>
+<tr>
+<td>是否共享网格数据</td>
+<td>是</td>
+<td>否（合并为新网格）</td>
+</tr>
+<tr>
+<td>是否共享材质</td>
+<td>是</td>
+<td>是（需相同材质）</td>
+</tr>
+<tr>
+<td>是否节省 Draw Call</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>内存消耗</td>
+<td>较小（只要 instance buffer）</td>
+<td>较大（合并生成新网格）</td>
+</tr>
+<tr>
+<td>剔除粒度</td>
+<td>可逐实例剔除（支持 GPU 剔除）</td>
+<td>整体剔除</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>大量重复物体、可动物体</td>
+<td>静态场景、地图装饰</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-如何生成成千上万相同的对象">(2) 如何生成成千上万相同的对象？</h3>
 <ul>
 <li>通过<strong>实例化</strong>技术（Instancing / GPU Instance）实现大规模重复物体（如森林、士兵、粒子等）高效渲染</li>
 <li>实例化（Instancing） 是一种 GPU 渲染优化技术，它允许使用同一个几何体模型，一次性高效绘制多个副本（实例），每个实例可以拥有不同的位置、缩放、颜色等属性。</li>

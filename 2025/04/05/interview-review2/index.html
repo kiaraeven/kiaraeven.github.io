@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-04-17T22:39:54.591Z">
+<meta property="article:modified_time" content="2025-05-09T07:26:49.556Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -216,7 +216,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-04-05 17:07" pubdate>
+        <time datetime="2025-04-05 16:07" pubdate>
           April 5, 2025 pm
         </time>
       </span>
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          24k words
+          26k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          204 mins
+          215 mins
         
       </span>
     
@@ -349,8 +349,7 @@
 <li>
 <p>创建 10 个实例，会有几个虚函数表？</p>
 <ul>
-<li>只有 1 个虚函数表，但每个对象各有 1 个 vptr。</li>
-<li>10 个对象，各自有 1 个 vptr 指针（通常是 8 字节）</li>
+<li>只有 1 个虚函数表，但每个对象各有 1 个 vptr（通常是 8 字节）</li>
 <li>所有 vptr 都指向同一个类的 vtable</li>
 </ul>
 </li>
@@ -516,9 +515,9 @@
 </ul>
 <p>PS: 然而类中默认的析构函数并不是虚函数，这是因为：</p>
 <ul>
-<li>虚函数有运行时成本，需要额外的内存开销（生成 vtable、vptr）</li>
+<li>虚函数有运行时成本，需要<strong>额外的内存开销</strong>（生成 vtable、vptr）</li>
 <li>编译器无法知道类是否会被当作基类使用</li>
-<li>所以默认不会加 virtual，只有你显式声明或继承虚函数时才会虚化</li>
+<li>所以默认不会加 virtual，只有显式声明或继承虚函数时才会虚化</li>
 </ul>
 <h3 id="11-一个类既不继承也不是子类内部也没有虚函数那它的析构函数需要声明为虚函数吗">(11) 一个类既不继承也不是子类，内部也没有虚函数，那它的析构函数需要声明为虚函数吗？</h3>
 <ul>
@@ -587,13 +586,13 @@
 <p>弱引用</p>
 </li>
 <li>
-<p>依赖  shared_ptr，允许拷贝，但不会增加引用计数（没有 use_count() 函数）</p>
+<p>依赖 shared_ptr，<strong>允许拷贝</strong>，但<strong>不会增加引用计数</strong>（没有 use_count() 函数）</p>
 </li>
 <li>
-<p>用于解决  shared_ptr  循环引用问题，缓存中防止指针悬挂</p>
+<p>用于解决 shared_ptr  循环引用问题，缓存中防止指针悬挂</p>
 </li>
 <li>
-<p>可通过 lock() 获取  shared_ptr，判断对象是否仍然有效</p>
+<p>可通过 lock() 获取 shared_ptr，判断对象是否仍然有效</p>
 <ul>
 <li>weak_ptr 是观察者，不拥有对象，不增加引用计数</li>
 <li>如果原对象还活着，lock()返回有效 shared_ptr</li>
@@ -641,7 +640,7 @@
 <ul>
 <li>包含两个指针：一个指向对象，一个指向控制块</li>
 <li>控制块包含引用计数和删除器</li>
-<li>当  shared_ptr  被销毁（例如通过析构函数）或重置（通过  reset  方法）时，计数器减少。</li>
+<li>当 shared_ptr 被销毁（例如通过析构函数）或重置（通过 reset 方法）时，计数器减少。</li>
 <li>当引用计数降为 0 时，删除对象和控制块</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MySharedPtr</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// MySharedPtr&lt;int&gt; a(new int(100));</span><br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">MySharedPtr</span><span class="hljs-params">(T* ptr = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function">        : _m_ptr(ptr), _m_refcount(new size_t(<span class="hljs-number">1</span>)) &#123;</span>&#125;<br><br>    <span class="hljs-comment">// 拷贝构造</span><br>    <span class="hljs-built_in">MySharedPtr</span>(<span class="hljs-type">const</span> MySharedPtr&amp; other)<br>        : _m_ptr(other._m_ptr), _m_refcount(other._m_refcount) &#123;<br>        ++(*_m_refcount);<br>    &#125;<br><br>    <span class="hljs-comment">// 拷贝赋值</span><br>    MySharedPtr&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> MySharedPtr&amp; other) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> != &amp;other) &#123;<br>            <span class="hljs-built_in">release</span>();<br>            _m_ptr = other._m_ptr;<br>            _m_refcount = other._m_refcount;<br>            ++(*_m_refcount);<br>        &#125;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 移动构造</span><br>    <span class="hljs-built_in">MySharedPtr</span>(MySharedPtr&amp;&amp; other) <span class="hljs-keyword">noexcept</span><br>        : _m_ptr(other._m_ptr), _m_refcount(other._m_refcount) &#123;<br>        other._m_ptr = <span class="hljs-literal">nullptr</span>;<br>        other._m_refcount = <span class="hljs-literal">nullptr</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 移动赋值</span><br>    <span class="hljs-comment">// MySharedPtr&amp; operator=(MySharedPtr&amp;&amp; other) noexcept &#123;</span><br>    <span class="hljs-comment">//     if (this != &amp;other) &#123;</span><br>    <span class="hljs-comment">//         release();</span><br>    <span class="hljs-comment">//         _m_ptr = other._m_ptr;</span><br>    <span class="hljs-comment">//         _m_refcount = other._m_refcount;</span><br>    <span class="hljs-comment">//         other._m_ptr = nullptr;</span><br>    <span class="hljs-comment">//         other._m_refcount = nullptr;</span><br>    <span class="hljs-comment">//     &#125;</span><br>    <span class="hljs-comment">//     return *this;</span><br>    <span class="hljs-comment">// &#125;</span><br>    <span class="hljs-comment">// 使用 swap 的移动赋值</span><br>    MySharedPtr&amp; <span class="hljs-keyword">operator</span>=(MySharedPtr&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123;<br>        <span class="hljs-built_in">MySharedPtr</span>(std::<span class="hljs-built_in">move</span>(other)).<span class="hljs-built_in">swap</span>(*<span class="hljs-keyword">this</span>);<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    ~<span class="hljs-built_in">MySharedPtr</span>() &#123;<br>        <span class="hljs-built_in">release</span>();<br>    &#125;<br><br>    <span class="hljs-comment">// 返回裸指针</span><br>    <span class="hljs-function">T* <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> _m_ptr;<br>    &#125;<br><br>    <span class="hljs-comment">// 释放当前资源，并可选替换为新对象</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">reset</span><span class="hljs-params">(T* new_ptr = <span class="hljs-literal">nullptr</span>)</span> </span>&#123;<br>        <span class="hljs-built_in">release</span>();  <span class="hljs-comment">// 释放旧资源</span><br>        <span class="hljs-keyword">if</span> (new_ptr) &#123;<br>            _m_ptr = new_ptr;<br>            _m_refcount = <span class="hljs-keyword">new</span> <span class="hljs-built_in">size_t</span>(<span class="hljs-number">1</span>);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            _m_ptr = <span class="hljs-literal">nullptr</span>;<br>            _m_refcount = <span class="hljs-literal">nullptr</span>;<br>        &#125;<br>    &#125;<br><br>    T&amp; <span class="hljs-keyword">operator</span>*() <span class="hljs-type">const</span> &#123; <span class="hljs-keyword">return</span> *_m_ptr; &#125;<br>    T* <span class="hljs-keyword">operator</span>-&gt;() <span class="hljs-type">const</span> &#123; <span class="hljs-keyword">return</span> _m_ptr; &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">use_count</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> _m_refcount ? *_m_refcount : <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// swap 成员函数</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(MySharedPtr&amp; other)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>        std::<span class="hljs-built_in">swap</span>(_m_ptr, other._m_ptr);<br>        std::<span class="hljs-built_in">swap</span>(_m_refcount, other._m_refcount);<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    T* _m_ptr = <span class="hljs-literal">nullptr</span>;<br>    <span class="hljs-type">size_t</span>* _m_refcount = <span class="hljs-literal">nullptr</span>;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">release</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (_m_refcount_ &amp;&amp; --(*_m_refcount_) == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">delete</span> _m_ptr;<br>            <span class="hljs-keyword">delete</span> _m_refcount;<br>        &#125;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
@@ -1590,6 +1589,7 @@ config.cpp</p>
 <li>插入在最后的位置 (<code>push_back()</code>/<code>emplace_back()</code>)：
 <ul>
 <li>均摊 O(1)</li>
+<li>不是严格保证 O(1)，因为如果发生扩容，要分配一块新的更大的内存（通常是当前容量的两倍），将原内存中的元素复制或移动到新的内存中，然后释放原内存。扩容操作的时间复杂度是 O(n)（其中 n 是当前元素的数量），因为需要复制或移动所有现有元素。</li>
 </ul>
 </li>
 <li>插入不是最后的位置 (<code>insert(pos, x)</code>)：
@@ -1651,6 +1651,7 @@ config.cpp</p>
 </ul>
 </li>
 <li>优化：如果已知需要存储大量数据，可使用<code>vec.reserve(n)</code>预分配 n 个元素的空间，避免多次扩容。</li>
+<li>在扩容过程中，由于分配了新的内存空间，原内存中的元素被复制或移动到新的位置。这意味着<strong>原来指向 std::vector 中元素的迭代器、指针和引用都会失效，因为它们指向的是旧的内存地址</strong>。例如，假设我们有一个 std::vector，并获取了一个指向其中某个元素的迭代器。然后我们不断向 std::vector 添加元素，导致其扩容。扩容后，原来的迭代器就不再有效，因为它所指向的内存地址已经被释放或覆盖。</li>
 </ul>
 <h3 id="3-emplace_back-vs-push_back-区别与性能">(3) emplace_back() vs push_back() 区别与性能</h3>
 <ul>
@@ -1899,6 +1900,9 @@ config.cpp</p>
 </li>
 </ul>
 <h2 id="2-tcp-和-udp-原理和区别">2. TCP 和 UDP 原理和区别</h2>
+<p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/network/3_tcp/tcp_interview.html#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-tcp-%E5%8D%8F%E8%AE%AE-tcp-%E5%B7%A5%E4%BD%9C%E5%9C%A8%E5%93%AA%E4%B8%80%E5%B1%82">https://xiaolincoding.com/network/3_tcp/tcp_interview.html#为什么需要-tcp-协议-tcp-工作在哪一层</a><br>
+<a target="_blank" rel="noopener" href="https://xiaolincoding.com/network/3_tcp/tcp_interview.html#udp-%E5%92%8C-tcp-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%E5%91%A2-%E5%88%86%E5%88%AB%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E6%98%AF">https://xiaolincoding.com/network/3_tcp/tcp_interview.html#udp-和-tcp-有什么区别呢-分别的应用场景是</a><br>
+<a target="_blank" rel="noopener" href="https://xiaolincoding.com/network/3_tcp/tcp_interview.html#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B-%E4%B8%8D%E6%98%AF%E4%B8%A4%E6%AC%A1%E3%80%81%E5%9B%9B%E6%AC%A1">https://xiaolincoding.com/network/3_tcp/tcp_interview.html#为什么是三次握手-不是两次、四次</a></p>
 <ul>
 <li>
 <p>TCP（Transmission Control Protocol）</p>
@@ -2025,6 +2029,7 @@ config.cpp</p>
 </ul>
 <h2 id="4-tcp-粘包">4. TCP 粘包</h2>
 <h2 id="5-可靠-udp-的实现思路">5. 可靠 UDP 的实现思路</h2>
+<h2 id="6-https-和-http-区别">6. https 和 http 区别</h2>
 <h1 id="操作系统">操作系统</h1>
 <h2 id="1-线程和进程区别">1. 线程和进程区别</h2>
 <ul>
@@ -2155,10 +2160,36 @@ config.cpp</p>
 </table>
 </li>
 <li>
-<p>线程/进程切换原理（上下文切换）</p>
+<p>上下文切换</p>
+<p>上下文切换（Context Switching）是操作系统<strong>在不同任务之间切换</strong>的一种机制，用于使<strong>多个任务（如进程或线程）之间共享处理器资源</strong>，以便实现多任务处理和资源的高效利用。</p>
 <ul>
 <li>
-<p>定义：CPU 在多任务环境下从一个进程（或线程）切换到另一个进程（或线程）时，保存当前执行状态并恢复新任务的状态的过程。</p>
+<p>上下文切换的过程</p>
+</li>
+<li>
+<p><strong>保存当前任务的上下文</strong> ：当操作系统决定将处理器从一个任务切换到另一个任务时，会首先保存当前正在运行任务的状态。这包括程序计数器（PC）、寄存器、堆栈指针和其他相关状态信息。这些信息被称为任务的 “上下文”。</p>
+</li>
+<li>
+<p><strong>恢复目标任务的上下文</strong> ：操作系统然后加载目标任务的上下文，包括恢复其程序计数器、寄存器和堆栈指针等。这样，目标任务就可以从上次被中断的地方继续执行。</p>
+</li>
+<li>
+<p><strong>切换任务</strong> ：完成上下文保存和加载后，处理器开始执行目标任务。</p>
+</li>
+<li>
+<p>上下文切换的作用</p>
+<ul>
+<li><strong>多任务处理</strong> ：允许计算机同时运行多个任务，通过在任务之间快速切换，使用户感觉多个任务在同时进行。</li>
+<li><strong>资源分配</strong> ：操作系统可以根据任务的优先级和需求，合理分配处理器时间，确保重要任务能够及时得到处理。</li>
+<li><strong>响应能力</strong> ：通过上下文切换，操作系统可以在不同任务之间快速切换，确保系统对用户输入和外部事件的响应能力。</li>
+</ul>
+</li>
+<li>
+<p>上下文切换的开销</p>
+<ul>
+<li><strong>时间开销</strong> ：保存和恢复任务的上下文需要一定的时间，这会增加系统的总体延迟。</li>
+<li><strong>内存开销</strong> ：每个任务的上下文需要在内存中存储，这会占用一定的内存资源。</li>
+<li><strong>缓存一致性维护</strong> ：在多核处理器中，上下文切换可能导致缓存不一致问题，需要额外的处理来确保数据的一致性。</li>
+</ul>
 </li>
 <li>
 <p>进程切换步骤</p>
@@ -2193,6 +2224,28 @@ config.cpp</p>
 <li>
 <p>内存中堆栈，数据区哪里读取快</p>
 </li>
+<li>
+<p>虚拟内存</p>
+</li>
+</ol>
+<p>虚拟内存是操作系统提供的一种抽象机制，它让每个<strong>进程</strong>看到的是一个<strong>连续且独立</strong>的内存空间，而不是实际的物理内存地址。实际上，物理内存通常被分成多个部分，可能分布在不同的存储设备（如内存芯片、硬盘等）中。本质上是把<strong>磁盘空间 + 物理内存</strong>结合使用，让程序觉得自己拥有完整的大内存空间。操作系统通过**页表（Page Table）+ MMU（内存管理单元）**将虚拟地址映射到物理地址。</p>
+<ul>
+<li>作用：
+<ul>
+<li>提供更大的地址空间 ：允许程序使用的内存空间大小超过实际物理内存的大小。例如，一个计算机的物理内存为 4GB，但通过虚拟内存技术，可以为每个进程提供一个更大的虚拟地址空间，使得程序可以处理更大的数据集，而无需受限于物理内存的大小。</li>
+<li>内存隔离和保护 ：为每个进程提供独立的虚拟地址空间，使得一个进程无法直接访问其他进程的内存，从而增强了系统的安全性和稳定性。如果一个进程出现错误或崩溃，不会影响其他进程的内存。</li>
+<li>内存共享 ：允许多个进程共享同一块物理内存区域，提高内存的利用率。</li>
+</ul>
+</li>
+<li>malloc 出来的内存
+<ul>
+<li>位置 ：malloc 出来的内存是在虚拟内存中分配的。它属于程序的虚拟地址空间的一部分。</li>
+<li>映射到物理内存 ：虽然虚拟内存提供了逻辑上的连续地址空间，但这些虚拟地址需要映射到物理内存或磁盘上的实际存储位置。当程序访问通过 malloc 分配的内存时，操作系统会通过内存管理单元（MMU）将虚拟地址转换为物理地址。如果物理内存不足，操作系统可能会将部分数据交换到磁盘上的交换空间（swap space）。</li>
+<li>内存分配机制 ：malloc 是 C/C++ 中的一个内存分配函数，它从程序的堆（heap）中分配内存。堆是虚拟地址空间的一部分，由操作系统管理，用于动态内存分配。</li>
+</ul>
+</li>
+</ul>
+<ol start="7">
 <li>
 <p>共享内存的实现</p>
 </li>
@@ -2380,6 +2433,12 @@ config.cpp</p>
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/05/07/volumetric-clouds/" title="[object Object]">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">[object Object]</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
