@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-05-21T15:57:52.380Z">
+<meta property="article:modified_time" content="2025-05-22T13:00:04.475Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          30k words
+          34k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          254 mins
+          284 mins
         
       </span>
     
@@ -1997,7 +1997,7 @@ config.cpp</p>
 <p><strong>运行时效率</strong>:</p>
 <ul>
 <li>对于简单的、可内联的操作，宏（函数式宏在预处理阶段被直接文本替换。这意味着如果宏体简单，相当于代码被直接内联，没有函数调用的开销。）和模板在理想情况下（简单的模板被成功内联）的运行时效率可以非常相似，因为两者最终都可能变成直接嵌入的机器码。</li>
-<li>模板由于其类型感知能力，使编译器有更多机会进行特定于类型的优化，因此模板生成的代码质量在复杂情况下往往更高，可能带来更好的运行时性能。例如，一个通用的数学运算模板，当用 int 实例化时，编译器可以使用整数指令；当用 double 实例化时，可以使用浮点指令，并进行相应的特定优化。如果模板函数由于其复杂性、大小或调用方式（例如通过函数指针）而未被内联，那么它将产生正常的函数调用开销。</li>
+<li>模板由于其类型感知能力，使编译器有更多机会<strong>进行特定于类型的优化</strong>，因此模板生成的代码质量在复杂情况下往往更高，可能带来更好的运行时性能。例如，一个通用的数学运算模板，当用 int 实例化时，编译器可以使用整数指令；当用 double 实例化时，可以使用浮点指令，并进行相应的特定优化。如果模板函数由于其复杂性、大小或调用方式（例如通过函数指针）而未被内联，那么它将产生正常的函数调用开销。</li>
 <li>宏的多次参数求值问题可能导致性能下降和错误。</li>
 </ul>
 </li>
@@ -2036,6 +2036,197 @@ config.cpp</p>
 <ul>
 <li>如果首要考虑的是极快的编译速度，且操作非常简单，不涉及复杂类型逻辑，宏可能更快（在编译时）。</li>
 <li>如果考虑的是运行时性能、类型安全、代码可维护性和利用编译器高级优化能力，模板通常是更好的选择。现代编译器在优化模板实例化代码方面做得非常好。</li>
+</ul>
+</li>
+</ul>
+<h2 id="31-平衡二叉树红黑树avl-树">31. 平衡二叉树/红黑树/AVL 树</h2>
+<h3 id="1-平衡二叉树">(1) 平衡二叉树</h3>
+<p>平衡二叉树 (Balanced Binary Tree) 是一种特殊的二叉树，它通过一定的机制来维持其自身结构的平衡，以确保树的高度（或深度）大致保持在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> 的级别，其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> 是树中节点的数量。在普通的二叉搜索树 (Binary Search Tree, BST) 中，如果插入或删除操作的顺序不当，树可能会变得非常“倾斜”或“不平衡”。在最坏的情况下，二叉搜索树可能退化成一个链表（例如，按顺序插入已排序的数据）。在这种情况下，搜索、插入和删除等基本操作的时间复杂度会从理想的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> 下降到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>，这会严重影响性能。平衡二叉树的核心目的就是<strong>防止这种退化，确保树的各种操作都能在可预测的、高效的对数时间内完成</strong>。</p>
+<p>“平衡”的确切定义会根据具体的平衡二叉树类型而有所不同。一些常见的衡量标准或约束包括：</p>
+<ul>
+<li><strong>高度差约束 (Height Difference Constraint)</strong>: 这是 <strong>AVL 树</strong> (Adelson-Velsky and Landis tree) 的核心特性。<strong>对于 AVL 树中的任何节点，其左子树和右子树的高度差（称为平衡因子）不能超过 1</strong>。</li>
+<li><strong>路径长度约束 (Path Length Constraint)</strong> 或 <strong>颜色约束 (Color Constraint)</strong>: <strong>红黑树 (Red-Black Tree)</strong> 通过对节点施加特定的颜色属性（红色或黑色）以及一系列规则来确保<em>从根节点到任何叶子节点的最长路径不会超过最短路径的两倍</em>。这些规则间接保证了树的近似平衡和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> 的高度。<code>std::map</code> 和 <code>std::set</code> 在很多 C++ 标准库实现中就使用了红黑树。</li>
+<li><strong>其他机制</strong>:
+<ul>
+<li><strong>B 树 (B-Tree)</strong> 及其变种 (如 B+ 树、B* 树) 也是平衡树，但它们通常不是二叉树（一个节点可以有多个子节点）。它们常用于数据库和文件系统中，通过确保<strong>所有叶子节点都在同一层</strong>，并要求内部节点有一定数量的子节点来保持平衡。</li>
+<li><strong>伸展树 (Splay Tree)</strong> 是一种自平衡的二叉搜索树，它通过在每次访问后将访问的节点通过一系列“伸展”操作（旋转）移动到根部，从而在均摊意义上达到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> 的性能。</li>
+<li><strong>Treap (Tree Heap)</strong> 通过为每个节点随机分配一个优先级，并同时维持二叉搜索树的顺序属性（按键值）和堆的顺序属性（按优先级），从而以较高的概率保持平衡。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-红黑树">(2) 红黑树</h3>
+<ul>
+<li>特性（左根右，根叶黑，不红红，黑路同）：
+<ul>
+<li>二叉搜索树（左 &lt; 根 &lt; 右）。</li>
+<li>一个节点要么是黑色要么是红色，<strong>根节点和叶子节点（NULL，叶子节点不存储数据）都是黑色</strong>。</li>
+<li>如果一个节点是红色的，那么它的两个子节点都必须是黑色的。这意味着在从根到任何叶子的任何路径上，都不能有两个连续的红色节点。</li>
+<li>对于树中的任何一个节点，从该节点到其所有后代叶子节点（NIL 节点）的每条简单路径上，都包含<strong>相同数量的黑色节点</strong>。这个数量被称为节点的“黑高 (black-height)”。</li>
+<li>这些属性共同保证了红黑树的一个关键特性：从任一节点到最远的叶子节点的路径长度，不会超过从该节点到最近的叶子节点路径长度的两倍（最长路径不超过最短路径的两倍）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-红黑树查找插入删除">(3) 红黑树查找/插入/删除</h3>
+<p>好的，我们来详细展开红黑树的查找、插入和删除操作。这些操作的核心在于，它们首先执行标准的二叉搜索树操作，然后通过一系列的旋转和颜色调整来恢复红黑树的五个属性，从而保持树的平衡。</p>
+<ul>
+<li>
+<p><strong>查找</strong></p>
+<p>红黑树的查找操作与普通二叉搜索树 (BST) 的查找操作<strong>完全相同</strong>。</p>
+<ul>
+<li>
+<p><strong>步骤</strong>:</p>
+<ol>
+<li>从根节点开始。</li>
+<li>比较目标键值与当前节点的键值：
+<ul>
+<li>如果相等，则找到了节点，返回该节点。</li>
+<li>如果目标键值小于当前节点的键值，则在当前节点的左子树中继续查找（即，移动到左孩子）。</li>
+<li>如果目标键值大于当前节点的键值，则在当前节点的右子树中继续查找（即，移动到右孩子）。</li>
+</ul>
+</li>
+<li>如果当前节点是 NIL（叶子节点，表示空），则说明树中不存在该键值的节点。</li>
+</ol>
+</li>
+<li>
+<p><strong>颜色</strong>: 节点的颜色在查找过程中不起任何直接作用。红黑属性确保了树的高度为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>，因此查找操作的时间复杂度也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>插入</strong></p>
+<p>插入操作稍微复杂一些，因为它可能破坏红黑树的属性。</p>
+<ul>
+<li>
+<p><strong>步骤 1: 标准 BST 插入</strong></p>
+<ul>
+<li>首先，<strong>按照普通二叉搜索树的规则找到新节点的插入位置</strong>，并将新节点插入。</li>
+<li><strong>将新插入的节点 <code>z</code> 标记为红色 (RED)</strong>。
+<ul>
+<li><strong>为什么是红色？</strong> 如果将新节点标记为黑色，几乎肯定会改变从其祖先到叶子节点的路径上的黑色节点数量，从而违反“属性：任一节点的”。如果标记为红色，则不会影响任何路径的黑色高度。然而，标记为红色可能会导致“属性：红色节点的子节点必须是黑色”被违反（如果新节点的父节点也是红色），或者如果树为空，新节点成为根节点，可能会违反“属性：根节点是黑色”。所以需要一个修复颜色的过程。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>步骤 2: 修复红黑属性</strong><br>
+在插入红色节点 <code>z</code> 后，调用一个修复过程来恢复可能被破坏的红黑属性。此过程主要处理由于 <code>z</code> 和其父节点 <code>p</code> 可能都是红色而导致的违规。修复过程的核心思想是通过一系列的颜色翻转和旋转来解决问题。我们主要关注节点 <code>z</code>、其父节点 <code>p</code>、其祖父节点 <code>g</code>，以及其叔叔节点 <code>y</code> (即 <code>g</code> 的另一个孩子)。如果插入节点是根节点，直接把插入节点变黑。</p>
+<p>修复循环 (<strong>只要 <code>z</code> 不是根节点且 <code>z</code> 的父节点 <code>p</code> 是红色就继续</strong>):</p>
+<ul>
+<li>
+<p><strong>确定叔叔节点 <code>y</code></strong>:</p>
+<ul>
+<li>如果 <code>p</code> 是 <code>g</code> 的左孩子，则 <code>y</code> 是 <code>g</code> 的右孩子。</li>
+<li>如果 <code>p</code> 是 <code>g</code> 的右孩子，则 <code>y</code> 是 <code>g</code> 的左孩子。</li>
+</ul>
+</li>
+<li>
+<p><strong>根据叔叔节点 <code>y</code> 的颜色分情况处理</strong>:</p>
+<ul>
+<li>
+<p><strong>情况 1: 叔叔 <code>y</code> 是红色 (RED)</strong></p>
+<ul>
+<li><strong>操作</strong>（叔父爷变色，爷爷变插入节点）:
+<ul>
+<li>将父节点 <code>p</code> 设为黑色 (BLACK)。</li>
+<li>将叔叔节点 <code>y</code> 设为黑色 (BLACK)。</li>
+<li>将祖父节点 <code>g</code> 设为红色 (RED)。</li>
+<li>将当前节点 <code>z</code> 指向祖父节点 <code>g</code> (<code>z = g</code>)。</li>
+</ul>
+</li>
+<li><strong>解释</strong>: 这个操作将两个红色节点（<code>p</code> 和 <code>y</code>）的“红色属性” 向上推给了祖父 <code>g</code>。现在 <code>g</code> 可能是新的问题节点（如果 <code>g</code> 的父节点也是红色），所以循环需要继续从 <code>g</code> 开始。</li>
+</ul>
+</li>
+<li>
+<p><strong>情况 2: 叔叔 <code>y</code> 是黑色 (BLACK) 或 NIL</strong></p>
+<ul>
+<li><strong>操作</strong>：根据 AVL 一节中叙述的方式判断是 LL/RR/LR/RL，然后把爷爷当作失衡节点进行相应的旋转。旋转结束后对失衡节点（旋转点）和被当作旋转轴的点交换颜色。具体见：【红黑树 - 定义, 插入, 构建】 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Xm421x7Lg/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da">https://www.bilibili.com/video/BV1Xm421x7Lg/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>循环结束后</strong>:</p>
+<ul>
+<li>将树的根节点设为黑色 (BLACK)，因为情况 1 中根节点可能被设为红色。</li>
+</ul>
+<p>插入操作通过这几种情况的处理，<strong>最多只需要两次旋转</strong>就能恢复平衡。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>删除</strong></p>
+<ul>
+<li>
+<p>删除操作是红黑树中最复杂的操作，具体见：【红黑树 - 删除】 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16m421u7Tb/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da">https://www.bilibili.com/video/BV16m421u7Tb/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da</a></p>
+</li>
+<li>
+<p><strong>最多只需要三次旋转就能恢复平衡</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-avl-树">(4) AVL 树</h3>
+<p><strong>AVL 树</strong>是以其发明者 G.M. Adelson-Velsky 和 E.M. Landis (在 1962 年) 的名字命名的，它是<strong>最早被发明的自平衡二叉搜索树 (Self-Balancing Binary Search Tree)</strong>。</p>
+<ul>
+<li>首先，AVL 树必须满足二叉搜索树的基本性质：对于树中的任何节点，其左子树中所有节点的值都小于该节点的值，而其右子树中所有节点的值都大于该节点的值。</li>
+<li><strong>平衡条件</strong>:
+<ul>
+<li>这是 AVL 树的关键。对于 AVL 树中的<strong>每一个节点</strong>，其<strong>左子树的高度</strong>与<strong>右子树的高度</strong>之差（绝对值）<strong>最多为 1</strong>。</li>
+<li>这个高度差通常被称为节点的<strong>平衡因子 (Balance Factor)</strong>。 平衡因子 = <code>高度(右子树) - 高度(左子树)</code> (或者反过来，只要保持一致即可)。因此，AVL 树中每个节点的平衡因子必须是 <strong>-1、0 或 1</strong>。如果任何节点的平衡因子变成了 -2 或 +2，那么树就失去了 AVL 平衡，需要进行调整（注：节点的高度通常定义为从该节点到其最远叶子节点路径上的边数。空树的高度通常定义为 -1，叶子节点的高度为 0）。</li>
+</ul>
+</li>
+<li><strong>性能保证</strong>:
+<ul>
+<li>由于这种严格的平衡条件，AVL 树的高度被严格限制在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>，其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> 是节点的数量。具体来说，AVL 树的高度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">h</span></span></span></span> 满足 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>&lt;</mo><mn>1.44</mn><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>−</mo><mn>0.328</mn></mrow><annotation encoding="application/x-tex">h &lt; 1.44 \log_2(n+2) - 0.328</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1.44</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.207em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0.328</span></span></span></span>。</li>
+<li>这保证了查找 (search)、插入 (insertion) 和删除 (deletion) 操作的<strong>最坏情况时间复杂度都是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></strong>。</li>
+</ul>
+</li>
+<li><strong>如何维持平衡 (Rebalancing)</strong>:
+<ul>
+<li>当检测到不平衡时，AVL 树会通过执行一种或多种<strong>树旋转</strong>(Tree Rotations)操作来恢复平衡。这些旋转操作会重新组织树的局部结构，以满足平衡条件，同时保持二叉搜索树的性质。</li>
+<li>主要的旋转类型有四种，它们是针对导致不平衡的节点（通常是第一个平衡因子为 ±2 的节点）及其子孙节点进行的：
+<ul>
+<li><strong>RR 不平衡 / 左旋</strong>：当不平衡是由于插入节点是在不平衡节点的右孩子的右子树造成的需要进行左旋，特点是失衡节点的平衡因子为 -2，失衡节点右孩子的平衡因子为 -1。左旋就是把不平衡的节点<strong>以其右孩子为轴逆时针旋转为其右孩子的左孩子</strong>，旋转前后的中序遍历结果相同，但后者树的高度变低了。如果不平衡的节点本身有左孩子，那这个冲突的左孩子变成不平衡节点旋转后的右孩子（图示见【平衡二叉树(AVL 树)】 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1tZ421q72h/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da">https://www.bilibili.com/video/BV1tZ421q72h/?share_source=copy_web&amp;vd_source=456629902e57c5630924f693427a46da</a> ）。</li>
+<li><strong>LL 不平衡 / 右旋</strong>: 当不平衡是由于插入节点是在不平衡节点的左孩子的左子树造成的需要进行右旋，特点是失衡节点的平衡因子为 2，失衡节点左孩子的平衡因子为 1。右旋的方式和左旋相反。</li>
+<li><strong>LR 不平衡</strong>: 当不平衡是由于在节点的左孩子的右子树中插入造成的。特点是失衡节点的平衡因子是 2，失衡节点的左孩子的平衡因子为-1。解决方式是先对左孩子进行一次左旋，然后再对失衡节点进行一次右旋。</li>
+<li><strong>RL 不平衡</strong>: 当不平衡是由于在节点的右孩子的左子树中插入造成的。特点是失衡节点的平衡因子是 -2，失衡节点的右孩子的平衡因子为 1。这相当于先对右孩子进行一次右旋，然后再对失衡节点进行一次左旋。</li>
+<li><strong>插入</strong>结点后如果导致多个祖先结点失衡，只需调整距离插入结点最近的失衡结点，其他失衡结点会自然平衡。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-红黑树和-avl-树的差异">(5) 红黑树和 AVL 树的差异</h3>
+<p>虽然红黑树和 AVL 树都是自平衡二叉搜索树，保证 O(logn) 的操作时间，但它们在平衡策略、性能特性和实现复杂度上有所不同：</p>
+<ul>
+<li>平衡的严格程度:
+<ul>
+<li>AVL 树: <strong>更严格地平衡</strong>。它要求任何节点的左右子树高度差最多为 1。</li>
+<li>红黑树: 平衡性相对宽松。它通过颜色属性确保最长路径不超过最短路径的两倍，但不直接限制左右子树的高度差。因此，红黑树可能没有 AVL 树那么“扁平”。</li>
+</ul>
+</li>
+<li>树的高度:
+<ul>
+<li>AVL 树: 由于更严格的平衡，其最大高度通常比红黑树更接近理论最小值 (≈logn)。</li>
+<li>红黑树: 最大高度可能略高于 AVL 树 (≈2log(n+1))。</li>
+</ul>
+</li>
+<li>查找操作性能:
+<ul>
+<li>AVL 树: 因为树的高度通常更低，查找操作的平均和最坏情况下的比较次数可能更少，因此理论上查找速度略快。</li>
+<li>红黑树: 查找也是 O(logn)，但常数因子可能略大于 AVL 树。</li>
+</ul>
+</li>
+<li>插入和删除操作性能:
+<ul>
+<li>AVL 树: 为了维持其严格的平衡条件，AVL 树在插入和删除时可能需要进行<strong>多次旋转</strong>（最坏情况下是 O(logn) 次旋转，但通常是一次或两次）。</li>
+<li>红黑树: 插入操作最多需要两次旋转，删除操作最多需要三次旋转。颜色翻转操作非常快。因此，<strong>红黑树的插入和删除操作通常比 AVL 树更快，尤其是在写操作频繁的场景下</strong>。</li>
+</ul>
+</li>
+<li>实际应用:
+<ul>
+<li>红黑树: 由于其插入和删除操作的良好性能（尤其是较少的旋转次数），在实际中应用更为广泛。例如，C++ STL 中的 std::map, std::set, std::multimap, std::multiset 通常是用红黑树实现的。Java 中的 TreeMap 和 TreeSet 也是。</li>
+<li>AVL 树: 在<strong>查找密集型</strong>且修改较少的应用中可能更有优势。但在通用库中的普及程度不如红黑树。</li>
 </ul>
 </li>
 </ul>
