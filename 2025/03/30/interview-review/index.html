@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/03/30/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/30/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-05-22T15:34:43.187Z">
+<meta property="article:modified_time" content="2025-05-23T15:54:11.862Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          36k words
+          40k words
         
       </span>
     
@@ -256,7 +256,7 @@
         
         
         
-          302 mins
+          331 mins
         
       </span>
     
@@ -324,6 +324,9 @@
 </li>
 <li>
 <p>移动端 PC 端 GPU 架构差异</p>
+</li>
+<li>
+<p>UE 的 RDG</p>
 </li>
 </ol>
 <h1 id="图形学">图形学</h1>
@@ -1003,6 +1006,7 @@ Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br
 <ul>
 <li>高效处理大量光源：光照计算与几何渲染分离，避免每个像素多次进行光照计算，性能较好。</li>
 <li>减少过度绘制：只对可见像素进行光照计算。</li>
+<li>提供更多屏幕空间信息：在延迟渲染中，对于每个像素，其对应在场景中的位置、法线方向、材质属性（如漫反射系数、镜面反射系数等）都会被存储在 G-buffer 中。这些信息都是关于场景在屏幕空间上的详细描述。例如，位置信息可以精确地指出场景中每个物体在屏幕空间中的投影位置；法线信息可以表示物体表面在该像素点处的朝向，这对于光照计算中确定光线与物体表面的交互关系非常重要。丰富的屏幕空间信息使得延迟渲染可以很容易地支持多种复杂的光照模型和后期处理特效。对于基于屏幕空间的光照模型，如屏幕空间环境光遮蔽（SSAO）、屏幕空间反射（SSR）等。</li>
 </ul>
 </li>
 <li>缺点：
@@ -2984,8 +2988,231 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 </ul>
 <h2 id="47-vulkan-的同步机制">47. vulkan 的同步机制</h2>
 <h2 id="48-vulkan-中的-fence-semaphorebarrier-有什么区别">48. Vulkan 中的 Fence、Semaphore，Barrier 有什么区别？</h2>
-<h2 id="49-ue-的-rdg">49. UE 的 RDG</h2>
-<h2 id="50-ecsentity-component-system的原理和实现">50. ECS（Entity-Component-System）的原理和实现</h2>
+<h2 id="49-alpha-test">49. Alpha test</h2>
+<ul>
+<li>
+<p><strong>Alpha Test</strong> 逐片元地根据片元的 alpha (α) 值与一个预设的参考 alpha 值进行比较，来决定是否<strong>完全丢弃</strong>该片元，从而不将其写入帧缓冲或深度缓冲。简单来说，它是一种实现“要么完全不透明，要么完全透明”的硬边缘效果的技术，而不是平滑的半透明效果。</p>
+</li>
+<li>
+<p><strong>工作机制：</strong></p>
+<p>Alpha 测试通常包含两个主要部分：</p>
+<ul>
+<li>
+<p><strong>Alpha 函数 (Alpha Function)</strong>：定义了如何将片元的 alpha 值与参考 alpha 值进行比较。常见的函数有：</p>
+<ul>
+<li><code>GL_NEVER</code>: 永不通过 (所有片元都被丢弃)。</li>
+<li><code>GL_LESS</code>: 如果片元 alpha &lt; 参考 alpha，则通过。</li>
+<li><code>GL_EQUAL</code>: 如果片元 alpha = 参考 alpha，则通过。</li>
+<li><code>GL_LEQUAL</code>: 如果片元 alpha ≤ 参考 alpha，则通过。</li>
+<li><code>GL_GREATER</code>: 如果片元 alpha &gt; 参考 alpha，则通过 (最常用的函数之一)。</li>
+<li><code>GL_NOTEQUAL</code>: 如果片元 alpha ≠ 参考 alpha，则通过。</li>
+<li><code>GL_GEQUAL</code>: 如果片元 alpha ≥ 参考 alpha，则通过。</li>
+<li><code>GL_ALWAYS</code>: 始终通过 (等同于禁用 Alpha Test)。</li>
+</ul>
+</li>
+<li>
+<p><strong>参考 Alpha 值 (Reference Alpha Value)</strong>：这是一个由开发者设定的阈值（通常在 [0, 1] 范围内），用于与片元的 alpha 值进行比较。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>**流程：**对于每个即将被渲染的片元，其 alpha 值会从纹理、顶点颜色或其他计算中得出。然后，这个 alpha 值会与设定的参考 alpha 值根据选定的 Alpha 函数进行比较。</p>
+<ul>
+<li><strong>如果比较结果为“真” (Pass)</strong>：片元通过测试，并继续在图形渲染管线中进行后续处理（例如，深度测试、写入颜色缓冲等）。</li>
+<li><strong>如果比较结果为“假” (Fail)</strong>：片元被<strong>丢弃 (discarded)</strong>。这意味着该片元不会对颜色缓冲或深度缓冲产生任何影响。它就像从未存在过一样。</li>
+</ul>
+</li>
+<li>
+<p><strong>目的和用途：</strong></p>
+<p>Alpha 测试的主要目的是在<strong>不使用复杂几何模型</strong>的情况下，创建出具有<strong>锐利、不规则边缘</strong>的透明效果，常用于：</p>
+<ul>
+<li><strong>植被/树叶 (Foliage)</strong>：用一个简单的四边形贴上带有树叶图案和透明背景的纹理，通过 Alpha Test 丢弃透明背景部分，只渲染树叶。</li>
+<li><strong>栅栏、网格、铁丝网 (Fences, Grates)</strong>：同样使用带有孔洞图案的纹理。</li>
+<li><strong>精灵图 (Sprites)</strong>：例如，游戏中角色的 2D 图像，其轮廓不规则，背景透明。</li>
+<li><strong>贴花 (Decals)</strong>：需要透明背景的贴图。</li>
+<li><strong>某些特效</strong>：如火焰或烟雾的硬边缘部分（尽管这些通常更多地使用 Alpha Blending）。</li>
+</ul>
+</li>
+<li>
+<p><strong>Alpha Test 与 Alpha Blending 的区别：</strong></p>
+<p>两种不同的透明处理技术：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left">Alpha Test</th>
+<th style="text-align:left">Alpha Blending</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>效果</strong></td>
+<td style="text-align:left">硬边缘，二进制透明 (完全可见或完全不可见)</td>
+<td style="text-align:left">平滑边缘，半透明 (部分可见)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>片元处理</strong></td>
+<td style="text-align:left">丢弃不通过测试的片元</td>
+<td style="text-align:left">将片元颜色与帧缓冲中已有的颜色根据 alpha 值混合</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>深度写入</strong></td>
+<td style="text-align:left">不通过测试的片元不写入深度缓冲</td>
+<td style="text-align:left">通常会写入深度缓冲 (除非特殊设置)，但可能导致排序问题</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>渲染顺序</strong></td>
+<td style="text-align:left"><strong>顺序无关 (Order-Independent)</strong></td>
+<td style="text-align:left"><strong>顺序相关 (Order-Dependent)</strong>，透明物体通常需要从后向前渲染</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>复杂度</strong></td>
+<td style="text-align:left">概念和实现相对简单</td>
+<td style="text-align:left">需要考虑混合方程和渲染顺序</td>
+</tr>
+</tbody>
+</table>
+<p>这里注意到 Alpha test 是顺序无关而 Alpha blending 是顺序相关的，需要从后向前渲染透明物体。这也是为什么延迟渲染不支持透明物体，因为 G-Buffer 无法正确处理透明物体的多层叠加效果。透明物体的正确渲染需要：排序（从远到近）；逐片元混合 (Blending) ，即需要知道多个重叠片元的信息。而延迟渲染 G-Buffer，每个像素只存最近的一个片元；后面的透明片元信息会被深度测试丢弃。</p>
+</li>
+<li>
+<p><strong>在现代图形 API 中的状态：</strong></p>
+<ul>
+<li>
+<p><strong>旧版 OpenGL (固定管线)</strong>：Alpha Test 是一个固定的管线状态，通过 <code>glEnable(GL_ALPHA_TEST)</code> 启用，并使用 <code>glAlphaFunc(function, referenceValue)</code> 设置比较函数和参考值。</p>
+</li>
+<li>
+<p><strong>现代 OpenGL (核心模式, Core Profile) / Vulkan / Metal / DirectX 10+</strong>：传统的固定功能 Alpha Test <strong>已被废弃或移除</strong>。取而代之的是在<strong>片元着色器 (Fragment Shader)</strong> 中手动实现此逻辑。</p>
+<ul>
+<li>
+<p>在 GLSL (OpenGL Shading Language) 中，通常这样做：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 在片元着色器中</span><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> ourTexture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">float</span> alphaThreshold; <span class="hljs-comment">// 参考 alpha 值</span><br><br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> TexCoords;<br><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><br><span class="hljs-type">void</span> main() &#123;<br>    <span class="hljs-type">vec4</span> texColor = <span class="hljs-built_in">texture</span>(ourTexture, TexCoords);<br>    <span class="hljs-keyword">if</span> (texColor.a &lt; alphaThreshold) &#123; <span class="hljs-comment">// 例如，使用 LESS 函数的逻辑</span><br>        <span class="hljs-keyword">discard</span>; <span class="hljs-comment">// 丢弃片元</span><br>    &#125;<br>    FragColor = texColor;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>在 HLSL (High-Level Shading Language for DirectX) 中，可以使用 <code>clip()</code> 函数或类似的 <code>discard</code> 逻辑。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>优点：</strong></p>
+<ul>
+<li>实现简单，尤其是在旧的固定管线中。</li>
+<li>渲染顺序无关，避免了 Alpha Blending 的排序问题。</li>
+<li>被丢弃的片元不会写入深度缓冲，这意味着它们不会错误地遮挡后面的物体。</li>
+</ul>
+</li>
+<li>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>由于是硬切割，边缘可能会出现锯齿（走样），特别是在低分辨率或近距离观察时。可以使用抗锯齿技术（如 MSAA）来缓解，但效果有限。</li>
+<li>无法实现平滑的半透明过渡效果。</li>
+</ul>
+</li>
+</ul>
+<h2 id="50-early-z-和-pre-z-pass">50. early-z 和 pre-z pass</h2>
+<h3 id="1-early-z">(1) Early-Z</h3>
+<ul>
+<li>
+<p>Early-Z 是一种现代 GPU 硬件特性。它允许 GPU <strong>在执行片元着色器 (Fragment Shader) 之前</strong>，对片元进行深度测试。</p>
+<ul>
+<li>当一个图元（如三角形）被光栅化成一系列片元后，GPU 会获取每个片元的深度值。</li>
+<li>在片元着色器执行之前，GPU 会将该片元的深度值与深度缓冲 (Depth Buffer) 中对应位置已存储的深度值进行比较。</li>
+<li>如果深度测试表明该片元被之前渲染的物体所遮挡（即它的深度值大于或等于深度缓冲中的值，具体取决于深度测试函数），那么这个片元就会被<strong>立即丢弃</strong>。而传统的渲染管线是先进入片元着色器，计算出该片元的颜色，再进行深度测试等。等于说省去了计算颜色的过程。</li>
+<li><strong>关键点</strong>：对于被 Early-Z 剔除的片元，其对应的片元着色器<strong>根本不会被执行</strong>。而只有片元着色器才能决定是否写入深度缓冲，Early-Z 不能最终决定是否写入深度缓冲。</li>
+</ul>
+</li>
+<li>
+<p><strong>好处</strong></p>
+<ul>
+<li><strong>显著节省计算资源</strong>: 片元着色器通常是渲染管线中计算量最大的部分之一，包含了光照、纹理采样、阴影计算等复杂逻辑。避免为被遮挡的片元执行着色器可以大幅减少 GPU 的计算负载。
+<ul>
+<li><strong>减少带宽占用</strong>: 不执行片元着色器也意味着不需要为这些被遮挡的片元去读取纹理数据，也不需要将颜色结果写回帧缓冲。</li>
+<li><strong>提高帧率</strong>: 尤其是在有大量重叠（overdraw）和复杂片元着色器的场景中，Early-Z 能有效提高渲染性能。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>限制</strong></p>
+<ul>
+<li>
+<p><strong>片元着色器行为</strong>:</p>
+<ul>
+<li><strong>不能修改深度</strong>: 如果片元着色器显式写入深度值 (例如，在 GLSL 中写入 <code>gl_FragDepth</code>)，Early-Z 通常会被禁用，因为 GPU 无法在着色器执行前知道最终的深度值。</li>
+<li><strong>Alpha Test / <code>discard</code> / <code>clip</code></strong>: 如果片元着色器使用了 Alpha Test (旧固定管线功能) 或者在 shader 中使用了 <code>discard</code> (GLSL) / <code>clip()</code> (HLSL) 指令来丢弃片元，情况会变得复杂。如果一个片元通过了早期深度测试（意味着它可见），但随后在片元着色器中被 <code>discard</code>，它就不会更新深度缓冲。这可能导致后续本应被它遮挡的片元错误地通过深度测试并被渲染。现代 GPU 对此有一定的处理能力，例如允许即使 <code>discard</code> 也写入深度（或者有特殊的交互模式），但通常来说，修改片元覆盖率或深度值的操作会使 Early-Z 失效或效果减弱。注意只有片元着色器才能写入深度缓存，early-z 时期不能决定最终写入深度缓冲。</li>
+<li>不透明物体由远往近渲染，early-z 将没有任何优化效果。在渲染前，将不透明物体从近往远渲染的话，Early-Z 能发挥最大的性能优化（可以让 cpu 将物体按照由近到远的顺序排好，再交付给 GPU 进行渲染），但是如果是复杂的场景，CPU 性能消耗很大，严格按照由近到远的顺序渲染，将不能同时搭配批处理优化手段。有没有其他方法？ -&gt;pre-z</li>
+</ul>
+</li>
+<li>
+<p>渲染状态：没有会干扰早期深度测试的特殊渲染状态（例如，某些混合模式如果依赖于先执行片元着色器才能确定深度写入行为，也可能受影响）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-pre-z-pass">(2) Pre-Z Pass</h3>
+<p>Pre-Z Pass 是一种渲染<strong>技术</strong>（而不是硬件特性），它在主要的颜色渲染遍 (Color Pass) <strong>之前</strong>增加一个额外的、专门的渲染遍，其唯一目的是预先填充（或“预热”）深度缓冲。通常，如果一个场景从前向后绘制不透明物体，Early-Z 即使没有 Pre-Z Pass 也能发挥一定作用，因为深度缓冲会逐步被近处的物体填充。但如果绘制顺序混乱，或者场景非常复杂，Pre-Z Pass 就能通过预先建立一个“干净”的深度轮廓，来显著提高 Early-Z 在主颜色渲染通道中的效率。</p>
+<ul>
+<li>
+<p>流程</p>
+<ul>
+<li><strong>第一遍 (Pre-Z Pass)</strong>:
+<ul>
+<li>渲染场景中所有不透明的几何体。</li>
+<li><strong>禁用颜色写入</strong>: 通过 API 设置，例如 <code>glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)</code>。这样片元着色器的颜色输出会被忽略，不会写入颜色缓冲。</li>
+<li><strong>启用深度写入</strong>: 确保深度测试和深度写入都已开启，例如 <code>glDepthMask(GL_TRUE)</code>。</li>
+<li><strong>简化着色器</strong>: 在这一遍中，可以使用一个非常简单的甚至为空的片元着色器，因为不需要计算颜色。顶点着色器仍然需要正常工作以进行顶点变换。</li>
+</ul>
+</li>
+<li><strong>第二遍 (Main Color Pass)</strong>:
+<ul>
+<li>正常渲染场景中的几何体，进行完整的颜色计算（光照、纹理等）。</li>
+<li>此时，深度缓冲已经包含了场景中大部分遮挡信息。</li>
+<li>关闭深度写入，<strong>深度测试函数通常设为“等于” (GL_EQUAL) 或“小于等于” (GL_LEQUAL)</strong>。如果设为 <code>GL_EQUAL</code>，则只有那些在 Pre-Z Pass 中写入了深度的片元（即最表层的片元）才会执行其片元着色器。如果设为 <code>GL_LEQUAL</code>，则会正常进行深度测试，但由于深度缓冲已经被预填充，Early-Z 的效率会非常高。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>好处</p>
+<ul>
+<li><strong>最大化 Early-Z 的效果</strong>: Pre-Z Pass 的主要目的是为后续的颜色渲染遍提供一个“完美”的深度缓冲，使得 Early-Z 能够剔除尽可能多的被遮挡片元。</li>
+<li><strong>显著减少 Overdraw</strong>: 即使渲染顺序不是从前到后，Pre-Z Pass 也能确保在颜色遍中，只有那些最终可见的片元（或至少是那些在 Pre-Z Pass 中可见的片元）才需要执行昂贵的片元着色器。</li>
+<li><strong>改善复杂场景性能</strong>: 对于具有大量物体和复杂遮挡关系的场景，效果尤为明显。</li>
+<li>z-pre pass 也是透明渲染的一种方案（<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/553445129%EF%BC%89%EF%BC%8C3%E4%B8%AApass%EF%BC%9A">https://zhuanlan.zhihu.com/p/553445129），3个pass：</a>
+<ul>
+<li>pass1：处理不透明部分<br>
+开启 Alpha test，仅通过不透明的像素；<br>
+关闭背面剔除；<br>
+开启深度写入，设置深度测试为 LESS/LEQUAL</li>
+<li>pass2：处理透明部分的背面<br>
+开启 Alpha test 仅通过透明的像素；<br>
+剔除正面；<br>
+关闭深度写入，设置深度测试为 LESS/LEQUAL</li>
+<li>pass3：处理透明部分的正面<br>
+开启 Alpha test 仅通过透明的像素；<br>
+剔除背面;<br>
+开启深度写入，设置深度测试为 LESS/LEQUAL - 问题：会带来非常多 OverDraw 的问题 - 解决-&gt;使用 Early-Z 剔除-&gt;透明度测试开启时 Early-Z 无法使用的解决方案：使用一个简单的 shader 进行透明度测试形成 Z-Buffer，即添加一个 pre-z pass 在最前面，其他 pass 不变。</li>
+<li>pass1：准备 Z-Buffer<br>
+开启透明度测试只通过不透明的像素<br>
+关闭背面剔除<br>
+开启深度写入，深度测试设置为 LESS/LEQUAL<br>
+关闭颜色缓冲区写入<br>
+用一个只返回透明度的简单片元着色器</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>代价</p>
+<ul>
+<li><strong>额外的绘制调用</strong>: 需要对场景中的几何体进行两次绘制（一次 Pre-Z Pass，一次 Color Pass），这会增加 CPU 开销（提交绘制调用）和 GPU 的顶点处理开销。</li>
+<li><strong>权衡</strong>: 只有当 Pre-Z Pass 节省的片元处理开销大于其带来的额外顶点处理和绘制调用开销时，这项技术才是有益的。通常对于片元着色器复杂、overdraw 严重的场景是划算的。</li>
+</ul>
+</li>
+</ul>
+<p>PS: 延迟渲染对比前向渲染+early-z &amp; pre-z pass 的优势（<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/1895926773939679270/answer/1896551553118229141%EF%BC%89">https://www.zhihu.com/question/1895926773939679270/answer/1896551553118229141）</a></p>
+<h2 id="51-ecsentity-component-system的原理和实现">51. ECS（Entity-Component-System）的原理和实现</h2>
 <ul>
 <li>
 <p>ECS 是一种将游戏对象数据与逻辑分离的架构，核心是：Entity 是纯 ID，Component 是纯数据，System 是纯逻辑，极大地提高了模块化、性能和并发性。</p>
