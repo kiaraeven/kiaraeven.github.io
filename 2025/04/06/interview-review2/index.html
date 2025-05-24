@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-05-22T13:00:04.475Z">
+<meta property="article:modified_time" content="2025-05-24T16:02:01.055Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          34k words
+          39k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          284 mins
+          325 mins
         
       </span>
     
@@ -669,11 +669,11 @@
 </ul>
 </li>
 <li>
-<p>构造函数中，使用<code>_m_refcount(new size_t(1))</code>而不是<code>_m_refcount(1)</code>，是因为要在堆上分配一块内存来存储引用计数，而不是把引用计数存在栈或对象内部。如果是后者，那 <code>_m_refcount</code> 是一个对象的成员变量本身（栈或类内存储），每个 MySharedPtr 对象都有自己独立的一份 refcount，这就不能实现多个智能指针共享同一个计数。当前代码中 <code>_m_refcount</code> 是一个指针(new 返回的是指向内存的指针)，指向共享控制块中的引用计数，当多个 MySharedPtr 拷贝构造或赋值时，共享同一块引用计数内存，这才实现了多个智能指针指向同一个资源时，它们共享引用计数，且能正确地一起控制释放资源。在真正的标准库实现中，会把引用计数、对象指针、deleter 封装在一个控制块（control block）里，并且这块内存和被管理对象可能是一起分配的（如 make_shared）。</p>
+<p>构造函数中，使用<code>_m_refcount(new size_t(1))</code>而不是<code>_m_refcount(1)</code>，是因为要在<strong>堆</strong>上分配一块内存来存储引用计数，而不是把引用计数存在栈或对象内部。如果是后者，那 <code>_m_refcount</code> 是一个对象的成员变量本身（栈或类内存储），每个 MySharedPtr 对象都有自己独立的一份 refcount，这就不能实现多个智能指针共享同一个计数。当前代码中 <code>_m_refcount</code> 是一个指针(new 返回的是指向内存的指针)，指向共享控制块中的引用计数，当多个 MySharedPtr 拷贝构造或赋值时，共享同一块引用计数内存，这才实现了多个智能指针指向同一个资源时，它们共享引用计数，且能正确地一起控制释放资源。在真正的标准库实现中，会把强引用计数（多少个 shared_ptr）、弱引用计数(多少个 weak_ptr)、deleter 封装在一个控制块（control block）里，并且这块内存和被管理对象可能是一起分配的（如 make_shared）。当强引用计数减到 0 时，被管理的对象会被删除，控制块中的弱引用计数减到 0 时，控制块本身会被删除。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">MySharedPtr</span><span class="hljs-params">(T* ptr = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function">      : _m_ptr(ptr), _m_refcount(new size_t(<span class="hljs-number">1</span>)) &#123;</span>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
-<p>当前代码里的引用计数不是线程安全的，但<code>std::shared_ptr</code>中的引用计数是线程安全的，其中使用了<code>_Atomic_word</code>类型来计数（The type _Atomic_word is a signed integral type supporting atomic operations）。然而，尽管引用计数是线程安全的，其中存储的裸指针并不是线程安全的。</p>
+<p>当前代码里的引用计数不是线程安全的，但<code>std::shared_ptr</code>中的引用计数是线程安全的，其中使用了<code>_Atomic_word</code>类型来计数（The type _Atomic_word is a signed integral type supporting atomic operations）。然而，尽管引用计数是线程安全的，其中存储的裸指针并不是线程安全的。也即，<strong>多个线程增减 shared_ptr 的引用计数是线程安全的，但多个线程修改 shared_ptr 指向的对象不是线程安全的（除非对象本身被设计为线程安全的）</strong>。<code>std::shared_ptr</code>的核心职责是管理对象的生命周期（通过共享所有权和引用计数），它确保只要至少有一个 shared_ptr 指向对象，对象就不会被删除。它并不负责同步对<strong>被管理对象本身成员</strong>的访问。</p>
 </li>
 <li>
 <p>当前的简化实现里赋值运算符先调用了 release 释放现有资源。为什么 std::shared_ptr 源代码(<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html">https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html</a>)的赋值运算符不删除原有指针？不会有内存泄漏吗？</p>
@@ -2230,6 +2230,83 @@ config.cpp</p>
 </ul>
 </li>
 </ul>
+<h2 id="32-函数指针">32. 函数指针</h2>
+<ul>
+<li>
+<p>函数指针 (Function Pointer) 是一个<strong>指向内存中特定函数起始地址</strong>的指针变量。就像数据指针存储变量的内存地址一样，函数指针存储的是某个函数的入口点（即其第一条指令的地址）。可用于：</p>
+<ul>
+<li>将函数作为参数传递给其他函数（例如回调函数）。例如，GUI 事件处理器、排序算法中的比较函数、异步任务完成时的通知函数。</li>
+<li>将函数存储在数据结构中（例如数组或映射）。虚函数表就类似一个存储虚函数指针的数组。</li>
+<li>在运行时动态地决定调用哪个函数。</li>
+<li>从函数返回函数。</li>
+</ul>
+</li>
+<li>
+<p><strong>声明</strong>:<br>
+声明一个函数指针需要指定它所指向的函数的<strong>返回类型</strong>和<strong>参数列表类型</strong>。<br>
+语法格式：<br>
+<code>return_type (*pointer_name)(parameter_type1, parameter_type2, ...);</code></p>
+<ul>
+<li><code>return_type</code>: 被指向函数的返回类型。</li>
+<li><code>(*pointer_name)</code>: <code>pointer_name</code> 是函数指针变量的名称。这里的括号 <code>()</code> 至关重要，它确保了 <code>*</code> 操作符优先与 <code>pointer_name</code> 结合，表明这是一个指针。如果没有括号，例如 <code>return_type *pointer_name(...)</code>，则会被解释为一个返回 <code>return_type*</code> 类型的普通函数声明。</li>
+<li><code>(parameter_type1, parameter_type2, ...)</code>: 被指向函数的参数类型列表。</li>
+<li>示例:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">void</span> (*funcPtr)(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>);<br><span class="hljs-built_in">double</span> (*mathOp)(<span class="hljs-type">double</span>, <span class="hljs-type">double</span>);<br></code></pre></td></tr></table></figure>
+</li>
+<li><strong>使用 <code>typedef</code> 或 <code>using</code> 简化声明</strong>：函数指针的声明语法可能显得冗长和不直观。使用 <code>typedef</code> (C 风格) 或 <code>using</code> (C++11 及以后) 可以<strong>创建类型别名</strong>，提高代码的可读性和可维护性。
+<ul>
+<li><strong>使用 <code>typedef</code></strong>:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(*IntOperationCallback)</span><span class="hljs-params">(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)</span></span>;<br>IntOperationCallback addCallback; <span class="hljs-comment">// addCallback 是一个函数指针</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><strong>使用 <code>using</code> (更推荐的现代 C++ 做法)</strong>:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">using</span> DoubleMathFunc = <span class="hljs-built_in">double</span> (*)(<span class="hljs-type">double</span>, <span class="hljs-type">double</span>);<br>DoubleMathFunc multiplyFunc; <span class="hljs-comment">// multiplyFunc 是一个函数指针</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>初始化与赋值</strong>:</p>
+<ul>
+<li>可以直接使用函数名（函数名在多数表达式中会自动“衰变”为指向该函数的指针）：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_function</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-comment">// ... 实现 ...</span><br>&#125;<br>funcPtr = my_function; <span class="hljs-comment">// 将 my_function 的地址赋给 funcPtr</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>也可以显式使用取地址符 <code>&amp;</code> (虽然通常不是必需的)：<code>funcPtr = &amp;my_function;</code></li>
+<li>赋值的函数其返回类型和参数列表必须与函数指针声明的类型完全匹配</li>
+</ul>
+</li>
+<li>
+<p><strong>调用</strong>:</p>
+<ul>
+<li><strong>显式解引用 (C 风格)</strong>:<code>(*funcPtr)(10, 20); // 解引用指针，然后调用函数</code></li>
+<li><strong>隐式解引用 (C++ 中更常见)</strong>:<code>funcPtr(10, 20);    // 直接像函数名一样使用指针</code></li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 目标函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">greet</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* name)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Hello, &quot;</span> &lt;&lt; name &lt;&lt; <span class="hljs-string">&quot;!&quot;</span> &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">subtract</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a - b;<br>&#125;<br><br><span class="hljs-comment">// 使用 typedef 定义函数指针类型</span><br><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">int</span> <span class="hljs-params">(*ArithmeticFunc)</span><span class="hljs-params">(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)</span></span>;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 声明并初始化函数指针 greetPtr</span><br>    <span class="hljs-built_in">void</span> (*greetPtr)(<span class="hljs-type">const</span> <span class="hljs-type">char</span>*);<br>    greetPtr = greet; <span class="hljs-comment">// 或 greetPtr = &amp;greet;</span><br><br>    <span class="hljs-comment">// 通过函数指针调用 greet</span><br>    <span class="hljs-built_in">greetPtr</span>(<span class="hljs-string">&quot;World&quot;</span>); <span class="hljs-comment">// 输出: Hello, World!</span><br>    (*greetPtr)(<span class="hljs-string">&quot;Universe&quot;</span>); <span class="hljs-comment">// 输出: Hello, Universe!</span><br><br>    <span class="hljs-comment">// 使用 typedef 声明的函数指针</span><br>    ArithmeticFunc operation;<br><br>    operation = add;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Addition: &quot;</span> &lt;&lt; <span class="hljs-built_in">operation</span>(<span class="hljs-number">10</span>, <span class="hljs-number">5</span>) &lt;&lt; std::endl; <span class="hljs-comment">// 输出: Addition: 15</span><br><br>    operation = subtract;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Subtraction: &quot;</span> &lt;&lt; <span class="hljs-built_in">operation</span>(<span class="hljs-number">10</span>, <span class="hljs-number">5</span>) &lt;&lt; std::endl; <span class="hljs-comment">// 输出: Subtraction: 5</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>与 <code>std::function</code> 的比较 (现代 C++)</strong></p>
+<p>在 C++11 及更高版本中，标准库提供了 <code>std::function</code> (在 <code>&lt;functional&gt;</code> 头文件中)，它是一个<strong>更通用、类型安全</strong>的多态函数包装器。</p>
+</li>
+<li>
+<p>类型安全：<code>std::function</code> 会在编译时检查可调用对象的签名是否匹配</p>
+</li>
+<li>
+<p>通用性：<code>std::function</code> 可以存储</p>
+<ul>
+<li>普通函数指针</li>
+<li>Lambda 表达式</li>
+<li>函数对象 (Functors)</li>
+<li>指向成员函数的指针 (配合 <code>std::bind</code> 或 lambda)</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::function&lt;<span class="hljs-type">int</span>(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; func = add; <span class="hljs-comment">// 存储普通函数</span><br>std::function&lt;<span class="hljs-type">int</span>(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; func = [](<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b) &#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;; <span class="hljs-comment">// 存储 lambda 表达式</span><br><span class="hljs-comment">// 使用 std::bind 可以将函数的参数部分绑定，生成一个新的可调用对象</span><br><span class="hljs-keyword">auto</span> bound_func = std::<span class="hljs-built_in">bind</span>(add, std::placeholders::_1, <span class="hljs-number">3</span>);<br>std::function&lt;<span class="hljs-type">int</span>(<span class="hljs-type">int</span>)&gt; func = bound_func; <span class="hljs-comment">// 存储绑定表达式</span><br>Calculator calc;<br><span class="hljs-comment">// 存储成员函数指针</span><br>std::function&lt;<span class="hljs-type">int</span>(Calculator*, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>)&gt; func = &amp;Calculator::add;<br></code></pre></td></tr></table></figure>
+</li>
+<li>函数指针只能固定签名，无法动态替换,<code>std::function</code>可以动态替换存储的可调用对象；函数指针不支持复制，<code>std::function</code>支持。</li>
+</ul>
+<p>虽然 <code>std::function</code> 带来了更大的灵活性和便利性，但它通常比原始函数指针<strong>有一定的性能开销</strong>（因为它可能需要在堆上分配内存或进行虚函数调用）。<code>std::function</code> 在未绑定任何可调用对象时调用会引发未定义行为，需通过 if (func) 检查是否为空。原始函数指针在性能要求极高或与 C 代码交互时仍有其用武之地。</p>
+</li>
+<li>
+<p><strong>指向成员函数的指针</strong></p>
+<p>值得注意的是，指向类的<strong>非静态成员函数</strong>的指针与上面讨论的普通函数指针是不同的，因为它们需要一个类的实例来调用（即需要 <code>this</code> 指针）。例如：<code>int (MyClass::*memberFuncPtr)(int);</code>。</p>
+</li>
+</ul>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <p>国际标准化组织（ISO）提出的网络通信模型，用来描述网络系统中通信的分层结构，使得不同厂商设备或系统之间可以实现互联互通。</p>
@@ -2663,35 +2740,163 @@ config.cpp</p>
 <li>
 <p>内存中堆栈，数据区哪里读取快</p>
 </li>
-<li>
-<p>虚拟内存</p>
-</li>
 </ol>
-<p>虚拟内存是操作系统提供的一种抽象机制，它让每个<strong>进程</strong>看到的是一个<strong>连续且独立</strong>的内存空间，而不是实际的物理内存地址。实际上，物理内存通常被分成多个部分，可能分布在不同的存储设备（如内存芯片、硬盘等）中。本质上是把<strong>磁盘空间 + 物理内存</strong>结合使用，让程序觉得自己拥有完整的大内存空间。操作系统通过**页表（Page Table）+ MMU（内存管理单元）**将虚拟地址映射到物理地址。</p>
+<h2 id="6-虚拟内存">6. 虚拟内存</h2>
+<h3 id="1-什么是虚拟内存">(1) 什么是虚拟内存</h3>
+<p>虚拟内存是操作系统提供的一种<em>内存管理技术</em>。它为每个正在运行的<strong>进程</strong>（程序）创建了一个<strong>假象</strong>，即该进程拥有一个<strong>巨大的、连续的、私有/独立的内存空间</strong>，这个空间被称为虚拟地址空间 (Virtual Address Space)。实际上，这个虚拟地址空间可能<strong>远大于</strong>计算机实际拥有的物理内存（RAM）。</p>
+<p>核心思想是：</p>
 <ul>
-<li>作用：
+<li>地址分离：程序使用的是虚拟地址，而实际的硬件内存（RAM）使用的是物理地址。</li>
+<li>按需映射：操作系统和 CPU 中的硬件单元（主要是内存管理单元 - MMU (Memory Management Unit)）负责将程序使用的虚拟地址动态地映射到物理内存中的实际物理地址。</li>
+<li>部分加载：并非程序的所有部分都需要同时驻留在物理内存中。只有当前活跃的部分（例如，正在执行的代码、正在访问的数据）才需要加载到 RAM 中。不常用的部分可以存放在速度较慢但容量更大的二级存储设备上（如硬盘或 SSD）。</li>
+<li>分页机制：
 <ul>
-<li>提供更大的地址空间 ：允许程序使用的内存空间大小超过实际物理内存的大小。例如，一个计算机的物理内存为 4GB，但通过虚拟内存技术，可以为每个进程提供一个更大的虚拟地址空间，使得程序可以处理更大的数据集，而无需受限于物理内存的大小。</li>
-<li>内存隔离和保护 ：为每个进程提供独立的虚拟地址空间，使得一个进程无法直接访问其他进程的内存，从而增强了系统的安全性和稳定性。如果一个进程出现错误或崩溃，不会影响其他进程的内存。</li>
-<li>内存共享 ：允许多个进程共享同一块物理内存区域，提高内存的利用率。</li>
+<li>虚拟地址空间被划分为<strong>固定大小的块，称为页</strong> (Page)。</li>
+<li>物理内存也被划分为相同大小的块，称为页框 (Page Frame) 或物理页。</li>
+<li>操作系统<strong>为每个进程维护一个页表</strong> (Page Table)，用于<strong>记录虚拟页到物理页框的映射关系</strong>，或者标记某个虚拟页当前存储在磁盘上的位置。</li>
 </ul>
 </li>
-<li>malloc 出来的内存
+</ul>
+<h3 id="2-为什么需要虚拟内存">(2) 为什么需要虚拟内存</h3>
 <ul>
-<li>位置 ：malloc 出来的内存是在虚拟内存中分配的。它属于程序的虚拟地址空间的一部分。</li>
+<li>允许运行大于物理内存的程序：这是最直接的好处。如果一个程序需要的内存超过了可用的 RAM，虚拟内存系统可以将程序中暂时不用的部分（页）存储在磁盘上（这个过程称为换出 (swapping out) 或分页到磁盘 (paging to disk)）。当需要这些数据时，再将其从磁盘调入内存（换入 (swapping in) 或缺页调入 (demand paging)）。这使得用户可以运行非常大的应用程序，或者同时运行更多的应用程序，而不会因为物理内存不足而受限。</li>
+<li>内存保护和隔离：<strong>每个进程都有自己独立的虚拟地址空间</strong>。这意味着一个进程看到的地址 0x1000 和另一个进程看到的地址 0x1000 映射到的是物理内存中完全不同的位置（或者一个在内存，一个在磁盘）。这种隔离机制可以<strong>防止一个进程意外或恶意地访问或修改另一个进程的内存数据</strong>，或者操作系统的核心数据。这极大地提高了系统的稳定性和安全性。如果一个程序崩溃，它通常不会影响到其他正在运行的程序或操作系统本身。</li>
+<li>简化程序员的内存管理：<strong>物理内存往往是不连续的</strong>，因为硬件设备可能占用部分物理内存地址空间，或者由于内存碎片等原因。在没有虚拟内存时，程序员需要考虑物理内存的不连续性，这使得程序的编写和内存分配变得复杂。虚拟内存可以将物理内存中的不连续存储空间映射为虚拟内存中的连续地址空间。程序员在编写程序时，可以假设自己拥有一个巨大且连续的地址空间，而不必关心物理内存的实际大小、碎片情况，或者其他程序正在使用哪些内存。链接器和加载器也因此变得简单，因为程序可以在编译时假设一个标准的起始地址，实际加载到物理内存的哪个位置由操作系统在运行时决定和映射。例如，一个程序可能需要 100MB 的连续内存来存储一个大型数组。在物理内存中，可能没有 100MB 的连续空间，但通过虚拟内存，系统可以将分散在物理内存中的多个小块内存空间组合起来，映射成一个连续的虚拟内存区域提供给程序使用。这样程序员就可以像操作连续内存一样来操作这个虚拟内存区域，而无需关心物理内存的实际情况。</li>
+<li>高效、公平地共享物理内存：多个进程可以并发运行，它们的虚拟页根据需要映射到可用的物理页框。操作系统可以只将每个进程当前“工作集”（最活跃的页）保留在 RAM 中，从而让有限的物理内存得到高效利用。操作系统可以使用各种页面替换算法（如 LRU - 最近最少使用）来决定当内存不足时哪些页应该被换出到磁盘，以优化整体系统性能。</li>
+<li>支持共享内存：虽然默认情况下进程的地址空间是隔离的，但虚拟内存机制也允许不同进程的虚拟地址空间中的某些页映射到相同的物理内存页框。这使得进程间可以高效地共享数据和代码。例如，动态链接库 (DLLs 或 .so 文件) 的代码段可以在物理内存中只存储一份，然后被映射到多个使用该库的进程的虚拟地址空间中，节省了内存。</li>
+<li>高效的文件 I/O：虚拟内存允许将文件或文件的一部分直接映射到进程的虚拟地址空间中。当程序访问这些映射的内存区域时，操作系统会自动处理从磁盘读取数据到内存，或将修改写回磁盘。这简化了文件操作，并且在某些情况下比传统的读写操作更高效。</li>
+<li>程序重定位：由于程序使用的是虚拟地址，并且这些虚拟地址是通过页表动态映射到物理地址的，所以程序可以被加载到物理内存的任何可用位置，而无需修改程序代码中的地址引用。</li>
+</ul>
+<h3 id="3-虚拟内存工作流程">(3) 虚拟内存工作流程</h3>
+<p>当 CPU 执行一条指令需要访问某个虚拟地址时：</p>
+<p>MMU 会查找页表，尝试将该虚拟地址转换为物理地址；</p>
+<ul>
+<li>如果页表中对应的虚拟页当前就在物理内存中（即映射有效），MMU 就完成地址转换，CPU 继续访问物理内存。</li>
+<li>如果页表中指示该虚拟页不在物理内存中（可能它从未被加载，或者已被换出到磁盘），就会发生一个缺页异常 (Page Fault)。<br>
+操作系统接管缺页异常处理：<br>
+找到一个空闲的物理页框。如果找不到，就根据页面替换算法选择一个当前在内存中的页将其换出到磁盘；<br>
+将目标虚拟页从磁盘加载到选定的物理页框中；<br>
+更新页表，建立新的虚拟页到物理页框的映射；<br>
+重新执行导致缺页的指令。此时，由于页已在内存中，访问会成功。</li>
+</ul>
+<h3 id="4-malloc-出来的内存">(4) malloc 出来的内存</h3>
+<ul>
+<li>位置 ：malloc 出来的内存是在虚拟内存中分配的。</li>
 <li>映射到物理内存 ：虽然虚拟内存提供了逻辑上的连续地址空间，但这些虚拟地址需要映射到物理内存或磁盘上的实际存储位置。当程序访问通过 malloc 分配的内存时，操作系统会通过内存管理单元（MMU）将虚拟地址转换为物理地址。如果物理内存不足，操作系统可能会将部分数据交换到磁盘上的交换空间（swap space）。</li>
 <li>内存分配机制 ：malloc 是 C/C++ 中的一个内存分配函数，它从程序的堆（heap）中分配内存。堆是虚拟地址空间的一部分，由操作系统管理，用于动态内存分配。</li>
 </ul>
+<h3 id="5-虚拟内存的分配机制">(5) 虚拟内存的分配机制</h3>
+<ul>
+<li>
+<p><strong>进程虚拟地址空间 (VAS) 的初始化与布局</strong></p>
+<ul>
+<li>当一个进程被创建时，操作系统会为其分配一个巨大且独立的<strong>虚拟地址空间</strong>。这个空间的大小通常由 CPU 架构决定（例如，32 位系统上是 4GB，64 位系统上则大得多，如 256TB 或更大，尽管实际可用的会受操作系统限制）。</li>
+<li>这个虚拟地址空间并不是一块“空白”的区域，操作系统会预先设定其大致的布局结构，通常包括：
+<ul>
+<li><strong>代码段 (Text Segment)</strong>：存放程序的可执行指令，通常是<strong>只读</strong>的。</li>
+<li><strong>全局区（Global Area）/静态存储区</strong>：存放全局变量和静态变量，程序运行结束操作系统自动释放（生命周期：从程序开始到结束）。
+<ul>
+<li>已初始化的全局/静态变量（Data Segment）</li>
+<li>未初始化的全局/静态变量（Block Started by Symbol, BSS 段）,这些变量在程序加载时会被初始化为零</li>
+</ul>
+</li>
+<li><strong>常量存储区</strong>：存放的是<strong>常量</strong>（const），不允许修改，程序运行结束自动释放。全局常量、字符串常量（.rodata 常量区）（虚函数表存储在这里）</li>
+<li><strong>堆 (Heap)</strong>：用于动态内存分配（例如，通过 C++ 的 <code>new</code> 或 C 的 <code>malloc</code> 分配的内存）。堆通常<strong>从低地址向高地址增长</strong>。</li>
+<li><strong>栈 (Stack)</strong>：用于存储<strong>函数调用的局部变量、返回地址和函数参数</strong>。<strong>每个线程都有自己的栈，通常从高地址向低地址增长</strong>。</li>
+<li><strong>内存映射区域 (Memory-Mapped Region)</strong>：用于加载动态链接库 (共享库)、内存映射文件等。</li>
+</ul>
 </li>
 </ul>
-<ol start="7">
-<li>
-<p>共享内存的实现</p>
 </li>
 <li>
-<p>虚拟内存的分配机制</p>
+<p><strong>虚拟地址范围的“预留”与“提交”</strong><br>
+当程序请求分配内存时（例如，<code>new</code> 一个对象，或者 <code>malloc</code> 一块内存），通常发生的是以下情况：</p>
+<ul>
+<li><strong>预留 (Reserve) 虚拟地址</strong> (开销较小)：
+<ul>
+<li>首先，操作系统（或用户态内存管理器）会在进程的虚拟地址空间中找到一块足够大的、未被占用的连续虚拟地址范围，并将这个范围<strong>标记</strong>为“已预留”给该次分配。</li>
+<li>这个阶段<strong>通常不涉及物理内存的实际分配</strong>。仅仅是在进程的虚拟内存布局图中“画了一块地”，说明这块虚拟地址以后可能会被使用。这个操作相对轻量，主要是更新操作系统内核中管理进程虚拟内存的数据结构（如 Linux 中的 <code>vm_area_struct</code> 或 Windows 中的 Virtual Address Descriptors - VADs）。</li>
+</ul>
 </li>
-</ol>
+<li><strong>提交 (Commit) 内存</strong>（开销较大）：
+<ul>
+<li>当程序<strong>实际访问</strong>（通常是写入）预留的虚拟地址范围中的某个页面时，如果该虚拟页面尚未映射到物理内存，就会触发一个<strong>缺页异常 (Page Fault)</strong>。</li>
+<li>此时，操作系统才会介入，执行以下操作：
+<ul>
+<li>分配一个<strong>物理内存页框 (Physical Page Frame)</strong>。</li>
+<li>如果需要（例如，对于 BSS 段或堆上的新页面），将该物理页框清零。</li>
+<li>更新进程的<strong>页表 (Page Table)</strong>，建立该虚拟页面到新分配的物理页框的映射关系。</li>
+<li>重新执行导致缺页的指令。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>这个将虚拟页面与物理存储（RAM 或磁盘上的页面文件/交换空间）关联起来的过程称为“提交内存”。操作系统会跟踪已提交内存的总量（Commit Charge），确保不超过系统（物理内存 + 页面文件总大小）的承载能力。只有提交的内存才真正占用了物理资源。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>按需分配物理资源</strong></p>
+<p>物理内存页框和磁盘上的交换空间（用于存储被换出的页面）<strong>只有在虚拟页面被实际访问时</strong>才会被分配和映射。</p>
+<ul>
+<li><strong>节省物理内存</strong>：程序可以预留大量虚拟地址空间，但只有实际用到的部分才会消耗物理内存。</li>
+<li><strong>启动速度快</strong>：程序启动时不需要将所有代码和数据都加载到内存中。</li>
+</ul>
+</li>
+<li>
+<p><strong>不同区域的分配特点</strong></p>
+<ul>
+<li><strong>堆分配</strong>：
+<ul>
+<li><strong>用户态</strong>的内存分配器（如 <code>glibc</code> 中的 <code>ptmalloc</code>，C++ 的 <code>new</code> 操作符底层通常也依赖这类分配器）负责管理堆区域。</li>
+<li>当应用程序通过 <code>malloc</code> 或 <code>new</code> 请求内存时，分配器首先尝试从已经向操作系统申请并管理的一块或多块大的<strong>虚拟内存</strong>区域（称为 arenas 或 heaps）中分配一小块。</li>
+<li>如果现有区域不足，分配器会通过系统调用（如 <code>brk</code>/<code>sbrk</code>（较旧）或 <code>mmap</code>（更现代、更灵活））向操作系统申请扩大堆的虚拟地址范围（预留更多虚拟地址）。</li>
+<li>实际的物理内存分配仍然遵循按需分页的原则。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>栈分配</strong>：</p>
+<ul>
+<li>栈空间通常在线程创建时分配一个初始的虚拟地址范围。</li>
+<li>栈的增长通常是自动的（由 CPU 在函数调用时压栈实现）。如果超出了已分配（并提交）的栈区域，会触发一个特殊的缺页（栈溢出保护页），操作系统可能会尝试扩展栈的虚拟地址范围（如果未达到上限），或者终止程序。</li>
+</ul>
+</li>
+<li>
+<p><strong>内存映射文件和共享内存</strong>：</p>
+<ul>
+<li>使用 <code>mmap</code> (Linux/Unix) 或 <code>CreateFileMapping</code>/<code>MapViewOfFile</code> (Windows) 这类系统调用时，操作系统会在进程的虚拟地址空间中预留一段地址范围，并将其与文件或共享内存对象关联起来。</li>
+<li>当访问这些虚拟地址时，数据会按需从文件或共享内存对象中加载到物理内存页框。</li>
+</ul>
+</li>
+<li>
+<p><strong>内存的释放</strong></p>
+<ul>
+<li>当程序通过 <code>free</code> 或 <code>delete</code> 释放堆内存时：
+<ul>
+<li>用户态内存分配器会将这块内存<strong>标记为可用</strong>，并可能在内部进行合并，以供后续分配。</li>
+<li>分配器<strong>不一定会立即将这块虚拟地址范围归还给操作系统</strong>，除非积累了足够大的连续空闲块。</li>
+</ul>
+</li>
+<li>当通过 <code>munmap</code> (Linux/Unix) 或 <code>UnmapViewOfFile</code> (Windows) 解除内存映射，或者进程终止时：
+<ul>
+<li>操作系统会回收相应的虚拟地址范围，使其在进程的虚拟地址空间中变为未分配状态。</li>
+<li>相关的页表项会被清除。</li>
+<li>这些虚拟页面之前占用的物理页框会根据情况被释放：
+<ul>
+<li>如果页面是“脏”的（被修改过）并且是匿名页面（如堆、栈），其内容可能需要先被写入到磁盘的交换空间。</li>
+</ul>
+</li>
+<li>如果页面是干净的，或者映射自文件且未被私有修改，则物理页框可以直接被回收利用。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-共享内存的实现">(6) 共享内存的实现</h3>
+<p>共享内存是一种允许两个或多个<strong>进程</strong>访问同一块物理内存区域的进程间通信 (IPC) 机制。这使得不同进程可以非常高效地交换数据，因为数据不需要在进程的地址空间之间进行复制。其实现主要依赖于操作系统内核以及 CPU 的内存管理单元 (MMU) 对虚拟内存系统的支持。正常情况下，每个进程都有其自己独立的、私有的虚拟地址空间。操作系统通过为每个进程维护不同的页表，将这些虚拟地址映射到物理内存中的不同物理页框。这种隔离是出于保护和安全的目的，防止一个进程干扰另一个进程。共享内存的目标是打破这种完全的隔离，允许某些物理内存被多个进程共同访问。操作系统在物理内存中分配一块区域作为共享段，对于每一个希望共享该内存段的进程，操作系统会在该进程的<strong>虚拟地址空间</strong>中分配一个区域，然后操作系统修改这些进程的<strong>页表</strong>，使得它们各自虚拟地址空间中的这个区域（这些虚拟地址可能各不相同）都映射到<strong>同一块共享的物理内存页框</strong>。共享内存的创建、管理和销毁完全由操作系统内核控制。进程不能自行指定或访问其他进程的私有内存。它们必须通过操作系统提供的系统调用来请求或参与共享内存。</p>
 <h1 id="设计模式">设计模式</h1>
 <h2 id="1-工厂模式">1. 工厂模式</h2>
 <h2 id="2-单例模式">2. 单例模式</h2>
