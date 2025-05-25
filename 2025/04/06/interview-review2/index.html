@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-05-24T16:02:01.055Z">
+<meta property="article:modified_time" content="2025-05-25T13:23:27.964Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          39k words
+          42k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          325 mins
+          346 mins
         
       </span>
     
@@ -327,22 +327,22 @@
 <h3 id="3-虚表指针什么时候产生虚函数表如何生成是和类还是对象绑定创建-10-个实例有几个虚函数表">(3) 虚表指针什么时候产生？虚函数表如何生成？是和类还是对象绑定？创建 10 个实例有几个虚函数表？</h3>
 <ul>
 <li>
-<p>虚表指针什么时候产生？</p>
+<p><strong>虚表指针</strong>什么时候产生？</p>
 <ul>
-<li>在<strong>对象</strong>创建时由构造函数自动写入。编译器会在每个含虚函数的类对象中插入一个隐藏成员指针 vptr，并赋值指向所属类的虚函数表。</li>
+<li>在<strong>对象创建时由构造函数自动写入</strong>。编译器会在每个含虚函数的类对象中插入一个隐藏成员指针 vptr，并赋值指向所属类的虚函数表。</li>
 </ul>
 </li>
 <li>
 <p>虚函数表如何生成？</p>
 <ul>
-<li>在编译时由编译器为每个含虚函数的类生成。每个含虚函数的<strong>类</strong>对应一个虚表</li>
+<li>在<strong>编译时</strong>由编译器为每个含虚函数的类生成。每个含虚函数的<strong>类</strong>对应一个虚表。更准确地说，是编译器在分析了类的声明和继承关系后确定了 vtable 的结构和内容，然后在链接期 (link-time) 将这些信息整合并最终确定。</li>
 <li>表中列出所有虚函数的实际地址，放在编译器生成的<strong>常量区</strong>（.rodata）</li>
 </ul>
 </li>
 <li>
 <p>虚函数表和类/对象的关系？</p>
 <ul>
-<li>vtable 类级别唯一 每个含虚函数的类有且仅有一张 vtable</li>
+<li>vtable 类级别唯一，每个含虚函数的类有且仅有一张 vtable。每个类的虚函数表在内存中是全局唯一的，<strong>所有该类的对象共享同一个虚函数表</strong>。</li>
 <li>vptr 对象级别 每个对象都存一份 vptr，指向对应类的 vtable</li>
 </ul>
 </li>
@@ -354,7 +354,49 @@
 </ul>
 </li>
 </ul>
-<h3 id="4-不实现虚函数会报错吗什么错">(4) 不实现虚函数会报错吗？什么错？</h3>
+<h3 id="4-虚函数表怎么构建的内存空间连续吗">(4) 虚函数表怎么构建的？内存空间连续吗？</h3>
+<ul>
+<li>
+<p>虚函数表怎么构建的？</p>
+<ul>
+<li>构建方式 (编译器的工作):
+<ul>
+<li>识别虚函数: 编译器首先扫描类的声明，找出所有被声明为 virtual 的成员函数。</li>
+<li>确定布局: 对于一个没有基类的类，或者一个继承链的顶端基类，其 vtable 通常<strong>按照虚函数在类中声明的顺序，依次存放这些虚函数的地址</strong>。对于派生类，会继承其基类的 vtable 布局。
+<ul>
+<li>如果派生类重写 (override) 了基类中的某个虚函数，那么在派生类的 vtable 中，对应<strong>基类虚函数的位置会被替换为派生类重写版本的函数地址</strong>。</li>
+<li>如果派生类没有重写某个基类的虚函数，那么该 vtable 条目将继续指向基类中该虚函数的实现（即继承了基类的实现）。</li>
+<li>如果派生类定义了新的虚函数（基类中没有的），这些新虚函数的地址通常会追加到从基类继承的 vtable 条目之后。</li>
+<li>多重继承:<br>
+如果一个类从多个基类继承（且这些基类都有虚函数），情况会更复杂。对象内部可能包含多个 vptr，分别指向对应基类部分的 vtable；或者只有一个 vptr 指向一个组合式的 vtable，其中包含了处理不同基类虚函数所需的信息和可能的调整“垫片 (thunks)”。</li>
+<li>虚拟继承:<br>
+虚拟继承使得 vtable 的结构更加复杂，vtable 中可能还需要存储用于<strong>定位共享虚拟基类子对象的偏移量</strong>。</li>
+<li>纯虚函数: vtable 中对应纯虚函数的条目可能指向一个特殊的运行时错误处理函数（例如，在 GCC/Clang 中是 __cxa_pure_virtual），如果意外调用了未被重写的纯虚函数，就会触发这个错误。或者该条目可能为 nullptr。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>内存空间连续吗？</p>
+</li>
+</ul>
+<p>是的，单个类的 vtable 本身通常是一个连续的内存块，它本质上是一个函数指针数组（以及可能包含的其他数据）。这种连续性对于通过索引/偏移量快速查找虚函数地址至关重要。</p>
+<ul>
+<li>虚函数表除了虚函数地址还存了什么？<br>
+除了虚函数地址，虚函数表可能还包含以下内容：
+<ul>
+<li>类型信息：某些编译器会在虚函数表中存储类型信息（如 <strong>RTTI</strong>，Run-Time Type Information），用于支持动态类型检查（如 dynamic_cast）。</li>
+<li>析构函数地址：虚函数表中通常会包含类的析构函数地址，以确保<strong>通过基类指针删除派生类对象时能够正确调用派生类的析构函数</strong>。</li>
+<li>虚拟基类相关的偏移量: 在使用虚拟继承时，为了能够从派生类对象中正确地定位到共享的虚拟基类子对象的实例，vtable 中可能包含相关的偏移量信息。</li>
+<li>到对象顶部的偏移量: 在某些 ABI 中（如 Itanium C++ ABI，vtable[-1]），vtable 可能包含一个值，表示从当前 vptr 指向的 vtable 位置到对象完整实例起始地址的偏移量。这在多重继承或虚拟继承的情况下，当 vptr 可能不指向对象开头时，对于 dynamic_cast 等操作非常有用。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-如果一个基类函数不标明为-virtual子类重写了这个函数那指向子类对象的基类指针调用该函数会发生什么">(4) 如果一个基类函数不标明为 virtual，子类重写了这个函数，那指向子类对象的基类指针调用该函数会发生什么？</h3>
+<p>调用的将是基类版本的函数，而不是子类版本的函数。这是因为对<strong>于非虚函数，编译器在编译时就确定了要调用哪个函数版本</strong>。这个决定是基于指针或引用的静态类型 (compile-time type)，而不是它在运行时实际指向的对象的动态类型 (run-time type)，即静态绑定。当派生类中定义了一个与基类中非虚函数同名（且通常参数列表也相同，或者满足隐藏规则）的函数时，派生类的函数会隐藏 (hide) 基类的同名函数。</p>
+<h3 id="5-不实现虚函数会报错吗什么错">(5) 不实现虚函数会报错吗？什么错？</h3>
 <ul>
 <li>不是所有虚函数不实现都会报错，但纯虚函数（= 0）如果不实现，会报错。
 <ul>
@@ -364,14 +406,14 @@
 </ul>
 </li>
 </ul>
-<h3 id="5-纯虚函数">(5) 纯虚函数</h3>
+<h3 id="6-纯虚函数">(6) 纯虚函数</h3>
 <ul>
 <li>令普通的虚函数=0，从而得到特殊的虚函数，它没有实现，只声明接口，目的是强制派生类必须重写它。</li>
 <li>一个类中 只要有一个纯虚函数，那么这个类就成为了一个 抽象类（abstract class）。
 <ul>
 <li><strong>抽象类不能实例化对象</strong></li>
 <li>通常用于定义接口或基础模板行为</li>
-<li>继承它的子类需要提供纯虚函数的实现，才能生成对象</li>
+<li>继承它的子类需要提供纯虚函数的实现，才能生成对象。如果子类没有实现基类中的纯虚函数，会导致子类本身也成为一个抽象类。这种情况下，子类无法被实例化。如果试图实例化一个没有实现所有纯虚函数的子类对象，编译器会报错提示该类是抽象类，不能实例化。</li>
 </ul>
 </li>
 <li>作用：
@@ -382,9 +424,9 @@
 </ul>
 </li>
 </ul>
-<h3 id="6-哪些函数不能是虚函数">(6) 哪些函数不能是虚函数</h3>
+<h3 id="7-哪些函数不能是虚函数">(7) 哪些函数不能是虚函数</h3>
 <p>构造、内联、静态成员、lamda 函数</p>
-<h3 id="7-重载重写隐藏的区别">(7) 重载/重写/隐藏的区别</h3>
+<h3 id="8-重载重写隐藏的区别">(8) 重载/重写/隐藏的区别</h3>
 <ul>
 <li>重载（Overload）
 <ul>
@@ -416,7 +458,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="8-多继承菱形继承虚继承的影响">(8) 多继承/菱形继承/虚继承的影响</h3>
+<h3 id="9-多继承菱形继承虚继承的影响">(9) 多继承/菱形继承/虚继承的影响</h3>
 <ul>
 <li>
 <p>多继承</p>
@@ -425,10 +467,10 @@
 <p>每个带虚函数的基类会生成自己的 vtable</p>
 </li>
 <li>
-<p>派生类对象中有多个 vptr</p>
+<p><strong>派生类对象中有多个 vptr</strong></p>
 </li>
 <li>
-<p>派生类的各个基类子对象在内存中排列是有偏移的，因此当派生类指针转换为基类指针时，编译器会插入偏移调整逻辑，确保指针准确指向该基类的子对象。<strong>指针偏移（pointer adjustment）</strong> 是 C++ 为了正确支持多态行为而做的底层处理之一。<br>
+<p>派生类的<strong>各个基类子对象在内存中排列是有偏移的</strong>，因此当派生类指针转换为基类指针时，编译器会插入偏移调整逻辑，确保指针准确指向该基类的子对象。<strong>指针偏移（pointer adjustment）</strong> 是 C++ 为了正确支持多态行为而做的底层处理之一。<br>
 例如：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">fa</span><span class="hljs-params">()</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;A::fa()\n&quot;</span>; &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">fb</span><span class="hljs-params">()</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;B::fb()\n&quot;</span>; &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> : <span class="hljs-keyword">public</span> A, <span class="hljs-keyword">public</span> B &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fa</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;C::fa()\n&quot;</span>; &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fb</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;C::fb()\n&quot;</span>; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    C c;<br>    A* ap = &amp;c;  <span class="hljs-comment">// A 是第一个基类，无需偏移</span><br>    B* bp = &amp;c;  <span class="hljs-comment">// B 是第二个基类，bp != &amp;c，发生了偏移！</span><br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Address of c:  &quot;</span> &lt;&lt; &amp;c &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;A* points to:  &quot;</span> &lt;&lt; ap &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;B* points to:  &quot;</span> &lt;&lt; bp &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>假设输出类似（64 位地址）：</p>
@@ -459,7 +501,7 @@
 <p>菱形继承（diamond inheritance）</p>
 <ul>
 <li>
-<p>总结：菱形继承会导致基类出现多份拷贝，引发资源冗余和二义性。通过 虚继承（为解决多重继承中的菱形继承问题而设计的机制）保证只保留一份虚基类子对象（确保基类只会被继承一次，不管有多少条继承路径），并通过额外的虚基偏移表与多层虚表结构，保证在运行时仍可正确解析虚函数。这会增加对象的内部结构复杂度，但是支持多态继承的关键技术。</p>
+<p>总结：菱形继承会导致基类出现多份拷贝，引发资源冗余和二义性。通过 虚继承（为解决多重继承中的菱形继承问题而设计的机制）保证<strong>只保留一份虚基类子对象</strong>（确保基类只会被继承一次，不管有多少条继承路径），并通过额外的虚基偏移表与多层虚表结构，保证在运行时仍可正确解析虚函数。这会增加对象的内部结构复杂度，但是支持多态继承的关键技术。</p>
 </li>
 <li>
 <p>菱形继承就是派生类 D 的两个基类 B 和 C 都继承自同一个基类 A，也就是说 D 有两份 A 的拷贝。</p>
@@ -495,10 +537,10 @@
 <li>虚继承下 vtable 的特殊布局
 <ul>
 <li>虚基类的子对象可能不在派生类开头</li>
-<li>编译器会生成一个特殊的 “虚基偏移表”（virtual base offset table，通常被实现为一个偏移量数组），这个表存储在每个含有虚继承的类的虚表（vtable）中，它是编译器在编译含有虚继承的类（如上例中的 B/C）时为该类生成的。注意这里没有单独存在的“虚基表对象”，而是在类的 vtable 中预留了指向虚基类偏移的槽位表中每个条目对应一个虚基类，条目的值是<strong>从派生类对象的起始位置到虚基类子对象起始位置的字节偏移量</strong>。实际的偏移值是由最底层的派生类（如 D）决定的。VBOT 在<strong>运行时</strong>用于动态调整指针，以便访问虚基类的成员。当指向派生类的指针被转换为指向虚基类的指针时，编译器使用 VBOT 来计算基类子对象的正确地址，确保指针指向内存中的正确位置。如果一个类使用了虚继承，则编译期在构造其对象时会自动插入一个隐藏成员虚基表指针（vbptr），在构造函数中另指针指向类的虚基偏移表。注意区别“表”是绑定类的，“指针”是绑定对象实例的。</li>
+<li>编译器会生成一个特殊的 “虚基偏移表”（virtual base offset table，通常被实现为一个<strong>偏移量数组</strong>），这个表存储在每个含有虚继承的类的虚表（vtable）中，它是编译器在编译含有虚继承的类（如上例中的 B/C）时为该类生成的。注意这里没有单独存在的“虚基表对象”，而是在类的 vtable 中预留了指向虚基类偏移的槽位表中每个条目对应一个虚基类，条目的值是<strong>从派生类对象的起始位置到虚基类子对象起始位置的字节偏移量</strong>。实际的偏移值是由最底层的派生类（如 D）决定的。VBOT 在<strong>运行时</strong>用于动态调整指针，以便访问虚基类的成员。当指向派生类的指针被转换为指向虚基类的指针时，编译器使用 VBOT 来计算基类子对象的正确地址，确保指针指向内存中的正确位置。如果一个类使用了虚继承，则编译期在构造其对象时会自动插入一个隐藏成员虚基表指针（vbptr），在构造函数中另指针指向类的虚基偏移表。注意区别“表”是绑定类的，“指针”是绑定对象实例的。</li>
 <li>内存结构示意：<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[D object]</span><br>├── <span class="hljs-selector-tag">B</span> subobject<br>│   └── vptr_B → vtable_B<br>│             → <span class="hljs-attribute">offset</span> <span class="hljs-selector-tag">to</span> <span class="hljs-selector-tag">A</span><br>├── C subobject<br>│   └── vptr_C → vtable_C<br>│             → <span class="hljs-attribute">offset</span> <span class="hljs-selector-tag">to</span> <span class="hljs-selector-tag">A</span><br>├── shared <span class="hljs-selector-tag">A</span> subobject<br>│   └── vptr_A → vtable_A<br></code></pre></td></tr></table></figure>
 </li>
-<li>不同于非虚继承，虚继承不能用固定指针偏移，必须运行时查表确定偏移。这是因为虚基类的内存位置在派生类中是“不固定”的。虚继承支持多路径继承、深度继承、多个派生类共享同一个虚基类，所以编译器不能在某个类定义时就固定虚基类的地址，只能等到最底层派生类生成对象时再确定。<br>
+<li><strong>不同于非虚继承，虚继承不能用固定指针偏移，必须运行时查表确定偏移</strong>。这是因为虚基类的内存位置在派生类中是“不固定”的。虚继承支持多路径继承、深度继承、多个派生类共享同一个虚基类，所以编译器不能在某个类定义时就固定虚基类的地址，只能等到最底层派生类生成对象时再确定。<br>
 对于非虚继承：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123; <span class="hljs-type">int</span> a; &#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> : <span class="hljs-keyword">public</span> A &#123; <span class="hljs-type">int</span> b; &#125;;<br>B b;<br>A* p = &amp;b;  <span class="hljs-comment">// 偏移是 0（编译期已知 A 在 B 起始位置），直接赋值，无需查表，无运行时开销</span><br></code></pre></td></tr></table></figure>
 而在上面例子的菱形继承+虚继承中，编译时 B/C 的 vtable 中生成偏移槽（虚基表项）；链接时/最终派生类构建时（如 D），编译器根据 D 的布局计算偏移量，并填入这些槽中；所以最终 D 实例的虚表中就含有完整的偏移信息。</li>
 </ul>
@@ -510,8 +552,16 @@
 </ul>
 <h3 id="10-构造函数和析构函数能不能为虚函数">(10) 构造函数和析构函数能不能为虚函数？</h3>
 <ul>
-<li>构造函数不能声明为虚函数：虚函数的调用依赖于对象的虚表（vtable），而虚表的初始化是在构造函数中完成的。在构造函数执行时，对象尚未完全初始化，虚表也未完全构建。如果构造函数是虚函数，就会形成逻辑上的矛盾：虚表尚未初始化，虚函数机制无法正常工作。另外，虚函数主要目的是实现多态，即允许派生类重写（override）基类函数。但构造函数是每个类都应该有的用来初始化类的，在派生类中，基类的构造函数会被自动调用，用于初始化基类的成员，没有覆盖的必要。</li>
-<li>析构函数一般声明为虚函数：析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数 或 子类析构函数未实现，则会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。</li>
+<li>
+<p>构造函数不能声明为虚函数：</p>
+<ul>
+<li>对象尚未完全构建:虚函数调用的核心在于通过对象的虚函数表指针 (vptr) 找到相应的虚函数表 (vtable)，从而在<strong>运行时</strong>确定调用哪个版本的函数（基类的还是派生类的）。这个 vptr 是在对象构造过程中由构造函数设置的。具体来说，当一个对象的<strong>构造函数开始执行时，vptr 会被设置为指向该类自己的 vtable</strong>。如果存在继承链，<strong>基类的构造函数会先执行</strong>，将其 vptr 指向基类的 vtable；然后派生类的构造函数执行，再将其 vptr 更新为指向派生类的 vtable。如果构造函数本身是虚函数，那么在调用构造函数来创建对象时，对象本身还不存在或者说还没有完成初始化，vptr 尚未被正确设置到指向“最终”派生类型的 vtable。那么，系统将无法确定应该调用哪个“虚拟”版本的构造函数。这就形成了一个“鸡生蛋还是蛋生鸡”的问题：你需要一个完整的对象（包含有效的 vptr）来进行虚函数调用，但构造函数的目的正是去创建和初始化这个对象。</li>
+<li>类型在构造时已确定:当创建一个对象时，我们显式地指定了要创建的对象的具体类型。编译器在编译时就已经确切知道应该调用哪个类的构造函数。虚函数机制是为了<strong>解决通过基类指针或引用调用派生类重写方法时的动态分派问题</strong>——即在编译时不知道指针/引用所指向对象的具体动态类型。但在对象创建的那一刻，类型是明确的，不需要动态分派来选择构造函数。</li>
+</ul>
+</li>
+<li>
+<p>析构函数一般声明为虚函数：析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果<strong>未将基类的析构函数定义成虚函数 或 子类析构函数未实现</strong>，则会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。</p>
+</li>
 </ul>
 <p>PS: 然而类中默认的析构函数并不是虚函数，这是因为：</p>
 <ul>
@@ -1036,10 +1086,56 @@
 <li>例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">A</span>(<span class="hljs-type">const</span> A&amp; other) &#123;<br>      data = <span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>(*other.data); <span class="hljs-comment">// 深拷贝</span><br>  &#125;<br>  <span class="hljs-built_in">A</span>(A&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123; <span class="hljs-comment">// 如果是 const A&amp;&amp;，就不能修改 other 的内容，那就无法移动，只能拷贝</span><br>      data = other.data;       <span class="hljs-comment">// 直接“偷走”指针</span><br>      other.data = <span class="hljs-literal">nullptr</span>;    <span class="hljs-comment">// 置空原始对象</span><br>  &#125;<br><span class="hljs-keyword">private</span>:<br>  <span class="hljs-type">int</span>* data;<br>&#125;;<br></code></pre></td></tr></table></figure>
 PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来告诉编译器：“这个函数保证不会抛出异常”。那为什么移动构造函数/移动赋值函数要加 noexcept？因为标准容器（如 std::vector）在扩容时优先使用 noexcept 的移动构造函数。例如当执行 push_back(A)时，会优先用移动构造，如果这里移动构造不是 noexcept，退而求其次才会用拷贝构造。</li>
 </ul>
-<h2 id="5-stl-是什么-内部容器的原理和时间复杂度">5. stl 是什么 内部容器的原理和时间复杂度</h2>
+<h2 id="5-哈希冲突">5. 哈希冲突</h2>
+<p>STL 中的 <code>std::unordered_map</code>, <code>std::unordered_set</code>, <code>std::unordered_multimap</code>, <code>std::unordered_multiset</code>底层使用哈希表实现的，可能会发生哈希冲突。哈希冲突是哈希表这种数据结构在实际应用中几乎不可避免的现象。</p>
+<ul>
+<li>
+<p><strong>为什么会发生哈希冲突</strong></p>
+<ul>
+<li><strong>哈希函数的特性</strong>：哈希函数的作用是<strong>将任意长度的键 (key) 映射为一个固定大小的整数（哈希值）</strong>。理想情况下，不同的键会映射到不同的哈希值，但实际上很难找到一个“完美”的哈希函数能够对所有可能的输入都产生唯一的哈希值，尤其是当键的可能取值范围非常大，而哈希值的范围（通常对应内部桶数组的索引）相对有限时。</li>
+<li><strong>桶数量有限</strong>：<code>std::unordered_map</code> 内部使用一个数组（称为<strong>桶数组</strong>）来存储元素。这个数组的大小是有限的。哈希值通常会通过取模运算（<code>hash_value % bucket_count</code>）转换成桶数组的索引。不同的哈希值在取模后可能得到相同的索引。</li>
+<li><strong>鸽巢原理 (Pigeonhole Principle)</strong>：当要存储的键的数量超过了哈希表内部桶 (bucket) 的数量时，根据鸽巢原理，必然至少有两个键会映射到同一个桶，从而产生冲突。即使键的数量少于桶的数量，由于哈希函数分布的不完美，也可能发生冲突。</li>
+</ul>
+</li>
+<li>
+<p><strong>如果发生了哈希冲突，<code>std::unordered_map</code> 如何解决？</strong></p>
+</li>
+</ul>
+<p>目前主流的 C++ 标准库实现（如 libstdc++/GCC, libc++/Clang, MSVC STL）通常采用<strong>拉链法 (Separate Chaining)</strong> 来解决哈希冲突：</p>
+<ul>
+<li>
+<p><strong>拉链法 (Separate Chaining)</strong>：</p>
+<ul>
+<li><strong>原理</strong>：在拉链法中，哈希表的每个“桶” (bucket) 并<strong>不直接存储单个元素，而是存储一个指向数据结构（通常是链表 (linked list)）的指针或头部</strong>。所有<strong>哈希到同一个桶索引的键值对 (key-value pair) 都会被存储在该桶对应的链表中</strong>。</li>
+</ul>
+</li>
+<li>
+<p><strong>负载因子 (Load Factor) 与动态扩容 (Rehashing)</strong>：</p>
+<ul>
+<li>虽然拉链法可以处理任意数量的冲突，但<strong>如果单个链表过长，查找效率就会从 O(1) 退化到 O(N)（其中 N 是链表长度，最坏情况下是所有元素都在一个链表里）</strong>。</li>
+<li>为了维持较好的平均性能，<code>std::unordered_map</code> 会监控其<strong>负载因子 (load factor)</strong>。负载因子定义为：<code>元素数量 / 桶的数量</code>。</li>
+<li>当负载因子超过一个阈值（可以通过 <code>max_load_factor()</code> 查询和设置，默认值通常在 1.0 左右）时，<code>std::unordered_map</code> 会自动进行<strong>重新哈希 (rehash)</strong> 或称为<strong>扩容</strong>的操作：
+<ul>
+<li>创建一个新的、更大的桶数组（通常是原大小的两倍左右或下一个素数）。</li>
+<li>遍历旧桶数组中的所有元素。</li>
+<li>对于每个元素，<strong>使用新的桶数量重新计算其哈希索引</strong>，并将其插入到新桶数组的对应位置。</li>
+</ul>
+</li>
+<li>重新哈希是一个成本较高的操作（时间复杂度为 O(N)，其中 N 是元素总数），但它能有效缩短链表的平均长度，从而保证后续操作的平均 O(1) 复杂度。这个开销在多次操作中被分摊掉了。</li>
+</ul>
+</li>
+<li>
+<p><strong>实践</strong></p>
+<ul>
+<li><strong>提供好的哈希函数</strong>：对于<strong>自定义类型作为键</strong>，用户需要特化 <code>std::hash&lt;YourType&gt;</code> 模板，并提供一个高质量的哈希函数。一个好的哈希函数应该能将键尽可能均匀地分布到不同的哈希值，以减少冲突。</li>
+<li><strong>提供正确的 <code>operator==</code></strong>：<code>std::unordered_map</code> 在处理哈希冲突（即在链表中查找具体键）时，依赖于键类型的 <code>operator==</code> 来判断两个键是否相等。</li>
+</ul>
+</li>
+</ul>
 <h2 id="6-如何设计一个内存池">6. 如何设计一个内存池</h2>
 <h2 id="7-lamda-函数">7. lamda 函数</h2>
-<p>（1）lambda 引用陷阱</p>
+<h3 id="1-lambda-引用陷阱">(1) lambda 引用陷阱</h3>
+<p>Lambda 函数捕获了外部作用域中的一个或多个变量的引用，但是当这个 Lambda 函数稍后被调用执行时，这些被引用的原始变量已经超出了其生命周期（即已经被销毁）。此时，Lambda 函数内部持有的引用就变成了悬垂引用，访问这些引用将导致未定义行为 (Undefined Behavior)，通常表现为程序崩溃、数据损坏或不可预测的结果。</p>
 <h2 id="8-类">8. 类</h2>
 <h3 id="1-空类中默认的成员函数">(1) 空类中默认的成员函数</h3>
 <ul>

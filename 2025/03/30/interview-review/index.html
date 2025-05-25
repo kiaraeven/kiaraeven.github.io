@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2025/03/30/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/30/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-05-23T15:54:11.862Z">
+<meta property="article:modified_time" content="2025-05-25T12:18:48.691Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          40k words
+          46k words
         
       </span>
     
@@ -256,7 +256,7 @@
         
         
         
-          331 mins
+          383 mins
         
       </span>
     
@@ -1851,18 +1851,119 @@ projection 矩阵推导见：<a target="_blank" rel="noopener" href="https://zhu
 </li>
 </ul>
 <h2 id="30-隐式欧拉积分-显式欧拉积分">30. 隐式欧拉积分 显式欧拉积分</h2>
-<h2 id="31-opengl-抖动阶段做了什么处理">31. OpenGL 抖动阶段做了什么处理？</h2>
+<h2 id="31-shader-优化">31. Shader 优化</h2>
+<h3 id="1-基本原则">(1) 基本原则</h3>
+<ul>
+<li><strong>性能分析</strong>：在进行任何优化之前，务必使用 GPU 性能分析工具（如 RenderDoc, NVIDIA Nsight Graphics, AMD Radeon GPU Profiler (RGP), Intel GPA 等）来确定性能瓶颈。了解你的应用是顶点处理受限、片元处理受限、带宽受限还是计算受限。不要过早优化或猜测瓶颈。</li>
+<li><strong>明确优化目标</strong>：针对分析出来的具体瓶颈进行优化。例如，如果片元着色器是瓶颈，那么重点优化它；如果纹理读取是瓶颈，则关注纹理相关的优化。</li>
+<li><strong>了解目标硬件</strong>：不同的 GPU 架构对某些优化技巧的敏感度不同。某些优化在一个平台上效果显著，在另一个平台上可能效果不大甚至有负作用。</li>
+</ul>
+<h3 id="2-算法层面优化">(2) 算法层面优化</h3>
+<ul>
+<li><strong>选择更简单的算法</strong>：如果视觉差异不明显，考虑使用计算复杂度更低的算法（例如，简化的光照模型、近似函数替换复杂函数）。</li>
+<li><strong>预计算</strong>：
+<ul>
+<li>将可以在 CPU 端完成的计算（每帧、每对象或甚至离线计算）移到 CPU 进行，而不是在每个顶点或片元上重复计算。例如，预先计算 MVP 矩阵的一部分、将光照烘焙到纹理中。</li>
+<li>使用查找表 (LUT - Lookup Tables)：对于复杂的、可重复的函数，可以预先计算结果并<strong>存储到纹理中</strong>，在着色器中通过纹理采样获取。</li>
+</ul>
+</li>
+<li><strong>细节级别 (LOD - Level of Detail)</strong>：为远处的物体或不重要的效果使用更简单的着色器、更少的计算或更低分辨率的纹理。</li>
+</ul>
+<h3 id="3-指令层面优化">(3) 指令层面优化</h3>
 <ul>
 <li>
-<p>抖动（Dithering） 是指在将高精度颜色值输出为低精度（如 8-bit）时，通过<strong>引入微小的随机扰动或有序扰动</strong>，来减少量化引起的色带（banding）现象。在 片元着色器输出颜色、经过混合（Blending）、<strong>准备写入颜色缓冲时</strong>，OpenGL 会将 float 类型的颜色值转换为整数（如 float → 8-bit），在转换之前，根据当前启用的抖动方式，对颜色值加上细微扰动，这样在最终 8-bit 色彩空间中表现得更平滑，避免出现色带。</p>
+<p><strong>最小化昂贵操作</strong>：</p>
+<ul>
+<li><strong>超越函数</strong>：<code>sin</code>, <code>cos</code>, <code>pow</code>, <code>log</code>, <code>exp</code>, <code>sqrt</code>, <code>normalize</code> 等函数通常比基本的算术运算昂贵。如果精度要求不高，可以考虑使用数学近似或查表法。尽量减少其使用频率。</li>
+<li><strong>除法</strong>：除法通常比乘法慢。如果除数是常量或变化不频繁，可以预先计算其倒数，然后用乘法代替。</li>
+<li><code>normalize()</code>：只在绝对必要时才进行归一化。有时未归一化的向量也可以接受，或者可以在流程中较晚或较少频率地进行归一化。</li>
+</ul>
 </li>
 <li>
-<p>为什么需要抖动？<br>
-例如，有一个渐变从 0.0 到 1.0。如果用 8-bit 表示，只能表示 256 个值，这样在颜色变化缓慢的区域（例如天光、暗角、雾），就会出现明显色块（Color Banding）。而抖动能通过“模拟随机误差”的方式欺骗人眼，让过渡看起来更自然平滑。</p>
+<p><strong>善用内置函数</strong>：GPU 硬件通常对 GLSL 内置函数（如 <code>dot</code>, <code>cross</code>, <code>mix</code>, <code>smoothstep</code>, <code>clamp</code>, <code>abs</code>, <code>min</code>, <code>max</code> 等）有高度优化的实现。</p>
 </li>
 <li>
-<p>glEnable(GL_DITHER) 默认启用；glDisable(GL_DITHER) 手动禁用</p>
+<p><strong>利用 <code>mad</code> (Multiply-Add) 指令</strong>：表达式 <code>a * b + c</code> 通常可以被 GPU 编译成一条融合乘加 (Fused Multiply-Add, FMA 或 MAD) 指令，这比分开执行乘法和加法更快。尽量写成这种形式。</p>
 </li>
+<li>
+<p><strong>向量化操作</strong>：尽可能使用向量类型 (<code>vec2</code>, <code>vec3</code>, <code>vec4</code>) 并进行向量运算。GPU 是 SIMD（单指令多数据）/SIMT（单指令多线程）架构，处理向量数据效率很高。</p>
+</li>
+<li>
+<p><strong>精度限定符</strong>：尤其在移动平台或嵌入式 GPU 上，合理使用 <code>lowp</code>, <code>mediump</code>, <code>highp</code> 精度限定符。较低精度（如 <code>mediump</code> 用于颜色和纹理坐标，<code>lowp</code> 用于某些简单计算）可以显著提高性能并降低功耗，但会牺牲一定的计算精度。桌面级 GPU 通常对 <code>float</code> (即 <code>highp</code>) 有很好的优化。</p>
+</li>
+<li>
+<p><strong>避免不必要的 Swizzling 和分量访问</strong>：频繁地重组向量分量（如 <code>pos.xy = anotherVec.zw;</code>）或单独访问向量的单个分量（如 <code>color.r = ...; color.g = ...;</code>）有时可能妨碍编译器的向量化优化。</p>
+</li>
+<li>
+<p><strong>循环</strong>：</p>
+<ul>
+<li><strong>避免在着色器中使用依赖于运行时数据的大量迭代或复杂循环</strong>，这可能导致性能大幅下降。</li>
+<li><strong>手动展开小型固定迭代次数的循环</strong>：有时（尤其在旧的编译器或特定情况下）手动展开循环可能比让编译器自动展开带来一些好处，但这会增加代码量。对于现代编译器，通常让其自行决定是否展开。务必通过性能分析验证效果。</li>
+<li><strong>基于纹理的循环</strong>：对于某些迭代过程，可以考虑将其展现在纹理上，通过多次渲染通道（ping-pong 技术）来模拟迭代。</li>
+</ul>
+</li>
+<li>
+<p><strong>减少条件分支 (<code>if</code> 语句)</strong>：</p>
+<ul>
+<li>GPU 上的分支（尤其是在一个 warp/wavefront 内的线程发生分化执行不同路径时）可能会导致显著的性能开销。</li>
+<li><strong>无分支替代方案</strong>：尝试使用 <code>mix()</code>, <code>step()</code>, <code>smoothstep()</code>, <code>clamp()</code>, <code>min()</code>, <code>max()</code>，或数学技巧（如使用 <code>sign()</code> 或算术运算选择值）来替代 <code>if</code> 语句。<br>
+<code>glsl // Bad: if (condition) result = a; else result = b; // Good: result = mix(b, a, float(condition)); // condition is 0.0 or 1.0 // Or: result = condition_is_true_mask * a + (1.0 - condition_is_true_mask) * b; (mask is 0 or 1) </code>
+<ul>
+<li>如果分支不可避免，尽量使分支条件在同一个 SIMD 执行单元组内的线程中保持一致。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>提前退出 (Early Exit - 主要在片元着色器中)</strong>：</p>
+<ul>
+<li><strong><code>discard</code> (GLSL) / <code>clip(-1.0)</code> (HLSL)</strong>：可以提前终止片元着色器的执行，后续的计算和输出都不会发生。非常适用于 Alpha Test 或者在计算初期就发现片元不可见/不需要特殊处理的情况。</li>
+<li><strong>从 <code>main()</code> 函数中 <code>return</code></strong>：也可以实现提前退出。</li>
+<li><strong>注意</strong>：过度或不当使用 <code>discard</code> 有时可能会干扰 GPU 的某些早期优化（如 Early-Z），或者在某些架构上引入额外开销。需要权衡。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-数据访问与纹理优化">(4) 数据访问与纹理优化</h3>
+<ul>
+<li>
+<p><strong>最小化纹理采样 (Texture Fetches)</strong>：<br>
+纹理采样是常见的性能瓶颈，因为它涉及内存访问延迟和带宽消耗。</p>
+<ul>
+<li><strong>使用压缩纹理格式</strong> (如 BCn/DXTC, ETC, ASTC)：显著减少显存占用和带宽需求。</li>
+<li><strong>正确使用 Mipmap</strong>：确保为缩小（minification）的纹理启用了 Mipmapping (<code>GL_TEXTURE_MIN_FILTER</code> 设置为 Mipmap 相关模式如 <code>GL_LINEAR_MIPMAP_LINEAR</code>)。这能提高缓存命中率，减少远处物体的摩尔纹和闪烁。</li>
+<li><strong>选择合适的纹理过滤方式</strong>：双线性过滤 (<code>GL_LINEAR</code>) 比三线性过滤 (<code>GL_LINEAR_MIPMAP_LINEAR</code>) 或各向异性过滤开销小，但视觉质量也较低。按需选择。</li>
+<li><strong>纹理图集 (Texture Atlases)</strong>：将多个小纹理合并到一个大纹理中，可以减少纹理绑定的开销，并可能提高缓存局部性。</li>
+<li><strong>延迟纹理采样</strong>：如果着色器逻辑可能在采样纹理前就通过 <code>discard</code> 丢弃片元，那么将纹理采样操作放到 <code>discard</code> 判断之后。</li>
+</ul>
+</li>
+<li>
+<p><strong>优化缓冲数据布局 (UBOs, SSBOs, Vertex Buffers)</strong>：确保数据紧凑排列，避免不必要的填充，以提高缓存利用率和减少带宽。注意数据对齐（例如，<code>vec3</code> 在 UBO/SSBO 中通常会按 <code>vec4</code> 对齐）。</p>
+</li>
+<li>
+<p><strong>Varying 插值器 (Varyings / Interpolators)</strong>：</p>
+<ul>
+<li>最小化从顶点着色器传递到片元着色器的 varying 变量的数量和大小。每个 varying 都需要占用插值硬件资源和带宽。</li>
+<li>如果可能，对数据进行打包（例如，将一个精度要求不高的法线用两个分量编码）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-着色器阶段特定优化">(5) 着色器阶段特定优化</h3>
+<ul>
+<li><strong>顶点着色器</strong>：
+<ul>
+<li>保持其尽可能轻量，因为它为每个顶点执行。</li>
+<li>将与顶点本身无关、但对整个物体或实例相同的计算（如模型矩阵的某些部分）放到 CPU 端。</li>
+</ul>
+</li>
+<li><strong>片元着色器 (Fragment Shader)</strong>：</li>
+<li>通常是性能瓶颈的主要来源，因为它为屏幕上的大量片元执行。</li>
+<li><strong>减少 Overdraw</strong>：避免同一像素被多次不必要地着色。使用 Z-Prepass、从前到后渲染不透明物体等技术可以帮助减少 Overdraw。</li>
+<li><strong>最大化 Early-Z/Stencil 剔除效果</strong>：确保不透明物体先渲染，并且片元着色器不执行会禁用 Early-Z 的操作（如修改 <code>gl_FragDepth</code>，或在可以避免的情况下早期使用 <code>discard</code>）。</li>
+</ul>
+<h3 id="6-管理着色器变体-shader-permutations-uber-shaders">(6) 管理着色器变体 (Shader Permutations / Uber Shaders)**</h3>
+<ul>
+<li><strong>避免过于复杂的“超级着色器” (Uber Shaders)</strong>：一个包含大量 <code>#if</code> / <code>#ifdef</code> 或运行时 <code>if</code> 来切换不同功能的着色器可能会变得非常庞大，导致编译时间长、寄存器压力大、性能下降。</li>
+<li><strong>使用着色器变体</strong>：为不同的功能组合编译多个专门的、更小的着色器版本。可以通过预处理器宏 (<code>#define</code>) 在编译时生成这些变体。</li>
 </ul>
 <h2 id="32-billboard-有什么作用原理是什么">32. billboard 有什么作用？原理是什么？</h2>
 <ul>
@@ -2832,9 +2933,301 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 <p>是一块记录所有 OpenGL <strong>状态、资源、渲染命令</strong>的“执行环境”，包含着你创建的所有纹理、着色器、缓冲对象、状态机等信息。必须有一个激活的上下文，OpenGL 才能正常运行。</p>
 <h3 id="3-opengl-与-opengles-区别">(3) opengl 与 openglES 区别</h3>
 <p>OpenGL ES 是 OpenGL 的简化版本，专为移动设备和嵌入式系统设计，特性精简但高效，是 Android 和 WebGL 的图形基础。</p>
-<h3 id="opengl-调试">OpenGL 调试</h3>
+<h3 id="4-opengl-调试">(4) OpenGL 调试</h3>
 <p><a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/06%20In%20Practice/01%20Debugging/">https://learnopengl-cn.github.io/06 In Practice/01 Debugging/</a></p>
 <p>把要检查的变量输入到 fragment 的颜色（如法线坐标、纹理坐标等）；glfw 上下文调试（回调函数）；renderdoc；四个角渲染上不同颜色的标志；Nvidia Nsight；让某些 fragment 偏红；…</p>
+<h3 id="5-opengl-抖动阶段做了什么处理">(5) OpenGL 抖动阶段做了什么处理？</h3>
+<ul>
+<li>
+<p>抖动（Dithering） 是指在将高精度颜色值输出为低精度（如 8-bit）时，通过<strong>引入微小的随机扰动或有序扰动</strong>，来减少量化引起的色带（banding）现象。在 片元着色器输出颜色、经过混合（Blending）、<strong>准备写入颜色缓冲时</strong>，OpenGL 会将 float 类型的颜色值转换为整数（如 float → 8-bit），在转换之前，根据当前启用的抖动方式，对颜色值加上细微扰动，这样在最终 8-bit 色彩空间中表现得更平滑，避免出现色带。</p>
+</li>
+<li>
+<p>为什么需要抖动？<br>
+例如，有一个渐变从 0.0 到 1.0。如果用 8-bit 表示，只能表示 256 个值，这样在颜色变化缓慢的区域（例如天光、暗角、雾），就会出现明显色块（Color Banding）。而抖动能通过“模拟随机误差”的方式欺骗人眼，让过渡看起来更自然平滑。</p>
+</li>
+<li>
+<p>glEnable(GL_DITHER) 默认启用；glDisable(GL_DITHER) 手动禁用</p>
+</li>
+</ul>
+<h3 id="6-texturelod-的用法">(6) textureLod 的用法</h3>
+<p><code>textureLod</code> 是 GLSL 中提供的一个纹理采样函数，允许显式地指定要采样的 Mipmap 层级 (Level of Detail - LOD)。常规的 <code>texture()</code> 函数会自动计算并选择合适的 Mipmap 层级。</p>
+<ul>
+<li>
+<p><strong>用途</strong>：</p>
+<ul>
+<li><strong>精确控制 LOD</strong>：在某些特殊效果中，你可能不希望 GPU 自动计算 LOD，而是想强制从特定的 Mipmap 级别采样。例如，在实现景深效果时，模糊的远处物体可能需要从较高的 Mipmap 级别（更模糊的纹理版本）采样。</li>
+<li><strong>调试 Mipmap</strong>：可以方便地逐级查看各个 Mipmap 层的内容，以确认 Mipmap 是否正确生成。</li>
+<li><strong>避免自动计算的瑕疵</strong>：在某些边缘情况或特定视角下，自动 LOD 计算可能不完美，导致一些视觉瑕疵（如 Moiré pattern 的不完全消除，或不期望的模糊）。<code>textureLod</code> 可以绕过这个问题。</li>
+<li><strong>非标准纹理过滤</strong>：在一些高级渲染技术中，如某些类型的光线追踪或自定义过滤方案，开发者可能需要自己计算 LOD 或直接指定。</li>
+<li><strong>顶点着色器中的采样</strong>：在顶点着色器中，通常无法进行自动 LOD 计算（因为缺乏屏幕空间导数信息），如果需要在顶点着色器中从特定 Mipmap 级别采样，<code>textureLod</code> 就是必要的。</li>
+</ul>
+</li>
+<li>
+<p><strong>GLSL 语法</strong> (以 2D 纹理为例)：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec4</span> <span class="hljs-built_in">textureLod</span>(<span class="hljs-type">sampler2D</span> sampler, <span class="hljs-type">vec2</span> P, <span class="hljs-type">float</span> lod)<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>sampler2D sampler</code>: 纹理采样器 uniform 变量。</li>
+<li><code>vec2 P</code>: 纹理坐标。</li>
+<li><code>float lod</code>: 你要采样的 Mipmap 层级。这是一个浮点数。
+<ul>
+<li>整数部分通常直接指定 Mipmap 级别（例如，0.0 表示基础级别，1.0 表示第一级 Mipmap，依此类推）。</li>
+<li>对于 <code>textureLod</code>，其主要目的是选择一个<em>特定</em>的 Mipmap 级别进行采样。硬件通常会使用这个 <code>lod</code> 值来选择最接近的或者由该 <code>lod</code> 值指定的整数级别。GLSL 规范指出，如果 <code>lod</code> 是负数或大于最大定义的 mipmap 级别，结果是未定义的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>如果不提供 level (使用 <code>texture()</code> 函数)，GPU 如何知道要采样哪一层的 Mipmap 呢？</p>
+</li>
+</ul>
+<p>当不显式提供 LOD（例如使用 <code>texture()</code>, <code>texture2D()</code>, <code>textureCube()</code> 等标准采样函数）时，GPU 会<strong>自动计算并选择最合适的 Mipmap 层级</strong>。这个过程主要发生在<strong>片元着色器中</strong>，依赖于以下机制：</p>
+<ul>
+<li>
+<p><strong>屏幕空间导数 (Screen-Space Derivatives)</strong>：</p>
+<ul>
+<li>GPU 在处理片元时，通常以 2x2 的片元块 (quad) 并行处理。它可以<strong>比较同一个块中相邻片元的纹理坐标</strong>。</li>
+<li>通过计算纹理坐标 <code>P</code> <strong>相对于屏幕空间 x 轴和 y 轴的变化率</strong>，得到导数：
+<ul>
+<li><code>dFdx(P)</code>：纹理坐标 P 在屏幕空间 x 方向上的变化。</li>
+<li><code>dFdy(P)</code>：纹理坐标 P 在屏幕空间 y 方向上的变化。</li>
+</ul>
+</li>
+<li>这些导数告诉 GPU，<strong>当屏幕上的位置移动一个像素时，纹理坐标会改变多少</strong>。</li>
+</ul>
+</li>
+<li>
+<p><strong>计算细节级别 (Level of Detail - LOD / Lambda <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span>)</strong>:</p>
+<ul>
+<li>利用这些导数，GPU 可以估算出当前屏幕像素投影到纹理空间时所覆盖的区域大小（称为“纹理足迹”或 “footprint”）。</li>
+<li>一个简化的思想是：<em>如果一个屏幕像素覆盖了纹理上很大一块区域（例如，物体离相机很远，纹理被 сильно 缩小），那么就需要使用较低分辨率的 Mipmap 层级（即 LOD 值较大，层级数也较大，例如 Mipmap level 3, 4 等更模糊的图像）。反之，如果一个屏幕像素只覆盖了纹理上很小一块区域或单个纹素（例如，物体离相机很近，纹理被放大或以原始大小显示），那么就需要使用较高分辨率的 Mipmap 层级（LOD 值较小，层级数也较小，例如 Mipmap level 0, 1）</em>。</li>
+<li>GPU 会根据这个覆盖区域的大小计算出一个浮点数值，通常称为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> (lambda)。这个 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值就代表了理想的 Mipmap 层级。一个常用的（非常简化的）计算公式雏形类似：<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>≈</mo><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mo stretchy="false">(</mo><mtext>max</mtext><mo stretchy="false">(</mo><mtext>length</mtext><mo stretchy="false">(</mo><mtext>dFdx</mtext><mo stretchy="false">(</mo><mi>P</mi><mo>⋅</mo><mtext>textureSize</mtext><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo separator="true">,</mo><mtext>length</mtext><mo stretchy="false">(</mo><mtext>dFdy</mtext><mo stretchy="false">(</mo><mi>P</mi><mo>⋅</mo><mtext>textureSize</mtext><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\lambda \approx \log_2(\text{max}(\text{length}(\text{dFdx}(P \cdot \text{textureSize})), \text{length}(\text{dFdy}(P \cdot \text{textureSize}))))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.207em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord">max</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">length</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">dFdx</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">textureSize</span></span><span class="mclose">))</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">length</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">dFdy</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">textureSize</span></span><span class="mclose">))))</span></span></span></span><br>
+（实际公式会更复杂并考虑各向异性等因素，<code>textureSize</code> 是纹理在 0 级 mipmap 的尺寸）。</li>
+</ul>
+</li>
+<li>
+<p><strong>纹理过滤参数的应用 (<code>GL_TEXTURE_MIN_FILTER</code>)</strong>:</p>
+<ul>
+<li>一旦计算出 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值，GPU 会根据纹理对象设置的<strong>缩小过滤器 (<code>GL_TEXTURE_MIN_FILTER</code>)</strong> 来决定具体如何采样：
+<ul>
+<li><strong>不使用 Mipmap 的过滤模式 (如 <code>GL_NEAREST</code>, <code>GL_LINEAR</code>)</strong>: GPU 只会从 Mipmap level 0 采样，并应用指定的近邻或线性过滤。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值在这种情况下不用于选择 Mipmap 级别。</li>
+<li><strong>使用 Mipmap 的过滤模式</strong>:
+<ul>
+<li><strong><code>GL_NEAREST_MIPMAP_NEAREST</code></strong>: GPU 选择与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值最接近的单个 Mipmap 层级，然后从该层级中使用近邻采样（取单个纹素）。</li>
+<li><strong><code>GL_LINEAR_MIPMAP_NEAREST</code></strong>: GPU 选择与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值最接近的单个 Mipmap 层级，然后从该层级中使用线性插值采样（在该层级内对 2x2 纹素进行双线性过滤）。</li>
+<li><strong><code>GL_NEAREST_MIPMAP_LINEAR</code> (三线性过滤的一种)</strong>: GPU 选择与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值相邻的<strong>两个</strong> Mipmap 层级。从这两个层级中分别使用近邻采样，然后根据 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值的小数部分在这两个采样结果之间进行线性插值。</li>
+<li><strong><code>GL_LINEAR_MIPMAP_LINEAR</code> (真正的三线性过滤)</strong>: GPU 选择与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值相邻的<strong>两个</strong> Mipmap 层级。从这两个层级中分别使用线性插值采样（即<strong>在每个选定的 Mipmap 层级内部进行双线性过滤</strong>），然后根据 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值的小数部分在这<strong>两个双线性过滤结果之间进行线性插值</strong>。这是质量最高的 Mipmap 过滤方式，能提供最平滑的 LOD 过渡。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>其他影响因素</strong>:</p>
+<ul>
+<li><code>glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias)</code>: 可以给计算出来的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span></span></span></span> 值增加一个偏移量，从而整体上使纹理显得更清晰或更模糊。</li>
+<li><code>GL_TEXTURE_MIN_LOD</code> 和 <code>GL_TEXTURE_MAX_LOD</code>: 可以限制 GPU 选择 Mipmap 层级的范围。</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-opengl-的渲染管线">(7) OpenGL 的渲染管线</h3>
+<ul>
+<li>
+<p><strong>应用程序阶段 (CPU 端)</strong></p>
+<ul>
+<li><strong>描述</strong>: 负责准备场景数据、加载模型和纹理、设置渲染状态、更新变换矩阵、以及发出 OpenGL 绘图指令（如 <code>glDrawArrays</code>, <code>glDrawElements</code>）。</li>
+<li><strong>输出</strong>: 顶点数据、纹理数据、uniform 变量、绘图指令等被发送到 GPU。</li>
+</ul>
+</li>
+<li>
+<p><strong>顶点获取</strong></p>
+<ul>
+<li><strong>描述</strong>: GPU 根据应用程序的指令从<strong>顶点缓冲对象 (Vertex Buffer Objects, VBOs)</strong> 中读取顶点数据。<strong>顶点数组对象 (Vertex Array Objects, VAOs)</strong> 定义了这些顶点数据的结构和来源（即顶点属性如何从 VBOs 中解析）。</li>
+<li><strong>输出</strong>: 单个顶点及其属性（位置、颜色、法线、纹理坐标等）。</li>
+</ul>
+</li>
+<li>
+<p><strong>顶点着色器 (Vertex Shader)</strong></p>
+<ul>
+<li><strong>类型</strong>: <strong>可编程阶段</strong>。</li>
+<li><strong>描述</strong>: 这是管线中的第一个可编程阶段，为<strong>每个顶点</strong>执行一次。</li>
+<li><strong>主要职责</strong>:
+<ul>
+<li>对顶点位置进行坐标变换（例如，从模型空间变换到观察空间，再到裁剪空间，通常通过模型-视图-投影 (MVP) 矩阵完成）。</li>
+<li>处理其他每顶点属性（例如，变换法线，传递或生成纹理坐标）。</li>
+</ul>
+</li>
+<li><strong>必需输出</strong>: <code>gl_Position</code> (裁剪空间中的顶点位置)。</li>
+<li><strong>可选输出</strong>: 其他 <code>out</code> 变量，用于将数据传递给后续阶段（如片元着色器）。</li>
+</ul>
+</li>
+<li>
+<p><strong>曲面细分着色器 (Tessellation Shaders) - 可选阶段</strong></p>
+<ul>
+<li><strong>类型</strong>: <strong>可编程阶段</strong>（由两个子着色器组成，以及一个固定功能阶段）。</li>
+<li><strong>描述</strong>: 用于<strong>动态地增加或减少几何体的细节级别</strong>，将输入的图元“面片 (patch)”细分成更多的小图元。
+<ul>
+<li><strong>曲面细分控制着色器 (Tessellation Control Shader, TCS)</strong>: 决定面片的细分程度（设置所谓的“曲面细分级别”），并可以修改控制点属性。</li>
+<li><strong>图元生成器 (Primitive Generator - 固定功能)</strong>: 根据 TCS 输出的细分级别，在面片内部生成新的顶点和连接性，形成更小的图元（点、线、三角形）。</li>
+<li><strong>曲面细分评估着色器 (Tessellation Evaluation Shader, TES)</strong>: 计算由图元生成器产生的新顶点的位置和其他属性。</li>
+</ul>
+</li>
+<li><strong>用途</strong>: 创建平滑曲面、地形细节自适应等。</li>
+</ul>
+</li>
+<li>
+<p><strong>几何着色器 (Geometry Shader) - 可选阶段</strong></p>
+<ul>
+<li><strong>类型</strong>: <strong>可编程阶段</strong>。</li>
+<li><strong>描述</strong>: 以完整的图元（点、线、三角形）作为输入。它可以：
+<ul>
+<li>直接将输入图元传递到下一阶段。</li>
+<li>修改输入图元。</li>
+<li>丢弃输入图元。</li>
+<li><strong>生成新的图元</strong>（例如，将点扩展为四边形，沿边挤出“鳍”来创建体积感）。</li>
+</ul>
+</li>
+<li><strong>用途</strong>: 程序化生成几何体（如毛发、草叶）、几何体放大、创建阴影体（旧技术）等。</li>
+</ul>
+</li>
+<li>
+<p><strong>图元组装 (Primitive Assembly)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能为主。</li>
+<li><strong>描述</strong>: 将顶点着色器（或曲面细分评估着色器、几何着色器）输出的顶点按照指定的绘图模式（如 <code>GL_TRIANGLES</code>, <code>GL_LINES</code>）组装成图元（三角形、线段、点）。</li>
+</ul>
+</li>
+<li>
+<p><strong>裁剪 (Clipping)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能。</li>
+<li><strong>描述</strong>: 将完全或部分位于<strong>裁剪空间 (Clip Space)</strong> 视景体之外的图元进行裁剪或剔除。裁剪过程可能会在图元与裁剪平面相交处生成新的顶点。裁剪空间通常由顶点着色器输出的 <code>gl_Position</code> 的 x, y, z 分量相对于其 w 分量来定义（通常范围是 -w 到 +w）。</li>
+</ul>
+</li>
+<li>
+<p><strong>透视除法 (Perspective Divide)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能。</li>
+<li><strong>描述</strong>: 裁剪后的顶点坐标（裁剪空间坐标 <code>gl_Position.xyzw</code>）通过除以其 <code>w</code> 分量，转换为<strong>归一化设备坐标 (Normalized Device Coordinates, NDC)</strong>。NDC 的 x, y, z 分量通常在 <code>[-1, 1]</code> 的范围内。</li>
+</ul>
+</li>
+<li>
+<p><strong>视口变换 (Viewport Transform)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能。</li>
+<li><strong>描述</strong>: 将 NDC 坐标映射到<strong>窗口坐标 (Window Coordinates)</strong> 或屏幕像素坐标。这个变换基于 <code>glViewport()</code> 和 <code>glDepthRange()</code> 的设置。</li>
+</ul>
+</li>
+<li>
+<p><strong>光栅化 (Rasterization)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能。</li>
+<li><strong>描述</strong>: 将（经过变换和裁剪后的）几何图元（现在处于屏幕空间）转换为一系列的<strong>片元 (Fragments)</strong>。片元是对应屏幕上一个像素的候选“样本”，它携带了位置信息以及从顶点属性插值而来的数据（如颜色、纹理坐标、法线等）。</li>
+<li><strong>插值</strong>: 顶点属性（如颜色、纹理坐标）会在此阶段进行透视校正插值，以供片元着色器使用。</li>
+</ul>
+</li>
+<li>
+<p><strong>片元着色器 (Fragment Shader)</strong></p>
+<ul>
+<li><strong>类型</strong>: <strong>可编程阶段</strong>。</li>
+<li><strong>描述</strong>: 为光栅化阶段生成的<strong>每个片元</strong>执行一次（如果启用了多重采样，则可能每个像素的每个样本执行一次）。</li>
+<li><strong>主要职责</strong>: 计算片元的最终颜色。</li>
+<li><strong>输入</strong>: 从光栅化阶段接收插值后的顶点属性（例如，纹理坐标、法线、颜色）。</li>
+<li><strong>操作</strong>: 可以进行纹理采样、光照计算、应用雾效以及其他任何逐片元的视觉效果。</li>
+<li><strong>输出</strong>: 一个或多个颜色值（用于写入颜色缓冲区，支持多渲染目标 MRT），也可以选择性地写入深度值 (<code>gl_FragDepth</code>)，或者通过 <code>discard</code> 指令丢弃该片元。</li>
+</ul>
+</li>
+<li>
+<p><strong>逐片元操作 (Per-Fragment Operations)</strong></p>
+<ul>
+<li><strong>类型</strong>: 固定功能为主，但行为可配置。</li>
+<li><strong>描述</strong>: 在片元着色器执行之后，但在片元最终写入帧缓冲之前，会进行一系列测试和操作。这些操作可以决定片元是否被丢弃，或者它如何与帧缓冲中已有的值组合。</li>
+<li><strong>顺序通常是 (具体顺序和可用性可能因实现和版本而略有不同)</strong>：
+<ul>
+<li><strong>像素所有权测试 (Pixel Ownership Test)</strong>: 确定像素是否属于当前的 OpenGL 上下文。</li>
+<li><strong>剪裁测试 (Scissor Test)</strong>: (<code>glEnable(GL_SCISSOR_TEST)</code>) 如果启用，丢弃位于剪裁矩形之外的片元。</li>
+<li><strong>模板测试 (Stencil Test)</strong>: (<code>glEnable(GL_STENCIL_TEST)</code>) 将片元的模板参考值与模板缓冲区中的值进行比较，并根据比较结果和预设操作来更新模板缓冲区。片元可能因此被丢弃。</li>
+<li><strong>深度测试 (Depth Test / Z-Test)</strong>: (<code>glEnable(GL_DEPTH_TEST)</code>) 将片元的深度值与深度缓冲区中的值进行比较。如果片元被遮挡（例如，比已存深度更远），则被丢弃。<strong>Early-Z 测试</strong>如果条件允许，可能在片元着色器之前进行；否则，标准的深度测试（有时称为 Late-Z）在此处进行。</li>
+<li><strong>混合 (Blending)</strong>: (<code>glEnable(GL_BLEND)</code>) 如果启用，将传入片元的颜色与颜色缓冲区中已有的颜色根据混合因子和混合方程进行组合（例如，用于实现透明效果）。</li>
+<li><strong>抖动 (Dithering)</strong>: (<code>glEnable(GL_DITHER)</code>) 如果启用，可以通过抖动来模拟更丰富的颜色（在颜色精度有限的显示器上）。</li>
+<li><strong>逻辑操作 (Logic Operations)</strong>: (较少使用) 可以对传入片元颜色和颜色缓冲区中的颜色执行位逻辑操作。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>帧缓冲写入 (Framebuffer Write)</strong></p>
+<ul>
+<li><strong>描述</strong>: 通过了所有测试的片元最终会被写入到当前绑定的<strong>帧缓冲对象 (Framebuffer Object, FBO)</strong> 的相应缓冲区中（一个或多个颜色附件、深度附件、模板附件）。</li>
+<li>可以通过颜色掩码 (<code>glColorMask</code>) 和深度掩码 (<code>glDepthMask</code>) 控制具体哪些分量被写入。</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-mvp-变换">(8) MVP 变换</h3>
+<ul>
+<li>
+<p>顶点着色器接收的原始顶点位置通常定义在<strong>模型空间 (Model Space)</strong> （模型的局部坐标系）。</p>
+</li>
+<li>
+<p><strong>模型变换 (Model Transform)</strong>：通过乘以一个<strong>模型矩阵 (Model Matrix)</strong>，顶点从模型空间变换到<strong>世界空间 (World Space)</strong>。世界空间是一个统一的坐标系，场景中的所有物体都相对于这个空间定位。</p>
+</li>
+<li>
+<p><strong>视图变换 (View Transform)</strong>：接着，通过乘以一个<strong>视图矩阵 (View Matrix)</strong>，顶点从世界空间变换到<strong>观察空间 (View Space)</strong>。观察空间是以摄像机为原点和参考方向的坐标系。</p>
+</li>
+<li>
+<p><strong>投影变换 (Projection Transform)</strong>：最后，通过乘以一个<strong>投影矩阵 (Projection Matrix)</strong>，顶点从观察空间变换到<strong>裁剪空间 (Clip Space)</strong>。<strong>投影矩阵定义了摄像机的视锥体</strong>（在观察空间中的可视范围），并将这个视锥体内<strong>映射到一个规范的、通常是立方体的裁剪空间中</strong>，这个目标空间就是裁剪空间。投影可以是：</p>
+<ul>
+<li><strong>透视投影 (Perspective Projection)</strong>：模拟人眼的近大远小效果，视锥体是棱锥台。</li>
+<li><strong>正交投影 (Orthographic Projection)</strong>：所有平行线在投影后保持平行，常用于 2D 渲染或工程制图，视锥体是长方体。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>gl_Position</code> 输出</strong>:<br>
+在顶点着色器中，计算得到的最终裁剪空间坐标（是一个 <code>vec4</code> 类型的齐次坐标 <code>(x, y, z, w)</code>）必须赋值给内置的输出变量 <code>gl_Position</code>。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 在顶点着色器中</span><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> bactériesPosition_modelSpace; <span class="hljs-comment">// 模型空间顶点位置</span><br><span class="hljs-comment">// ... 其他属性 ...</span><br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> u_ModelMatrix;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> u_ViewMatrix;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> u_ProjectionMatrix;<br><br><span class="hljs-type">void</span> main() &#123;<br>    <span class="hljs-type">vec4</span> position_worldSpace = u_ModelMatrix * <span class="hljs-type">vec4</span>(bactériesPosition_modelSpace, <span class="hljs-number">1.0</span>);<br>    <span class="hljs-type">vec4</span> position_viewSpace = u_ViewMatrix * position_worldSpace;<br>    <span class="hljs-built_in">gl_Position</span> = u_ProjectionMatrix * position_viewSpace; <span class="hljs-comment">// 输出到裁剪空间</span><br>    <span class="hljs-comment">// 或者直接： gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * vec4(bactériesPosition_modelSpace, 1.0);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>当顶点着色器（或者几何着色器/曲面细分着色器，如果有）输出了所有顶点的 <code>gl_Position</code> (裁剪坐标) 后，这些坐标会经过 OpenGL 管线中一系列固定的、不可编程（但可配置）的阶段进行处理：</p>
+<ul>
+<li>
+<p><strong>图元组装 (Primitive Assembly)</strong>：<br>
+来自顶点处理阶段的顶点被组装成指定的图元，如点、线段或三角形，这取决于你在绘制命令中指定的模式（例如 <code>GL_TRIANGLES</code>）。</p>
+</li>
+<li>
+<p><strong>裁剪 (Clipping)</strong>：</p>
+<ul>
+<li><strong>目的</strong>：移除完全或部分位于<strong>裁剪视体 (Clip Volume)</strong> 之外的图元部分。裁剪视体通常是一个规范的立方体（在透视投影的上下文中，它是在透视除法之前定义的，例如，对于每个分量 <code>x, y, z</code>，其范围是 <code>-w</code> 到 <code>w</code>）。</li>
+<li><strong>过程</strong>：
+<ul>
+<li>完全在裁剪视体内部的图元会被保留。</li>
+<li>完全在裁剪视体外部的图元会被丢弃。</li>
+<li>与裁剪视体边界相交的图元会被裁剪。这意味着与边界相交的边会被切割，并可能生成新的顶点（其属性会根据原始顶点属性进行插值），以形成新的、完全位于裁剪视体内部的图元。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>透视除法 (Perspective Division)</strong>：</p>
+<ul>
+<li><strong>目的</strong>：将齐次裁剪坐标转换为<strong>归一化设备坐标 (Normalized Device Coordinates - NDC)</strong>。这个步骤实现了透视效果中的“近大远小”。</li>
+<li><strong>过程</strong>：裁剪后的 <code>gl_Position</code> 的 <code>x</code>, <code>y</code>, <code>z</code> 三个分量分别除以其 <code>w</code> 分量。</li>
+</ul>
+<ul>
+<li><strong>NDC 范围</strong>：经过透视除法后，所有在视锥体内的坐标都被映射到一个通常为 <code>[-1, 1]</code> 立方体的 NDC 空间中（<code>z</code> 分量的范围也可能是 <code>[0, 1]</code>，这取决于配置，例如通过 <code>glClipControl</code>）。</li>
+</ul>
+</li>
+<li>
+<p><strong>视口变换 (Viewport Transform)</strong>：</p>
+<ul>
+<li><strong>目的</strong>：将 NDC 坐标映射到屏幕坐标。</li>
+<li><strong>过程</strong>：NDC 的 <code>x</code> 和 <code>y</code> 坐标（范围 <code>[-1, 1]</code>）会根据 <code>glViewport(x, y, width, height)</code> 函数设置的视口参数（指定了屏幕上渲染区域的左下角坐标和宽高）进行缩放和平移。NDC 的 <code>z</code> 坐标（范围 <code>[-1, 1]</code> 或 <code>[0, 1]</code>）会根据 <code>glDepthRange(nearVal, farVal)</code> 设置的深度范围（通常是 <code>[0, 1]</code>）进行映射。</li>
+<li>这些窗口坐标将用于确定片元在屏幕上的最终位置。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="46-超分算法">46. 超分算法</h2>
 <h3 id="1-超分算法">(1) 超分算法</h3>
 <ul>
