@@ -21,20 +21,22 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="article">
-<meta property="og:title" content="[object Object]">
+    <meta name="description" content="Tiny Renderer 1. 切线空间-法线贴图 https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52179126&#x2F;article&#x2F;details&#x2F;147749107 https:&#x2F;&#x2F;github.com&#x2F;ssloy&#x2F;tinyrenderer&#x2F;wiki&#x2F;Lesson-6bis:-tangent-space-normal-mapping   如何把切线空间的法线向量转换到世界空间&#x2F;观察空间？（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Resources to review projects">
 <meta property="og:url" content="http://example.com/2025/05/20/mini-ray-tracer/index.html">
 <meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Tiny Renderer 1. 切线空间-法线贴图 https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52179126&#x2F;article&#x2F;details&#x2F;147749107 https:&#x2F;&#x2F;github.com&#x2F;ssloy&#x2F;tinyrenderer&#x2F;wiki&#x2F;Lesson-6bis:-tangent-space-normal-mapping   如何把切线空间的法线向量转换到世界空间&#x2F;观察空间？（">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-20T10:22:21.615Z">
-<meta property="article:modified_time" content="2025-05-20T10:22:21.616Z">
+<meta property="article:modified_time" content="2025-05-27T14:35:21.006Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>[object Object] - Go7</title>
+  <title>Resources to review projects - Go7</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -202,7 +204,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="[object Object]"></span>
+            <span id="subtitle" data-typed-text="Resources to review projects"></span>
           
         </div>
 
@@ -225,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 words
+          4.7k words
         
       </span>
     
@@ -236,7 +238,7 @@
         
         
         
-          1 mins
+          40 mins
         
       </span>
     
@@ -273,12 +275,405 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">[object Object]</h1>
+            <h1 id="seo-header">Resources to review projects</h1>
             
             
               <div class="markdown-body">
                 
-                
+                <h1 id="tiny-renderer">Tiny Renderer</h1>
+<h2 id="1-切线空间-法线贴图">1. 切线空间-法线贴图</h2>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52179126/article/details/147749107">https://blog.csdn.net/qq_52179126/article/details/147749107</a><br>
+<a target="_blank" rel="noopener" href="https://github.com/ssloy/tinyrenderer/wiki/Lesson-6bis:-tangent-space-normal-mapping">https://github.com/ssloy/tinyrenderer/wiki/Lesson-6bis:-tangent-space-normal-mapping</a></p>
+<ul>
+<li>
+<p>如何把切线空间的法线向量转换到世界空间/观察空间？（一些示意图见第一个链接）</p>
+<p>核心思想是构建一个 <strong>TBN 矩阵</strong>。这个矩阵定义了一个位于三角形表面局部的坐标系，其中：</p>
+<ul>
+<li><strong>N (Normal - 法线):</strong> 表面的几何法线（垂直于三角形表面“向上”的方向）。</li>
+<li><strong>T (Tangent - 切线):</strong> 沿着表面延伸的向量，<strong>通常与纹理坐标的 U 轴对齐</strong>。</li>
+<li><strong>B (Bitangent/Binormal - 副切线):</strong> 也沿着表面延伸，同时垂直于 T 和 N 的向量，<strong>通常与纹理坐标的 V 轴对齐</strong>。</li>
+</ul>
+<p>这个 TBN 矩阵作为一个<strong>基变换矩阵</strong>，将从法线贴图读取的法向量（该向量在切线空间中定义，相对于 T, B, N）转换到 T, B, N 自身所在的坐标空间（通常是世界空间或观察空间，用于光照计算）。这种方法利用了顶点和 UV 的局部梯度，常用的 MikkTspace 是建立在这个基本原理之上，但加入了更严格的规则和算法。简单的步骤如下：</p>
+<ul>
+<li>
+<p><strong>获取输入 (在片元着色器中):</strong></p>
+<ul>
+<li><strong>几何法线 (<code>N</code>):</strong> 当前片元处插值（重心坐标插值）计算得到的顶点法线。这个向量通常已经处于<strong>世界空间</strong>（或观察空间，取决于光照计算在哪个空间进行）。它需要被归一化。</li>
+<li><strong>三角形顶点和 UV 坐标 (用于计算 T 和 B):</strong>
+<ul>
+<li>三角形顶点的世界空间（或观察空间）位置 (<code>v0</code>, <code>v1</code>, <code>v2</code>)。</li>
+<li>三角形顶点的纹理坐标 (<code>uv0</code>, <code>uv1</code>, <code>uv2</code>)。</li>
+</ul>
+</li>
+<li><strong>切线空间法线 (<code>N_tangent</code>):</strong> 从法线贴图纹理中采样得到的法向量 (例如 <code>(nx, ny, nz)</code>)。这个向量需要从其纹理存储范围（例如 <code>[0,1]</code>）重映射到 <code>[-1,1]</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong>在世界/观察空间中计算切线 (<code>T</code>) 和副切线 (<code>B</code>):</strong></p>
+<ul>
+<li>计算三角形在世界/观察空间和 UV 空间中的边：
+<ul>
+<li><code>edge1_world = v1_world - v0_world</code></li>
+<li><code>edge2_world = v2_world - v0_world</code></li>
+<li><code>deltaUV1 = uv1 - uv0</code></li>
+<li><code>deltaUV2 = uv2 - uv0</code></li>
+</ul>
+</li>
+<li>利用这些边来求解 <code>T</code> 和 <code>B</code>。一个常用的公式是：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span> det_inv = <span class="hljs-number">1.0f</span> / (deltaUV<span class="hljs-number">1.</span>x * deltaUV<span class="hljs-number">2.</span>y - deltaUV<span class="hljs-number">2.</span>x * deltaUV<span class="hljs-number">1.</span>y);<br>T = <span class="hljs-built_in">normalize</span>((edge1_world * deltaUV<span class="hljs-number">2.</span>y - edge2_world * deltaUV<span class="hljs-number">1.</span>y) * det_inv);<br>B = <span class="hljs-built_in">normalize</span>((edge2_world * deltaUV<span class="hljs-number">1.</span>x - edge1_world * deltaUV<span class="hljs-number">2.</span>x) * det_inv); <span class="hljs-comment">// 通常会被重新计算或正交化</span><br></code></pre></td></tr></table></figure>
+这些 <code>T</code> 和 <code>B</code> 向量现在与 <code>edge1_world</code> 和 <code>edge2_world</code> 处于相同的空间（即世界空间或观察空间）。</li>
+</ul>
+</li>
+<li>
+<p><strong>正交化 TBN 基底 (格拉姆-施密特正交化过程):</strong></p>
+<ul>
+<li>几何法线 <code>N</code> 通常是最可靠的。</li>
+<li>调整 <code>T</code> 使其与 <code>N</code> 正交：<br>
+<code>T_orthogonal = normalize(T - dot(T, N) * N);</code></li>
+<li>重新计算 <code>B</code> 以确保它同时与 <code>T_orthogonal</code> 和 <code>N</code> 正交。需要保留坐标系的旋向性。一种检查和校正旋向性的方法是看 N 和 T_ortho 的叉积方向和 B 的方向是否相同 <code>if (dot(cross(N, T_orthogonal), B) &lt; 0.0f) &#123; T_orthogonal = T_orthogonal * -1.0f; &#125;</code>。然后 <code>B</code> 可以是 <code>B_orthogonal = normalize(cross(N, T_orthogonal))</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong>构建 TBN 矩阵:</strong></p>
+<ul>
+<li>TBN 矩阵由正交化后的 <code>T_orthogonal</code>, <code>B_orthogonal</code>, 和 <code>N</code> 作为其列向量（或行向量，取决于约定）。如果 T, B, N 是列向量，该矩阵将从切线空间转换到世界/观察空间。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 假设 T, B, N 是列向量</span><br>mat3 TBN_matrix = <span class="hljs-built_in">mat3</span>(<br>    T_orthogonal.x, B_orthogonal.x, N.x,<br>    T_orthogonal.y, B_orthogonal.y, N.y,<br>    T_orthogonal.z, B_orthogonal.z, N.z<br>);<br><span class="hljs-comment">// 或者如果你的矩阵库支持，可以直接这样：</span><br><span class="hljs-comment">// TBN_matrix.set_col(0, T_orthogonal);</span><br><span class="hljs-comment">// TBN_matrix.set_col(1, B_orthogonal);</span><br><span class="hljs-comment">// TBN_matrix.set_col(2, N);</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>转换切线空间法线:</strong></p>
+<ul>
+<li>将从法线贴图采样并重映射到 <code>[-1,1]</code> 的法线 <code>N_tangent</code> 乘以 <code>TBN_matrix</code>：<br>
+<code>N_world_or_view = normalize(TBN_matrix * N_tangent);</code><br>
+这个 <code>N_world_or_view</code> 就是最终在世界空间（或者如果 T, B, N 在观察空间，则是在观察空间）中的法向量。然后它被用于后续的光照计算。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-shadow-mapping">2. Shadow Mapping</h2>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52179126/article/details/147749156">https://blog.csdn.net/qq_52179126/article/details/147749156</a></p>
+<p>好的，我们来详细解析 Shadow Mapping 的两个主要 Pass（遍）中涉及到的坐标空间和深度记录。</p>
+<h3 id="第一个-pass渲染阴影图">第一个 Pass：渲染阴影图</h3>
+<ul>
+<li><strong>目标：</strong> 从光源的视角观察场景，并将场景中每个点相对于光源的深度信息记录到一张特殊的纹理中，这张纹理就是阴影图（Shadow Map）。</li>
+</ul>
+<p><strong>记录的深度所在空间：<strong>在这个 Pass 中，深度值最终是记录在</strong>光源的裁剪空间 (Light’s Clip Space) 经过透视除法后的归一化设备坐标 (Normalized Device Coordinates - NDC) 下的 Z 值，或者是经过进一步变换到适合纹理存储的范围（通常是 [0, 1]）</strong>。</p>
+<p>详细的空间变换流程如下：</p>
+<ul>
+<li><strong>模型空间:</strong> 场景中的物体顶点最初在其各自的模型空间中定义。</li>
+<li><strong>世界空间:</strong> 通过<strong>模型矩阵</strong>，顶点从模型空间变换到世界空间。<br>
+<code>P_world = ModelMatrix * P_model</code></li>
+<li><strong>光源的观察空间:</strong> 接下来，顶点从世界空间变换到光源的观察空间。这相当于将“摄像机”移动到光源的位置和朝向。这个变换使用<strong>光源的观察矩阵 (Light’s View Matrix)</strong>。<br>
+<code>P_light_view = LightViewMatrix * P_world</code></li>
+<li><strong>光源的裁剪空间:</strong> 然后，顶点从光源的观察空间变换到光源的裁剪空间。这个变换使用<strong>光源的投影矩阵 (Light’s Projection Matrix)</strong>。
+<ul>
+<li>对于方向光，通常使用正交投影 (Orthographic Projection)。</li>
+<li>对于点光源或聚光灯，通常使用透视投影 (Perspective Projection)。<br>
+<code>P_light_clip = LightProjectionMatrix * P_light_view</code></li>
+</ul>
+</li>
+<li><strong>归一化设备坐标 (NDC) 和深度值写入:</strong>
+<ul>
+<li>在顶点被变换到光源的裁剪空间后，会进行透视除法（如果使用的是透视投影），将坐标转换到归一化设备坐标 (NDC)。NDC 空间通常是一个立方体，例如 x, y, z 的范围都是 <code>[-1, 1]</code>，或者 z 的范围是 <code>[0, 1]</code>（具体取决于图形 API 和投影设置）。</li>
+<li>这个 NDC 坐标中的 <strong>z 值</strong> (通常经过从 <code>[-1, 1]</code> 到 <code>[0, 1]</code> 的简单映射) 就是要写入阴影图的深度值。它表示了表面点相对于光源的（归一化后的）深度。</li>
+<li>图形硬件会将这个深度值写入到阴影图纹理的对应像素位置。纹理的(u,v)坐标通常由 NDC 的(x,y)坐标经过变换得到（例如，从 <code>[-1, 1]</code> 映射到 <code>[0, 1]</code>）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>所以，Pass 1 记录的深度是光源视角下的归一化深度，本质上是光源裁剪空间/NDC 空间中的深度信息。</strong></p>
+<h3 id="第二个-pass渲染最终场景">第二个 Pass：渲染最终场景</h3>
+<ul>
+<li>
+<p><strong>目标：</strong> 从主摄像机的视角渲染场景，并利用第一个 Pass 生成的阴影图来判断场景中的每个片元是否处于阴影之中。</p>
+</li>
+<li>
+<p><strong>空间变换流程：</strong></p>
+<ul>
+<li>
+<p><strong>标准的相机渲染管线：</strong></p>
+<ul>
+<li><strong>模型空间 (Model Space)</strong> -&gt; <strong>世界空间 (World Space)</strong> (通过模型矩阵)</li>
+<li><strong>世界空间 (World Space)</strong> -&gt; <strong>相机的观察空间 (Camera’s View Space)</strong> (通过相机的观察矩阵)</li>
+<li><strong>相机的观察空间 (Camera’s View Space)</strong> -&gt; <strong>相机的裁剪空间 (Camera’s Clip Space)</strong> (通过相机的投影矩阵)</li>
+<li>然后进行透视除法到 NDC，光栅化，生成片元。</li>
+</ul>
+</li>
+<li>
+<p><strong>对每个片元进行阴影测试时的空间变换：</strong></p>
+<ul>
+<li>对于正在着色的每个片元，我们需要知道它在<strong>世界空间中的位置 (<code>P_world_fragment</code>)</strong>（用到的模型矩阵都是相同的）。这个位置通常是通过插值顶点着色器输出的世界空间顶点位置得到的。</li>
+<li><strong>将片元的世界空间位置转换到光源的纹理空间以采样阴影图：</strong>
+<ul>
+<li><strong>世界空间 (World Space)</strong> -&gt; <strong>光源的观察空间 (Light’s View Space):</strong><br>
+<code>P_fragment_light_view = LightViewMatrix * P_world_fragment</code></li>
+<li><strong>光源的观察空间 (Light’s View Space)</strong> -&gt; <strong>光源的裁剪空间 (Light’s Clip Space):</strong><br>
+<code>P_fragment_light_clip = LightProjectionMatrix * P_fragment_light_view</code></li>
+<li><strong>透视除法到光源的 NDC 空间:</strong><br>
+<code>P_fragment_light_ndc.xyz = P_fragment_light_clip.xyz / P_fragment_light_clip.w</code></li>
+<li><strong>从光源的 NDC 坐标计算阴影图的 UV 坐标和当前片元从光源看的深度：</strong>
+<ul>
+<li><code>shadowMapUV.x = P_fragment_light_ndc.x * 0.5 + 0.5</code></li>
+<li><code>shadowMapUV.y = P_fragment_light_ndc.y * 0.5 + 0.5</code> (或者 <code>1.0 - (...)</code>，取决于纹理坐标习惯)</li>
+<li><code>currentDepthFromLight = P_fragment_light_ndc.z</code> (也可能需要 <code>* 0.5 + 0.5</code> 将 <code>[-1,1]</code> 映射到 <code>[0,1]</code>)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>深度比较：</strong>
+<ul>
+<li>使用 <code>shadowMapUV</code> 坐标从阴影图中采样得到存储的深度值 (<code>depthInShadowMap</code>)。</li>
+<li>比较 <code>currentDepthFromLight</code> 和 <code>depthInShadowMap</code> (通常会加上一个小的 bias 以避免自阴影问题)。如果 <code>currentDepthFromLight &gt; depthInShadowMap + bias</code>，则该片元在阴影中。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>在第二个 Pass 中，顶点着色器需要为片元着色器准备进行阴影计算和光照计算所需的信息。通常有两种主流做法：</p>
+<ul>
+<li>
+<p><strong>做法一：顶点着色器计算光源空间的坐标，片元着色器计算世界坐标（或从顶点着色器接收）</strong></p>
+</li>
+<li>
+<p><strong>顶点着色器会做以下事情：</strong></p>
+<ul>
+<li><strong>正常的顶点变换：</strong>
+<ul>
+<li>将顶点从模型空间变换到世界空间 (<code>v_worldPos = modelMatrix * v_modelPos</code>)。</li>
+<li>将顶点从世界空间变换到观察空间 (<code>v_viewPos = viewMatrix * v_worldPos</code>)。</li>
+<li>将顶点从观察空间变换到裁剪空间 (<code>gl_Position = projectionMatrix * v_viewPos</code>)。这是最终输出给光栅化器的顶点位置。</li>
+</ul>
+</li>
+<li><strong>计算并传递用于阴影图采样的坐标：</strong>
+<ul>
+<li>将顶点的<strong>世界空间位置</strong> (<code>v_worldPos</code>) 变换到光源的裁剪空间。这个变换通常用一个组合了光源的观察矩阵和光源的投影矩阵的矩阵（我们称之为 <code>lightSpaceMatrix</code> 或 <code>shadowMatrix</code>）来完成。</li>
+<li><code>v_lightSpacePos = lightSpaceMatrix * v_worldPos</code></li>
+</ul>
+</li>
+<li><strong>输出给片元着色器 (作为 varying/out 变量)：</strong>
+<ul>
+<li><code>v_worldPos</code> (顶点的世界空间位置，用于后续光照计算)</li>
+<li><code>v_viewPos</code> 或 <code>v_worldNormal</code> (世界空间法线，也用于光照计算，通常也会从模型空间变换过来)</li>
+<li><code>v_texCoord</code> (纹理坐标，如果需要)</li>
+<li><strong><code>v_lightSpacePos</code> (顶点在光源裁剪空间的位置)</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>片元着色器会做以下事情：</strong></p>
+<ul>
+<li><strong>接收插值后的数据：</strong>
+<ul>
+<li><code>f_worldPos</code> (插值后的片元世界空间位置)</li>
+<li><code>f_lightSpacePos</code> (插值后的片元在光源裁剪空间的位置)</li>
+<li><code>f_worldNormal</code> (插值后的世界空间法线，记得归一化)</li>
+<li><code>f_texCoord</code> (插值后的纹理坐标)</li>
+</ul>
+</li>
+<li><strong>进行阴影计算：</strong>
+<ul>
+<li>对 <code>f_lightSpacePos</code> 进行透视除法，得到 NDC 坐标 (<code>f_lightSpacePos.xyz / f_lightSpacePos.w</code>)。</li>
+<li>将 NDC 坐标的 XY 分量变换到 <code>[0, 1]</code> 范围作为阴影图的 UV 坐标。</li>
+<li>NDC 坐标的 Z 分量（同样可能需要变换到 <code>[0, 1]</code> 范围）是当前片元从光源视角看的深度 <code>currentDepthFromLight</code>。</li>
+<li>使用 UV 坐标从阴影图纹理中采样得到存储的深度 <code>depthInShadowMap</code>。</li>
+<li>比较 <code>currentDepthFromLight</code> 和 <code>depthInShadowMap</code> (加上 bias)，得到一个阴影系数 <code>shadowFactor</code> (0 表示在阴影中，1 表示被照亮，PCF 的结果则介于 0 和 1 之间)。</li>
+</ul>
+</li>
+<li><strong>进行光照计算：</strong>
+<ul>
+<li>使用 <code>f_worldPos</code>、<code>f_worldNormal</code>、光源信息、相机位置等进行标准的光照计算（例如 Phong, Blinn-Phong 模型计算环境光、漫反射、镜面反射）。</li>
+</ul>
+</li>
+<li><strong>组合结果：</strong>
+<ul>
+<li>将计算得到的光照颜色乘以 <code>shadowFactor</code>。</li>
+<li><code>finalColor = ambientColor + shadowFactor * (diffuseColor + specularColor);</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>做法二：片元着色器从世界坐标重新计算光源空间坐标</strong></p>
+<ul>
+<li><strong>顶点着色器：</strong></li>
+<li>计算正常的顶点变换到裁剪空间 (<code>gl_Position</code>)。</li>
+<li><strong>输出给片元着色器：</strong>
+<ul>
+<li><code>v_worldPos</code></li>
+<li><code>v_worldNormal</code></li>
+<li><code>v_texCoord</code></li>
+<li><strong>不直接传递 <code>v_lightSpacePos</code></strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>片元着色器：</strong></p>
+<ul>
+<li><strong>接收插值后的数据：</strong>
+<ul>
+<li><code>f_worldPos</code></li>
+<li><code>f_worldNormal</code></li>
+<li><code>f_texCoord</code></li>
+</ul>
+</li>
+<li><strong>在片元着色器中计算光源空间坐标：</strong>
+<ul>
+<li><code>f_lightSpacePos = lightSpaceMatrix * vec4(f_worldPos, 1.0);</code></li>
+<li>这里的 <code>lightSpaceMatrix</code> 需要作为 uniform 变量传递给片元着色器。</li>
+</ul>
+</li>
+<li><strong>进行阴影计算（同做法一）。</strong></li>
+<li><strong>进行光照计算（同做法一）。</strong></li>
+<li><strong>组合结果（同做法一）。</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>哪种做法更好？</strong></p>
+<ul>
+<li><strong>做法一（在顶点着色器中计算 <code>v_lightSpacePos</code>）通常更高效。</strong> 因为顶点数量远少于片元数量，在顶点着色器中进行一次矩阵乘法，然后让硬件光栅化器对结果进行插值，比在每个片元上都执行一次矩阵乘法要快。</li>
+<li><strong>做法二</strong> 更简单一些，顶点着色器传递的数据较少，但片元着色器的计算量稍大。对于非常复杂的场景或者需要极高精度插值的特定情况（虽然透视校正插值通常能很好地处理），可能会考虑这种方式，但性能上通常不如做法一。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>整体流程？（见上面第一个链接，注意第二个 pass 要把相机空间的点转换到灯光空间里再对比深度）</li>
+<li>light pass 用什么投影？（见<a href="/2025/03/30/interview-review/"> Interview Review</a>）。这里使用定向光，所以用正交投影，假定光源位于光方向上的某个位置即可。</li>
+<li>可能出现哪些瑕疵？什么原因（shadow map 分辨率不足、浮点数精度不足：连续的像素位置很接近，则有的像素大于 shadow map，有的则小于 shadow map，从而产生了离散的显示）？如何解决？如何优化 Shadow Mapping（加偏移、PCF、CSM）？</li>
+<li>还知道有哪些阴影算法？</li>
+</ul>
+<h2 id="3-ambient-occlusion">3. Ambient Occlusion</h2>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/545571616">https://zhuanlan.zhihu.com/p/545571616</a><br>
+<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42987967/article/details/125011820?fromshare=blogdetail&amp;sharetype=blogdetail&amp;sharerId=125011820&amp;sharerefer=PC&amp;sharesource=kiara_kairan&amp;sharefrom=from_link">https://blog.csdn.net/qq_42987967/article/details/125011820?fromshare=blogdetail&amp;sharetype=blogdetail&amp;sharerId=125011820&amp;sharerefer=PC&amp;sharesource=kiara_kairan&amp;sharefrom=from_link</a></p>
+<p>(1) 从半球上随机取 1000 个点作为光源（半球通过令所有小于 0 的 y=-y 实现），记录不同光源照射模型产生的 shadow mapping 效果（比如某点可被照射到则该点记录为 1，否则记录为 0），将多个光源照射结果累加得到最终的不均匀环境光纹理。</p>
+<p>可以看出这种方法得到不均匀环境光纹理的时间成本很大，因为要对每个光源进行两次处理(一次在 shadow 坐标系求 shadowbuffer，一次在 camera 坐标系通过 shadowbuffer 更新环境光纹理图)。</p>
+<p>(2) 通过一种类似于<strong>基于地平线的环境光遮蔽 (Horizon-Based Ambient Occlusion, HBAO)</strong> 或屏幕空间射线步进的方法来实现类似 SSAO 的效果。它并不是传统 SSAO 中在法线半球内随机采样点然后比较深度的方法，而是通过在屏幕空间从每个像素发射射线来计算“遮蔽度”。</p>
+<ul>
+<li>首先渲染场景以获取深度图（Z-buffer）。</li>
+<li>然后，对于屏幕上的每个像素点，它在多个 2D 屏幕空间方向上“观察”周围的深度值（将其视为高度图），即向八个方向发射射线（步进 1000 步）。</li>
+<li>它计算每个方向上最高的“地平线仰角”（<code>max_elevation_angle</code>），计算射线当前到达的点和起点的距离以及二者的高度差，以此计算 tan，并通过 atan 得到仰角。</li>
+<li>基于这些地平线仰角，它估算该点被周围“地形”（由深度图表示）遮挡的程度（遮蔽因子=pi/2-max_angle，8 个方向取平均）。</li>
+<li>最后，根据这个遮蔽程度来确定像素的亮度，从而产生环境光遮蔽的效果（遮蔽因子*255 写入纹理）。用 pow(遮蔽因子,n)，n 越大可使得凹凸更明显。</li>
+</ul>
+<p>这种方法与传统的 SSAO 在采样策略上有所不同（2D 射线步进 vs 3D 半球随机采样），但其核心思想——利用屏幕空间的深度信息来估算环境光遮蔽——是相同的。</p>
+<h2 id="4-obj-文件里都有什么内容">4. .OBJ 文件里都有什么内容？</h2>
+<ul>
+<li>
+<p><strong><code>#</code> - 注释</strong>:</p>
+<ul>
+<li>以 <code>#</code> 开头的行被视作注释，会被解析器忽略。用来添加说明或元数据。</li>
+<li>示例: <code># This is a comment</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>v</code> - 几何顶点</strong>:</p>
+<ul>
+<li>定义模型中每个顶点的三维空间坐标 (x, y, z)。</li>
+<li>可选的第四个分量 <code>w</code>（齐次坐标），默认为 1.0，通常用于有理样条（NURBS）。</li>
+<li>格式: <code>v x y z [w]</code></li>
+<li>示例: <code>v 1.000000 -1.000000 -1.000000</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>vt</code> - 纹理坐标</strong>:</p>
+<ul>
+<li>定义每个纹理顶点的二维坐标 (u, v)，用于将 2D 纹理图像映射到 3D 模型的表面。</li>
+<li>这些坐标通常在 0 到 1 的范围内。</li>
+<li>可选的第三个分量 <code>w</code>（用于 3D 纹理），默认为 0。</li>
+<li>格式: <code>vt u v [w]</code></li>
+<li>示例: <code>vt 0.500000 0.500000</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>vn</code> - 顶点法线</strong>:</p>
+<ul>
+<li>定义每个顶点法线的方向向量 (x, y, z)。法线用于光照计算，决定表面的朝向和光滑度。</li>
+<li>这些向量通常是单位向量（长度为 1）。</li>
+<li>格式: <code>vn x y z</code></li>
+<li>示例: <code>vn 0.000000 0.000000 -1.000000</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>f</code> - 面</strong>:</p>
+<ul>
+<li>定义模型的表面，通过连接之前定义的顶点来构成多边形（通常是三角形或四边形，但也支持更多顶点的多边形）。</li>
+<li>面定义的索引是<strong>基于 1 的</strong>，并且是相对于文件中<code>v</code>, <code>vt</code>, <code>vn</code>定义的顺序。</li>
+<li>面的定义可以有多种格式，取决于是否包含纹理坐标和法线信息：
+<ul>
+<li><code>f v1 v2 v3 ...</code>: 只包含顶点索引。</li>
+<li><code>f v1/vt1 v2/vt2 v3/vt3 ...</code>: 包含顶点索引和对应的纹理坐标索引。</li>
+<li><code>f v1//vn1 v2//vn2 v3//vn3 ...</code>: 包含顶点索引和对应的顶点法线索引（注意中间是两个斜杠，表示纹理坐标索引缺失）。</li>
+<li><code>f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...</code>: 包含顶点索引、纹理坐标索引和顶点法线索引。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>mtllib filename</code> - 材质库</strong>:</p>
+<ul>
+<li>指定一个或多个外部的 <code>.mtl</code> 材质库文件。这个文件包含了模型所用材质的详细定义（如颜色、纹理贴图、光照属性等）。</li>
+<li>示例: <code>mtllib mymaterials.mtl</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>usemtl material_name</code> - 使用材质</strong>:</p>
+<ul>
+<li>指定后续定义的面将使用在 <code>.mtl</code> 文件中定义的名为 <code>material_name</code> 的材质。</li>
+<li>示例: <code>usemtl ShinyRedPlastic</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>o object_name</code> - 对象名称 (Object Name)</strong>:</p>
+</li>
+<li>
+<p>为模型的某个部分或整个模型定义一个名称。用于组织场景中的多个对象。</p>
+</li>
+<li>
+<p>示例: <code>o MyCube</code></p>
+</li>
+<li>
+<p><strong><code>g group_name</code> - 组名称 (Group Name)</strong>:</p>
+<ul>
+<li>将后续的面归入一个或多个命名的组。这有助于组织模型的不同部分，例如，可以对不同的组应用不同的平滑设置。</li>
+<li>示例: <code>g Bodywork</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>s group_number</code> 或 <code>s off</code> - 平滑组 (Smoothing Group)</strong>:</p>
+<ul>
+<li>指定后续的面属于哪个平滑组。同一个平滑组内的面，在共享边上的法线会被平滑处理，使得表面看起来更圆滑。如果设置为 <code>off</code> 或不同的平滑组号，则边会显得硬朗（faceted）。</li>
+<li>示例: <code>s 1</code> 或 <code>s off</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>总结：</strong></p>
+<ul>
+<li><strong>几何数据</strong>: 顶点的 XYZ 位置。</li>
+<li><strong>纹理映射数据</strong>: 顶点的 UV(W)坐标。</li>
+<li><strong>法线数据</strong>: 顶点的法线向量。</li>
+<li><strong>面（多边形）定义</strong>: 如何将上述顶点连接起来形成表面。</li>
+<li><strong>材质引用</strong>: 链接到外部.MTL 文件以及指定面使用哪个材质。</li>
+<li><strong>组织结构</strong>: 对象名和组名，用于组织复杂的模型。</li>
+</ul>
+<ol start="5">
+<li>MVP 矩阵分别是如何构造的？点用几维表示（为什么）？</li>
+</ol>
+<p>注意这里应该在用 model 矩阵处理点之前把点变为 4 维的(x,y,z,1)。</p>
+<ol start="6">
+<li>.tga 是有透明度的，有用到透明度吗？</li>
+</ol>
+<h1 id="mini-ray-tracer">Mini Ray Tracer</h1>
+<h2 id="1-bvh-是如何构造的树结构">1. BVH 是如何构造的？树结构？</h2>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lv-anchoret/p/10284085.html">https://www.cnblogs.com/lv-anchoret/p/10284085.html</a><br>
+<a target="_blank" rel="noopener" href="https://jishuzhan.net/article/1740177616985395201">https://jishuzhan.net/article/1740177616985395201</a></p>
+<p>build：随机选择一个轴（选最长的轴）；使用库 qsort 对物体进行排序（根据所选轴的坐标排序）；在每个子树中放一半物体。如果只有一个元素，在每个子树中复制它。两个物体的话，一边一个。明确检查三个元素并且只跟随一个递归。<br>
+hit：树结构，遍历左子树遍历右子树，返回离 eye 最近的撞击点信息（最小的 t）</p>
+
                 
               </div>
             
@@ -330,7 +725,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>[object Object]</div>
+      <div>Resources to review projects</div>
       <div>http://example.com/2025/05/20/mini-ray-tracer/</div>
     </div>
     <div class="license-meta">
@@ -370,29 +765,6 @@
 
 
 
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/05/21/cpp-templates/" title="C++ Template - Why C++ templates are usually put in header files?">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">C++ Template - Why C++ templates are usually put in header files?</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/05/08/volumetric-clouds/" title="[object Object]">
-                        <span class="hidden-mobile">[object Object]</span>
-                        <span class="visible-mobile">Next</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
               
             </div>
 
