@@ -29,7 +29,7 @@
 <meta property="og:description" content="之前面试中碰到手撕归并排序的问题，故在此总结常见排序算法和相关的题目。 插入排序（比较排序） — 熟悉 — 基本思想 每次将一个数字插入一个有序的数组里，成为一个长度更长的有序数组，有限次操作以后，数组整体有序。 代码实现 123456789101112131415161718def insertion_sort(nums):    list_len &#x3D; len(nums)    # 循环不变量：">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-06-28T13:17:40.261Z">
-<meta property="article:modified_time" content="2025-07-01T12:40:24.653Z">
+<meta property="article:modified_time" content="2025-07-02T04:09:54.975Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="Algorithms">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.9k words
+          11k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          83 mins
+          95 mins
         
       </span>
     
@@ -297,6 +297,71 @@
 <p>用插入排序对链表排序(<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/insertion-sort-list/description/">https://leetcode.cn/problems/insertion-sort-list/description/</a>)。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Definition for singly-linked list.</span><br><span class="hljs-comment"># class ListNode:</span><br><span class="hljs-comment">#     def __init__(self, val=0, next=None):</span><br><span class="hljs-comment">#         self.val = val</span><br><span class="hljs-comment">#         self.next = next</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">insertionSortList</span>(<span class="hljs-params">self, head: <span class="hljs-type">Optional</span>[ListNode]</span>) -&gt; <span class="hljs-type">Optional</span>[ListNode]:<br>        <span class="hljs-comment"># a dummy head pointing to original head so that we won&#x27;t lose the head of the list</span><br>        dummyHead = ListNode(<span class="hljs-number">0</span>)<br>        dummyHead.<span class="hljs-built_in">next</span> = head<br>        cur = head.<span class="hljs-built_in">next</span><br>        cur_sorted = head <span class="hljs-comment"># pointing to the end of the sorted part</span><br>        <span class="hljs-keyword">while</span> cur:<br>            <span class="hljs-keyword">if</span> cur_sorted.val &lt;= cur.val:<br>                <span class="hljs-comment"># current value is greater than the greatest value in the sorted part</span><br>                <span class="hljs-comment"># then no need to sort, just move the end</span><br>                cur_sorted = cur_sorted.<span class="hljs-built_in">next</span><br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-comment"># search from the head to the end of the sorted part until find a node whose next value is greater than current value</span><br>                <span class="hljs-comment"># insert the current node after that node</span><br>                prev = dummyHead<br>                <span class="hljs-keyword">while</span> prev.<span class="hljs-built_in">next</span>.val &lt; cur.val:<br>                    prev = prev.<span class="hljs-built_in">next</span><br>                <span class="hljs-comment"># remove current node from the remaining list</span><br>                cur_sorted.<span class="hljs-built_in">next</span> = cur.<span class="hljs-built_in">next</span><br>                <span class="hljs-comment"># insert between prev and its next</span><br>                cur.<span class="hljs-built_in">next</span> = prev.<span class="hljs-built_in">next</span><br>                prev.<span class="hljs-built_in">next</span> = cur<br>            cur = cur_sorted.<span class="hljs-built_in">next</span><br>        <span class="hljs-keyword">return</span> dummyHead.<span class="hljs-built_in">next</span><br></code></pre></td></tr></table></figure>
 <h1 id="堆排序">堆排序</h1>
+<p>—<strong>了解</strong>—</p>
+<h2 id="堆的定义">堆的定义</h2>
+<p>一个标准的堆必须满足以下两个核心属性：</p>
+<ul>
+<li>
+<p>A. 结构属性：堆在逻辑上必须是一棵完全二叉树。</p>
+<ul>
+<li>完全二叉树：一棵二叉树，除了最底层外，其他所有层都被完全填满，并且最底层的节点都从左到右连续地排列，中间没有空缺。<br>
+这个结构属性至关重要，因为它允许我们用一个数组来表示这棵树，而不需要复杂的指针结构。数组中的元素和树节点之间有固定的映射关系：</li>
+<li>对于数组中任意位置 i 的节点：<br>
+其父节点的索引是：floor((i - 1) / 2) (在编程中通常是 (i - 1) // 2)<br>
+其左子节点的索引是：2 _ i + 1<br>
+其右子节点的索引是：2 _ i + 2</li>
+</ul>
+</li>
+<li>
+<p>B. 顺序属性：堆中任意节点的值必须与其子节点的值存在一种特定的大小关系。根据这种关系，堆分为两种：</p>
+<ul>
+<li>最大堆：<br>
+定义：对于任意节点 i，其值 A[i] 大于或等于其所有子节点的值。<br>
+特性：堆顶（根节点，即数组的第一个元素 A[0]）必然是整个堆中的最大值。</li>
+<li>最小堆：<br>
+定义：对于任意节点 i，其值 A[i] 小于或等于其所有子节点的值。<br>
+特性：堆顶必然是整个堆中的最小值。</li>
+<li>注意：堆只保证父子节点间的顺序关系，不保证兄弟节点之间或堂兄弟节点之间的顺序关系。</li>
+</ul>
+</li>
+</ul>
+<h2 id="堆排序的过程">堆排序的过程</h2>
+<p>通常用最大堆实现升序排序，最小堆实现降序排序。下面以最大堆为例。示意图可参考<a target="_blank" rel="noopener" href="https://leetcode.cn/problems/sort-an-array/solutions/1311934/duo-chong-pai-xu-yi-wang-da-jin-kuai-pai-wgz4">https://leetcode.cn/problems/sort-an-array/solutions/1311934/duo-chong-pai-xu-yi-wang-da-jin-kuai-pai-wgz4</a></p>
+<ul>
+<li>
+<p>阶段一：建堆<br>
+首先，需要将无序的输入数组转换成一个最大堆。这个过程被称为“建堆”。</p>
+<ul>
+<li>方法：<strong>从最后一个非叶子节点开始</strong>，向前遍历（从右到左、从下到上）到根节点，对每个节点执行一次**“堆化”（Heapify）**操作。最后一个非叶子节点的索引是 (n // 2) - 1，其中 n 是数组长度。</li>
+<li>堆化 (Heapify)：这是一个核心的辅助操作，也叫“下沉”（sift-down）。它的功能是：假设一个节点的左右子树都已经是堆，但该节点本身可能不满足堆属性（比如比它的子节点小），heapify 操作会通过比较和交换，让这个节点“下沉”到正确的位置，从而使以它为根的整个子树都满足堆属性。</li>
+<li>完成建堆后，数组中的最大值就已经位于堆顶，即 nums[0]。</li>
+</ul>
+</li>
+<li>
+<p>阶段二：排序<br>
+这个阶段是一个循环过程，不断地从堆中取出最大值，并放到它最终应该在的位置。</p>
+<ul>
+<li>取出最大值：将堆顶元素 nums[0]（当前堆中的最大值）与堆的最后一个元素 nums[k] 进行交换。</li>
+<li>放置最大值：经过交换，当前的最大值已经被放到了数组的末尾（k 的位置）。这个位置就是它排序后的最终位置。我们可以认为这部分已经“排序完成”，在后续操作中不再考虑它。</li>
+<li>缩小堆：将堆的大小减一（逻辑上将已排序的末尾元素排除出堆的范围）。</li>
+<li>维护堆：交换后，一个新的、可能很小的元素被换到了堆顶，破坏了最大堆的属性。因此，需要对新的堆顶（索引 0）执行一次**“堆化”（Heapify）**操作，让新的最大值“浮”上来，恢复最大堆的结构。</li>
+<li>重复：不断重复步骤 1-4，每次都将当前堆的最大值换到堆的末尾，直到堆的大小变为 1。</li>
+<li>当整个过程结束后，原数组就变成了一个升序排列的有序数组。</li>
+</ul>
+</li>
+</ul>
+<h2 id="堆排序代码实现">堆排序代码实现</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">sortArray</span>(<span class="hljs-params">self, nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]:<br><br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">max_heapify</span>(<span class="hljs-params">heap, root, heap_size</span>):             <span class="hljs-comment"># 大顶堆</span><br>            <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">            heap: list，待排序的堆（数组）</span><br><span class="hljs-string">            root: int，当前节点的下标，当前节点为根（考虑以其为根的子树）</span><br><span class="hljs-string">            heap_size: int，堆的大小</span><br><span class="hljs-string">            &quot;&quot;&quot;</span><br>            largest = root                                  <span class="hljs-comment"># largest 记录最大元素的位置，默认为root节点</span><br>            <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>                left, right = <span class="hljs-number">2</span>*root+<span class="hljs-number">1</span>, <span class="hljs-number">2</span>*root+<span class="hljs-number">2</span>            <span class="hljs-comment"># 左右子节点</span><br>                <span class="hljs-keyword">if</span> left &lt; heap_size <span class="hljs-keyword">and</span> heap[largest] &lt; heap[left]:         <span class="hljs-comment"># 左子节点元素值大于largest对应元素值</span><br>                    largest = left                                          <span class="hljs-comment"># largest指向left</span><br>                <span class="hljs-keyword">if</span> right &lt; heap_size <span class="hljs-keyword">and</span> heap[largest] &lt; heap[right]:       <span class="hljs-comment"># 右子节点元素值大于largest对应元素值</span><br>                    largest = right                                         <span class="hljs-comment"># largest指向right</span><br><br>                <span class="hljs-keyword">if</span> largest != root:                                         <span class="hljs-comment"># 左或右子节点元素值大于root对应元素值</span><br>                    heap[root], heap[largest] = heap[largest], heap[root]   <span class="hljs-comment"># 调整：root与largest对应元素互换</span><br>                    root = largest                                          <span class="hljs-comment"># 往下走：largest，即上述子节点元素较大的位置</span><br>                <span class="hljs-keyword">else</span>:<br>                    <span class="hljs-keyword">break</span><br><br>        n = <span class="hljs-built_in">len</span>(nums)                                       <span class="hljs-comment"># 元素总数目，即初始堆的大小</span><br><br>        <span class="hljs-comment"># 建堆【大顶堆】：自下而上</span><br>        <span class="hljs-keyword">for</span> root <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n//<span class="hljs-number">2</span>-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>):                  <span class="hljs-comment"># 自下而上地从第一个非叶子节点开始建堆</span><br>            max_heapify(nums, root, n)<br><br>        <span class="hljs-comment"># 排序：依次将堆顶元素（当前最大值）放置到尾部，并调整堆</span><br>        <span class="hljs-keyword">for</span> tail <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>):                      <span class="hljs-comment"># tail从n-1开始，依次往前</span><br>            nums[<span class="hljs-number">0</span>], nums[tail] = nums[tail], nums[<span class="hljs-number">0</span>]       <span class="hljs-comment"># nums[0]为堆顶元素（当前最大值），将其放置到尾部tail</span><br>            max_heapify(nums, <span class="hljs-number">0</span>, tail)                      <span class="hljs-comment"># tail-1变成新的尾部（heap_size=tail），并从堆顶0开始调整堆</span><br><br>        <span class="hljs-keyword">return</span> nums<br></code></pre></td></tr></table></figure>
+<h2 id="堆排序复杂度">堆排序复杂度</h2>
+<ul>
+<li>
+<p>时间复杂度：O(nlogn)，其中 n=length(nums)，即数组的长度。<br>
+初始化建堆的时间复杂度为 O(n)，建完堆以后每次调整（即 max_heapify）的时间复杂度为 O(logn)，需要 n 次调整，因此总时间复杂度为 O(n+nlogn)=O(nlogn)。</p>
+</li>
+<li>
+<p>空间复杂度：O(1)，原地排序。</p>
+</li>
+</ul>
 <h1 id="归并排序比较排序">归并排序（比较排序）</h1>
 <p>—<strong>重点</strong>—</p>
 <h2 id="归并排序基本思想">归并排序基本思想</h2>
