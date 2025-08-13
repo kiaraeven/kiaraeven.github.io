@@ -21,13 +21,15 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta property="og:type" content="article">
+    <meta name="description" content="1. OpenGL 接口封装 项目 RHI？ 2. 阴影 （1）Shadow Map 遇到哪些问题？如何处理？采样精度不足指的是？精度如果用 float 表达其实已经够了 如何把相机采样的点转换到光源空间 （2）PCF （3）CSM （4）其他阴影算法 pcss（原理、切比雪夫什么时候精确） 3. 透明渲染 （1）OIT 实现 （2）常见的 OIT 算法？比链表式更节省时间的？ （怎么处理预排序与">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Summary and review of My OpenGL-based renderer">
 <meta property="og:url" content="http://example.com/2025/08/12/NextRendererSummary/index.html">
 <meta property="og:site_name" content="Go7">
+<meta property="og:description" content="1. OpenGL 接口封装 项目 RHI？ 2. 阴影 （1）Shadow Map 遇到哪些问题？如何处理？采样精度不足指的是？精度如果用 float 表达其实已经够了 如何把相机采样的点转换到光源空间 （2）PCF （3）CSM （4）其他阴影算法 pcss（原理、切比雪夫什么时候精确） 3. 透明渲染 （1）OIT 实现 （2）常见的 OIT 算法？比链表式更节省时间的？ （怎么处理预排序与">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-12T15:56:22.463Z">
+<meta property="article:modified_time" content="2025-08-13T16:12:38.609Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -225,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          0 words
+          692 words
         
       </span>
     
@@ -236,7 +238,7 @@
         
         
         
-          1 mins
+          6 mins
         
       </span>
     
@@ -278,7 +280,81 @@
             
               <div class="markdown-body">
                 
-                
+                <h1 id="1-opengl-接口封装">1. OpenGL 接口封装</h1>
+<p>项目 RHI？</p>
+<h1 id="2-阴影">2. 阴影</h1>
+<h2 id="1shadow-map">（1）Shadow Map</h2>
+<p>遇到哪些问题？如何处理？采样精度不足指的是？精度如果用 float 表达其实已经够了</p>
+<p>如何把相机采样的点转换到光源空间</p>
+<h2 id="2pcf">（2）PCF</h2>
+<h2 id="3csm">（3）CSM</h2>
+<h2 id="4其他阴影算法">（4）其他阴影算法</h2>
+<p>pcss（原理、切比雪夫什么时候精确）</p>
+<h1 id="3-透明渲染">3. 透明渲染</h1>
+<h2 id="1oit-实现">（1）OIT 实现</h2>
+<h2 id="2常见的-oit-算法比链表式更节省时间的">（2）常见的 OIT 算法？比链表式更节省时间的？</h2>
+<p>（怎么处理预排序与场景中其他物体的交互性？什么是顶点命中率？）</p>
+<h2 id="3其他透明算法">（3）其他透明算法</h2>
+<h2 id="4深度剥离意义-流程">（4）深度剥离（意义、流程）</h2>
+<h2 id="5半透明渲染">（5）半透明渲染</h2>
+<h1 id="4-pbr">4. PBR</h1>
+<h2 id="1pbr-实现">（1）PBR 实现</h2>
+<p>NFG 各项</p>
+<p>pbr 基于物理的相机、材质、环境光分别是什么</p>
+<p>为什么 pbr 中的输入不能是 gamma 校正过的？为什么要最后校正？</p>
+<h2 id="2ibl-与-pbr-结合">（2）ibl 与 PBR 结合</h2>
+<p>天空盒立方体贴图如何采样？用什么坐标系？</p>
+<p>IBL 处理镜面和非镜面？</p>
+<p>IBL 中加速的 trick？</p>
+<p>pbr 中如何区分不同材质？</p>
+<h2 id="3">（3）</h2>
+<h1 id="5-纹理">5. 纹理</h1>
+<h2 id="1虚拟纹理与三维纹理">（1）虚拟纹理与三维纹理</h2>
+<h2 id="2mipmap-原理会增加开销吗">（2）mipmap 原理？会增加开销吗？</h2>
+<h2 id="3mipmap-有哪些缺点如何精准采样">（3）mipmap 有哪些缺点？如何精准采样？</h2>
+<h2 id="410241000-的-rgba8-在显存存储占用的内存">（4）1024*1000 的 rgba8 在显存存储占用的内存</h2>
+<h2 id="5导入一张很大的-png-需要在-cpu-gpu-做哪些操作">（5）导入一张很大的 png 需要在 cpu、gpu 做哪些操作</h2>
+<h2 id="6对于不透明-png-的导入有什么优化cpu-gpu">（6）对于不透明 png 的导入有什么优化？（cpu、gpu）</h2>
+<h2 id="7给一张纹理接下来的流程是怎样的封装了哪些接口">（7）给一张纹理接下来的流程是怎样的？封装了哪些接口？</h2>
+<p>创建纹理时传递的数据格式是什么？</p>
+<h2 id="8动态合批">（8）动态合批</h2>
+<h1 id="6-场景结构">6. 场景结构</h1>
+<h2 id="1渲染场景是怎么组织的有哪些节点">（1）渲染场景是怎么组织的？有哪些节点？</h2>
+<h2 id="2大型场景中如何避免循环引用不是加-weakptr-这么简单">（2）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
+<h1 id="7-hdr">7. hdr</h1>
+<h2 id="1伽马空间和-srgb-空间的区别">（1）伽马空间和 srgb 空间的区别</h2>
+<h2 id="2高斯模糊几个-pass">（2）高斯模糊（几个 pass？）</h2>
+<h2 id="3bloom">（3）bloom</h2>
+<h1 id="8-glsl">8. glsl</h1>
+<h2 id="1手写判断一个点在方向内外">（1）手写判断一个点在方向内/外</h2>
+<h1 id="9-剔除技术">9. 剔除技术</h1>
+<h2 id="1视锥体剔除cpugpu">（1）视锥体剔除（cpu/gpu）</h2>
+<h2 id="2背面剔除">（2）背面剔除</h2>
+<h1 id="10-ao-算法">10. AO 算法</h1>
+<h2 id="1-ssao">(1) SSAO</h2>
+<h2 id="2-其他-ao-算法">(2) 其他 AO 算法</h2>
+<h1 id="11-aa-算法">11. AA 算法</h1>
+<h2 id="1fxaa">（1）FXAA</h2>
+<h2 id="2taa">（2）TAA</h2>
+<h2 id="3其他-aa">（3）其他 AA</h2>
+<p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
+<h1 id="12">12.</h1>
+<h1 id="杂项">杂项</h1>
+<h2 id="1项目坐标系">（1）项目坐标系</h2>
+<h2 id="2四元数">（2）四元数</h2>
+<h2 id="3几何着色器用在哪里了">（3）几何着色器用在哪里了？</h2>
+<h2 id="4early-z-pre-z-z-fighting">（4）early-z / pre-z / z-fighting</h2>
+<p>片元着色器什么情况下会使 early-z 失效？</p>
+<h2 id="5ndc-到屏幕坐标的变换">（5）ndc 到屏幕坐标的变换</h2>
+<h2 id="6opengl-对图像旋转缩放">（6）opengl 对图像旋转缩放</h2>
+<h2 id="7取-a-的前-4-个字节和-b-的后-4-个字节然后组成一个新的字节如何操作">（7）取 a 的前 4 个字节和 b 的后 4 个字节，然后组成一个新的字节，如何操作？</h2>
+<h2 id="8gltf-中的内容obj-中的内容">（8）.gltf 中的内容？.obj 中的内容？</h2>
+<h2 id="9项目中是否用到过智能指针">（9）项目中是否用到过智能指针？</h2>
+<h2 id="10延迟渲染和前向渲染差别延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染和前向渲染差别？延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
+<h2 id="11forward算法">（11）forward+算法</h2>
+<h2 id="12opengl-渲染管线">（12）OpenGL 渲染管线</h2>
+<h2 id="13齐次坐标的好处除了方便平移变换">（13）齐次坐标的好处（除了方便平移变换）</h2>
+
                 
               </div>
             
