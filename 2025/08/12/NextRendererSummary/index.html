@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-14T16:23:52.956Z">
+<meta property="article:modified_time" content="2025-08-15T16:12:54.042Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.4k words
+          5.1k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          37 mins
+          43 mins
         
       </span>
     
@@ -486,8 +486,57 @@
 </li>
 </ul>
 <h2 id="3csm">（3）CSM</h2>
+<h3 id="第一阶段cpu-端-while-循环中"><strong>第一阶段：CPU 端 (<code>while</code> 循环中)</strong></h3>
+<ul>
+<li>
+<p><strong>纹理数组</strong>: 创建了一个 <code>GLTexture shadowMapTextureArray</code>，其类型为 <code>GL_TEXTURE_2D_ARRAY</code>，尺寸为 2048x2048，层数为 4。</p>
+</li>
+<li>
+<p><strong>计算级联分割</strong>：</p>
+<ul>
+<li>根据摄像机的近、远裁剪面（0.1f, 1000.0f）和设定的 <code>g_CascadeLambda</code> 参数，采用一种混合了<strong>对数和线性</strong>的分割方案。这里让前一个级联的远平面和后一个级联的近平面有一点重合的部分。</li>
+<li>这种方案能在近处提供更多的深度精度，同时又保证了远处级联的平滑过渡。</li>
+<li>得到每个级联的远近平面在观察空间中的 z 值</li>
+</ul>
+</li>
+<li>
+<p><strong>为每个级联计算光源矩阵</strong></p>
+<ul>
+<li><strong>计算子视锥角点</strong>: 计算出当前级联所覆盖的那个<strong>子视锥体 (sub-frustum)</strong> 在世界空间中的 8 个角点。</li>
+<li><strong>找到视锥中心</strong>: 计算这 8 个角点的平均值，得到子视锥体的几何中心。</li>
+<li><strong>创建光源视图矩阵 (<code>lightView</code>)</strong>: 以子视锥体的中心为目标点，沿着光线方向的反方向设置光源的“摄像机”位置，并使用 <code>glm::lookAt</code> 创建一个能正好观察到这个子视锥体的视图矩阵。</li>
+<li><strong>计算紧凑的正交投影 (<code>lightProj</code>)</strong>: 将子视锥体的 8 个角点变换到刚刚创建的光源空间中，然后计算这 8 个点的轴对齐包围盒 (AABB)并转换到光源空间。再根据整个场景在光源空间的总 AABB 的范围来拓展小 AABB 的 z 值，从而计算出光源的<strong>正交投影矩阵</strong>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="第二阶段shadow-pass"><strong>第二阶段：shadow pass</strong></h3>
+<ul>
+<li>在一个 <code>for</code> 循环中，遍历 4 个级联。在每一次循环中：
+<ul>
+<li>通过 <code>glNamedFramebufferTextureLayer</code>，将 FBO 的渲染目标<strong>切换</strong>到 <code>shadowMapTextureArray</code> 的第 <code>i</code> 层。</li>
+<li>让 GPU 从光源的视角，将所有不透明物体渲染一遍。</li>
+<li>此阶段结束后，<code>shadowMapTextureArray</code> 纹理数组的 4 个层中，就分别存储了 4 张从光源视角看去的、覆盖不同距离范围的深度图。</li>
+</ul>
+</li>
+</ul>
+<h3 id="第三阶段gpu-端-main-scene-pass"><strong>第三阶段：GPU 端 Main Scene Pass</strong></h3>
+<ul>
+<li><strong>C++ 端</strong>:
+<ul>
+<li>将 <code>shadowMapTextureArray</code> 这张纹理数组，绑定到一个 <code>sampler2DArrayShadow</code> 类型的纹理单元上（例如 <code>binding = 4</code>）。</li>
+</ul>
+</li>
+<li><strong>GPU 端 (PBR 片元着色器)</strong>:
+<ul>
+<li><strong>选择级联</strong>: 着色器首先获取当前正在着色的片元（像素）在<strong>观察空间</strong>中的深度 <code>viewDepth</code>，将之与每个级联的分割深度远近平面进行比较，从而快速地确定出当前片元属于哪个级联。</li>
+<li><strong>计算阴影坐标</strong>: 确定了级联索引后，取出对应索引的 <code>cascadeMat</code> 矩阵，用它来将片元的世界坐标变换到光源的裁剪空间，得到 <code>shadowCoord</code>和其在光源空间的深度。</li>
+<li>进行硬件加速的深度比较和 PCF。</li>
+</ul>
+</li>
+</ul>
 <h2 id="4其他阴影算法">（4）其他阴影算法</h2>
 <p>pcss（原理、切比雪夫什么时候精确）</p>
+<p>见 <a href="/2025/03/30/interview-review/"> 面试复习：8. 阴影技术</a></p>
 <h1 id="3-透明渲染">3. 透明渲染</h1>
 <h2 id="1oit-实现">（1）OIT 实现</h2>
 <h2 id="2常见的-oit-算法比链表式更节省时间的">（2）常见的 OIT 算法？比链表式更节省时间的？</h2>
