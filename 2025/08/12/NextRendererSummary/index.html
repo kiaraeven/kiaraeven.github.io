@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-15T16:12:54.042Z">
+<meta property="article:modified_time" content="2025-08-16T17:41:18.276Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.1k words
+          7.1k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          43 mins
+          60 mins
         
       </span>
     
@@ -539,11 +539,172 @@
 <p>见 <a href="/2025/03/30/interview-review/"> 面试复习：8. 阴影技术</a></p>
 <h1 id="3-透明渲染">3. 透明渲染</h1>
 <h2 id="1oit-实现">（1）OIT 实现</h2>
+<p>传统 Alpha 混合的难点在于，GPU 在光栅化时，同一个像素可能会被多个不同远近的透明片元覆盖，而 GPU 并不知道应该先画哪个。</p>
+<p>本项目中 OIT 算法的思路是：不让 GPU 在渲染时直接混合。取而代之的是：</p>
+<ul>
+<li><strong>第一趟 (Opaque Pass)</strong>：先把所有不透明的物体都画好，得到背景颜色和一张完整的深度图。</li>
+<li><strong>第二趟 (Transparent Pass)</strong>：再渲染所有透明物体。但这次，不把它们的颜色画到屏幕上，而是把每个透明片元的<strong>颜色</strong>和<strong>深度</strong>信息放在对应屏幕像素的一个<strong>链表</strong>里。</li>
+<li><strong>第三趟 (Combination Pass)</strong>：最后，渲染一个覆盖全屏的四边形。对于屏幕上的每一个像素，独立地处理它的链表：先把这些片元按<strong>从远到近</strong>的顺序排好，然后再逐个地、正确地将它们混合到第一趟渲染好的背景上。</li>
+</ul>
+<h3 id="第一阶段渲染不透明物体-opaque-pass"><strong>第一阶段：渲染不透明物体 (Opaque Pass)</strong></h3>
+<p>略</p>
+<h3 id="第二阶段收集透明片元-transparent-pass"><strong>第二阶段：收集透明片元 (Transparent Pass)</strong></h3>
+<ul>
+<li><strong>C++ 端</strong>
+<ul>
+<li>创建三个 GPU 缓冲区：
+<ul>
+<li><code>GLTexture oitHeads</code>: 一张 <code>GL_R32UI</code> 格式的 2D 纹理。每个纹素是一个无符号 32 位整数，存储该像素对应链表的头指针。</li>
+<li><code>GLBuffer oitAtomicCounter</code>: 一个只包含一个整数的缓冲区，用作<strong>原子计数器</strong>。确保每个新来的片元都能拿到一个独一无二的 ID。</li>
+<li><code>GLBuffer oitTransparencyLists</code>: 一个巨大的 SSBO，用来存放所有透明片元（<code>TransparentFragment</code> 结构体）的实际数据。</li>
+</ul>
+</li>
+<li>在渲染循环开始时，<code>clearTransparencyBuffers()</code> 函数会被调用，它将 <code>oitHeads</code> 的所有像素都重置为 <code>-1</code>（表示链表为空），并将原子计数器归零。</li>
+<li><code>glDepthMask(GL_FALSE)</code>: <strong>深度写入被关闭</strong>。透明物体之间不应该互相遮挡深度。</li>
+<li><code>glColorMask(GL_FALSE, ..., GL_FALSE)</code>: <strong>颜色写入被关闭</strong>。我们不希望这些片元直接被画到帧缓冲里。</li>
+</ul>
+</li>
+<li><strong>GPU 端 (<code>OIT_transparent.frag</code>)</strong><br>
+为每一个通过深度测试的透明片元执行以下操作：
+<ul>
+<li><strong>获取序列号</strong>: 调用 <code>atomicCounterIncrement(numFragments)</code>（OpenGL 4.2 内置函数），从全局原子计数器中安全地获取一个<strong>新的、唯一的</strong>索引 <code>index</code>。</li>
+<li><strong>获取链表当前的头节点</strong>: 调用 <code>imageAtomicExchange(heads, ivec2(gl_FragCoord.xy), index)</code>。
+<ul>
+<li>将<strong>新的</strong>索引 <code>index</code> 写入到 <code>heads</code> 纹理中当前像素的位置，使其成为新的“头指针”。</li>
+<li><strong>返回</strong>在写入之前，那个位置上<strong>旧的</strong>“头指针” <code>prevIndex</code>。</li>
+</ul>
+</li>
+<li><strong>存放新的节点</strong>: 将当前片元的颜色、深度 (<code>gl_FragCoord.z</code>) 以及刚刚获取到的<strong>旧头节点 <code>prevIndex</code></strong>（作为 <code>next</code> 指针），作为一个 <code>TransparentFragment</code> 结构体，存入<code>oitTransparencyLists</code> SSBO 的 <code>index</code> 位置。</li>
+</ul>
+</li>
+</ul>
+<p><strong>此阶段结束后，GPU 显存中就已经构建起了一个包含所有可见透明片元信息的、复杂的每像素链表数据结构。</strong></p>
+<h3 id="第三阶段排序与混合-combination-pass"><strong>第三阶段：排序与混合 (Combination Pass)</strong></h3>
+<ul>
+<li><strong>GPU 端 (<code>OIT_full.frag</code>)：整理并混合</strong><br>
+为屏幕四边形上的每一个像素执行以下操作：
+<ul>
+<li><strong>遍历链表</strong>: 根据当前像素坐标，从 <code>heads</code> 纹理中找到链表的头指针，然后顺着 <code>next</code> 指针遍历整个链表，将所有属于这个像素的 <code>TransparentFragment</code> 节点复制到一个小型的本地数组。</li>
+<li><strong>排序</strong>: 对这个本地数组进行一次简单的<strong>插入排序</strong>，根据每个节点的 <code>depth</code> 值，将它们<strong>从后往前</strong>（从深度值大的到小的）排列好。</li>
+<li><strong>混合</strong>: 首先读取第一趟渲染好的不透明背景色。然后从这个本地数组的<strong>末尾</strong>（现在是<strong>最远的片元</strong>）开始，按照刚刚排好的顺序，将数组中的片元颜色<strong>逐个地</strong>进行标准的 Alpha 混合 (<code>mix</code> 函数)。</li>
+<li><strong>输出</strong>: 最终混合完成的颜色，就是这个像素最终应该呈现的、包含了正确透明效果的颜色，被写入到最终的帧缓冲中。</li>
+</ul>
+</li>
+</ul>
 <h2 id="2常见的-oit-算法比链表式更节省时间的">（2）常见的 OIT 算法？比链表式更节省时间的？</h2>
-<p>（怎么处理预排序与场景中其他物体的交互性？什么是顶点命中率？）</p>
-<h2 id="3其他透明算法">（3）其他透明算法</h2>
-<h2 id="4深度剥离意义-流程">（4）深度剥离（意义、流程）</h2>
-<h2 id="5半透明渲染">（5）半透明渲染</h2>
+<ul>
+<li>精确 OIT</li>
+</ul>
+<p>这类算法<strong>保证像素颜色和深度混合结果与逐片元严格排序一致</strong>。但代价是<strong>存储和排序所有片元</strong>，计算量和显存需求很大。</p>
+<ul>
+<li>
+<p>深度剥离 (Depth Peeling)</p>
+<ul>
+<li>逐次渲染场景，剥离最前面的片元层，直到把所有透明层处理完。</li>
+<li>优点：结果准确。</li>
+<li>缺点：需要多次 pass（=透明层数），效率低。</li>
+<li>常见变种：
+<ul>
+<li>Dual Depth Peeling：每次剥离前后两层，提高效率。</li>
+<li>Adaptive Depth Peeling：减少不必要的 pass。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>A-Buffer / Per-Pixel Linked List (PPLL)</p>
+<ul>
+<li>每个像素存储一个链表，链表里记录该像素下的所有片元（颜色、深度、透明度等）。之后在 fragment 处理结束后对链表排序并混合。</li>
+<li>优点：结果精确，不依赖多 pass。</li>
+<li>缺点：需要 GPU 上复杂的内存管理（原子操作、链表构建），显存消耗大。</li>
+</ul>
+</li>
+<li>
+<p>近似 OIT</p>
+</li>
+</ul>
+<p>牺牲一定精度，换取性能。常用于实时渲染和游戏。</p>
+<ul>
+<li>Weighted Blended OIT (WBOIT)
+<ul>
+<li>由 McGuire &amp; Bavoil 提出。</li>
+<li>每个片元根据深度给一个权重，把颜色和透明度累加到一个 buffer 中，最后归一化合成。不需要排序，也不需要存储所有片元。</li>
+<li>优点：性能极高，单 pass 实现。</li>
+<li>缺点：只是近似，可能在交叠复杂时与真实结果差距大。</li>
+<li>常见扩展：Weighted Blended with Moment Transparency（结合更高阶统计信息）。</li>
+</ul>
+</li>
+<li>Stencil Routed A-Buffer
+<ul>
+<li>用 stencil buffer 管理像素内的多个片元存储位置。</li>
+<li>每个像素存储有限个片元（类似 k-buffer）。</li>
+<li>缺点：硬件依赖强，受片元数限制。</li>
+</ul>
+</li>
+<li>k-Buffer
+<ul>
+<li>每个像素存储最多 k 个片元（深度+颜色），最后做排序与混合。介于精确和近似之间：当片元数 ≤ k 时精确，否则裁剪或近似。</li>
+</ul>
+</li>
+<li>Moment-Based OIT
+<ul>
+<li>借鉴方差阴影贴图的思路，存储片元深度的统计量（前几阶矩），再进行透明度估算。</li>
+<li>性能较高，但近似误差明显。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3深度剥离意义-流程">（3）深度剥离（意义、流程）</h2>
+<ul>
+<li>传统渲染流程问题：
+<ul>
+<li>GPU 默认是 不保证片元顺序的（可能乱序写入）。</li>
+<li>如果强行在 CPU 对所有三角形排序:复杂场景开销大、无法解决多层交叠的问题。</li>
+</ul>
+</li>
+<li>深度剥离的意义：
+<ul>
+<li>提供了一种完全在 GPU 上进行 逐层排序 的方法。</li>
+<li>最终结果与逐片元严格排序一致，属于 精确 OIT。</li>
+</ul>
+</li>
+<li>深度剥离的核心思想
+<ul>
+<li>第一次 pass 渲染出每个像素最近的透明片元；</li>
+<li>第二次 pass 剔除已处理的片元，找到每个像素第二近的片元；</li>
+<li>依次类推，直到所有片元都被处理完。</li>
+</ul>
+</li>
+<li>深度剥离的流程
+<ul>
+<li>Step 1：第一次渲染 (最近一层)
+<ul>
+<li>打开深度测试和深度写入。</li>
+<li>渲染场景，得到每个像素最前的透明片元（最小深度值）。</li>
+<li>把它的 颜色、α 和深度 存到缓冲区。</li>
+</ul>
+</li>
+<li>Step 2：第二次渲染 (第二层)
+<ul>
+<li>使用 上一次 pass 得到的深度图，作为“剥离条件”：</li>
+<li>只通过深度测试 z &gt; z_previous_layer 的片元。</li>
+<li>这样，每个像素得到的就是比第一层更远的片元。</li>
+<li>存储颜色、α、深度。</li>
+</ul>
+</li>
+<li>Step 3：重复剥离
+<ul>
+<li>依次迭代，直到达到场景的最大透明层数，或者迭代到没有新的片元为止。</li>
+</ul>
+</li>
+<li>Step 4：前到后混合
+<ul>
+<li>现在有了每一层的颜色和深度信息。</li>
+<li>在最后一个 pass，把它们按顺序（前到后）做标准的 α 混合，得到最终结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h1 id="4-pbr">4. PBR</h1>
 <h2 id="1pbr-实现">（1）PBR 实现</h2>
 <p>NFG 各项</p>
@@ -577,6 +738,32 @@
 <h1 id="9-剔除技术">9. 剔除技术</h1>
 <h2 id="1视锥体剔除cpugpu">（1）视锥体剔除（cpu/gpu）</h2>
 <h2 id="2背面剔除">（2）背面剔除</h2>
+<h2 id="3顶点命中率">（3）顶点命中率</h2>
+<ul>
+<li>顶点命中率是用来衡量 顶点着色器执行效率 的一个经验指标。值越高，说明剔除和索引复用做得越好。</li>
+<li>顶点命中率 = 被光栅化后真正进入片元阶段的顶点数 / 顶点着色器实际执行次数</li>
+<li>为什么不是 100 %
+<ul>
+<li>视锥剔除、背面剔除、Early-Z/Screen-Space Culling 会让某些三角形在光栅化前就被扔掉。</li>
+<li>重复顶点（索引缓存命中失败、分块渲染、GPU wave 粒度）会让同一个顶点被多次执行 VS。</li>
+<li>细分/几何着色器放大 会额外产生顶点。</li>
+</ul>
+</li>
+<li>典型场景
+<ul>
+<li>静态网格 + 良好索引 → 95 %–99 %</li>
+<li>粒子系统（大量屏幕外）→ 20 %–60 %</li>
+<li>细分曲面 + 高放大 → 10 %–30 %</li>
+</ul>
+</li>
+<li>如何查看
+<ul>
+<li>Pix / RenderDoc：统计 VS Invocations vs. VS Output Vertices。</li>
+<li>Unreal Engine：stat gpu 里有 Vertex Hit Rate 列。</li>
+<li>Unity SRP：Frame Debugger 里看 VS wave occupancy 与 culled vertices。</li>
+</ul>
+</li>
+</ul>
 <h1 id="10-ao-算法">10. AO 算法</h1>
 <h2 id="1-ssao">(1) SSAO</h2>
 <h2 id="2-其他-ao-算法">(2) 其他 AO 算法</h2>
@@ -600,9 +787,7 @@
 <li>GLFramebuffer.h 中构造函数里用 unique_ptr 存储纹理对象指针。每个纹理对象只属于这一个帧缓冲对象；当 GLFramebuffer 对象销毁时，纹理会自动删除；避免内存泄漏，确保纹理资源在帧缓冲销毁时被正确释放。如果构造函数中发生异常，unique_ptr 会自动清理已创建的纹理避免部分初始化状态下的资源泄漏。</li>
 </ul>
 <h2 id="10延迟渲染和前向渲染差别延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染和前向渲染差别？延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
-<h2 id="11forward算法">（11）forward+算法</h2>
-<h2 id="12opengl-渲染管线">（12）OpenGL 渲染管线</h2>
-<h2 id="13齐次坐标的好处除了方便平移变换">（13）齐次坐标的好处（除了方便平移变换）</h2>
+<h2 id="11opengl-渲染管线">（11）OpenGL 渲染管线</h2>
 
                 
               </div>
