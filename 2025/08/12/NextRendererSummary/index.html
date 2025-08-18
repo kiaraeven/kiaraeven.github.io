@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-17T16:49:47.577Z">
+<meta property="article:modified_time" content="2025-08-18T18:48:10.667Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.4k words
+          9k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          62 mins
+          75 mins
         
       </span>
     
@@ -707,20 +707,156 @@
 </ul>
 <h1 id="4-pbr">4. PBR</h1>
 <h2 id="1pbr-实现">（1）PBR 实现</h2>
-<p>NFG 各项</p>
 <p>pbr 基于物理的相机、材质、环境光分别是什么</p>
+<ul>
+<li>
+<p>NFG 各项</p>
+</li>
+<li>
+<p>pbr 中如何区分不同材质？</p>
+</li>
+</ul>
 <h2 id="2ibl-与-pbr-结合">（2）ibl 与 PBR 结合</h2>
 <ul>
-<li>天空盒立方体贴图如何采样？用什么坐标系？
+<li>
+<p>天空盒先被渲染，然后渲染场景中的物体，这样物体就能正确地接收 IBL 光照。</p>
+</li>
+<li>
+<p>GLSkyboxRenderer 完成天空盒资源初始化和绘制</p>
 <ul>
-<li>天空盒先被渲染，然后渲染场景中的物体，这样物体就能正确地接收 IBL 光照。</li>
-<li>天空盒将 PBR 所需的三个关键纹理绑定到着色器：绑定点 5: 环境贴图、绑定点 6: 辐照度贴图、绑定点 7: BRDF 查找表。</li>
+<li>
+<p>环境贴图 (envMap_): HDR 立方体贴图，用于反射计算（.hdr,高动态范围图像格式，能存储超过<code>[0,1]</code>的颜色值，存储方式：通常是 RGBE 编码（R,G,B 每通道 8 bit + 共享指数 E 8 bit））。用于计算 PBR 中的镜面反射部分。它存储了经过不同粗糙度级别预滤波的环境贴图。</p>
+</li>
+<li>
+<p>辐照度贴图 (envMapIrradiance_): 预计算的辐照度立方体贴图，用于漫反射光照（.hdr）。它存储了场景中每个方向上入射的平均光照颜色（辐照度）。用于计算 PBR 中的漫反射部分。过对原始的环境立方体贴图进行卷积（Convolution）生成 。这个过程模拟了光线在粗糙表面上的散射，本质上是对环境贴图进行模糊处理 。</p>
+</li>
+<li>
+<p>BRDF 查找表 (brdfLUT_): 双向反射分布函数的预计算查找表（.ktx，容器格式，用来在磁盘上存储 GPU 纹理）。用于计算镜面反射方程中的菲涅尔项（Fresnel Term）的缩放和偏移。存储了在不同视角和粗糙度下的镜面反射积分结果。其 X 轴通常表示法线与视线夹角的余弦值（NdotV），Y 轴表示粗糙度 。每个纹素存储两个值：菲涅尔项的缩放（scale）和偏移（bias） 。</p>
+<ul>
+<li>.ktx 支持存储 原始纹理数据（RGBA8、RGB16F、RGBA32F…）；支持存储 压缩纹理（BCn / ASTC / ETC2 / PVRTC 等）；可以包含 Mipmap 层级、立方体贴图、3D 纹理。</li>
+<li>设计目标就是 直接加载到 GPU，省去运行时转码。</li>
+<li>优点：加载快（直接 GPU 原生格式）、支持压缩节省显存。</li>
+<li>缺点：是容器，不是图像编辑格式；不适合美术直接使用。</li>
+</ul>
+</li>
+<li>
+<p>天空盒构造函数将 PBR 所需的三个关键纹理绑定到着色器（cube.vert, cube.frag）：绑定点 5: 环境贴图、绑定点 6: 辐照度贴图、绑定点 7: BRDF 查找表。注意这里 GLSkyboxRenderer 的三个纹理成员类型是自封装的 GLTexture，输入参数是目标纹理格式和文件名，内部会自动调用 glCreateTextures 创建纹理，并设置参数。这里特别说明一下对 GL_TEXTURE_CUBE_MAP 这种格式的处理。如果输入的图像 w=2h 则认为输入的是等距柱状投影。先把其转为 vertical cross 的十字图，再切成六个面。</p>
+<ul>
+<li>转为 vertical cross 的流程：
+<ul>
+<li>计算立方体每个面的边长 faceSize，以及目标“十字”图的尺寸。等距图横向相当于立方体 4 个侧面拼接，所以 faceSize = 宽度 / 4，目标图是 3 列 ×4 行的面排布。</li>
+<li>预先定义六个面的左上角在“十字图”中的位置（想象二维平铺的十字图）（offset）。</li>
+<li>逐个面、逐个像素遍历目标图：</li>
+<li>把目标面内的像素坐标(i, j)转成该面对应的“立方体表面上的方向向量 P”（辅助函数 faceCoordsToXYZ，按面别和上下翻转做不同的轴映射）。</li>
+<li>把三维方向 P 换成球面坐标，“经纬度”角度(theta 经度、phi 纬度)。</li>
+<li>用等距柱状投影公式把(theta, phi)映射回源图像上的浮点坐标(Uf, Vf)。</li>
+<li>在源图像上对(Uf, Vf)做双线性插值（取四邻像素加权平均），得到颜色。</li>
+<li>把这颜色写到目标“十字图”对应的像素位置（考虑该面的 offset）。</li>
+</ul>
+</li>
+<li>把十字图切成六个面的流程就是简单的找到每个面的角点坐标然后复制粘贴这个面的内容到目标图的某一层。</li>
+</ul>
+</li>
+<li>
+<p>构造函数<code>glCreateVertexArrays(1, &amp;dummyVAO_);</code>，析构函数<code>glDeleteVertexArrays(1, &amp;dummyVAO_);</code>。</p>
+</li>
+<li>
+<p>GLSkyboxRenderer.draw()绑定 vao，禁止深度写入，渲染天空盒。</p>
+</li>
+<li>
+<p>cube.vert: 两个数组，一个定义世界空间立方体的八个角点坐标，另一个定义了构成立方体的 36 个点（6 个面共 12 个三角形）的序号。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">void</span> main()<br>&#123;<br>  <span class="hljs-type">int</span> idx = indices[<span class="hljs-built_in">gl_VertexID</span>];<br>  <span class="hljs-comment">// scale by 500.0 to make the cube visible</span><br>  <span class="hljs-built_in">gl_Position</span> = proj * view * <span class="hljs-type">vec4</span>(<span class="hljs-number">500.0</span> * pos[idx], <span class="hljs-number">1.0</span>);<br>  dir = pos[idx].xyz; <span class="hljs-comment">// 将立方体局部坐标作为方向向量输出到片段着色器(世界空间里的)</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>cube.frag</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> dir;<br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> out_FragColor;<br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">binding</span>=<span class="hljs-number">1</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> texture1; <span class="hljs-comment">// envMap_</span><br><span class="hljs-type">void</span> main()<br>&#123;<br>  <span class="hljs-comment">// 立方体贴图采样以向量方向作为查找键，硬件会按方向选择对应面并进行双线性过滤（向量是否单位化都可，采样器会处理）。</span><br>  <span class="hljs-comment">// 因为几何体本身经过 view 旋转，屏幕上每个像素对应到的插值 dir 会随相机旋转而改变，从而实现“天空随相机旋转”的效果，即便 dir 本身没乘以 view。</span><br>  out_FragColor = <span class="hljs-built_in">texture</span>(texture1, dir);<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>IBL 如何处理镜面和非镜面？</p>
+</li>
+<li>
+<p><strong>IBL 中加速的 trick</strong>？</p>
+<ul>
+<li>
+<p>项目中已使用的 IBL 加速技巧</p>
+<ul>
+<li>预计算优化
+<ul>
+<li><strong>辐照度贴图预计算</strong>: 避免实时积分</li>
+<li><strong>BRDF 查找表</strong>: 预计算 BRDF 积分，运行时只需 2D 纹理查找</li>
+<li><strong>预滤波环境贴图</strong>: 根据粗糙度预计算不同 LOD 级别的环境贴图</li>
+</ul>
+</li>
+<li>粗糙度感知 LOD 选择：根据材质粗糙度动态选择 mip 级别，粗糙表面使用低分辨率贴图。</li>
+<li>启用立方体贴图无缝采样，避免面与面之间的接缝问题。</li>
+</ul>
+</li>
+<li>
+<p>其他常用的 IBL 加速技巧</p>
+<ul>
+<li>
+<p>球谐函数 (Spherical Harmonics)</p>
+<ul>
+<li><strong>原理</strong>: 将环境光照分解为球谐函数系数，运行时重建</li>
+<li><strong>优势</strong>: 内存占用小，计算快速，适合低频光照</li>
+<li><strong>适用</strong>: 漫反射 IBL，移动端优化</li>
+</ul>
+</li>
+<li>
+<p>重要性采样 (Importance Sampling)</p>
+<ul>
+<li><strong>原理</strong>: 根据 BRDF 分布函数进行重要性采样，减少噪声</li>
+<li><strong>优势</strong>: 提高收敛速度，减少采样数量</li>
+<li><strong>实现</strong>: 在预计算阶段使用，运行时受益</li>
+</ul>
+</li>
+<li>
+<p>多级重要性采样 (MIS)</p>
+<ul>
+<li><strong>原理</strong>: 结合多种采样策略，平衡效率和准确性</li>
+<li><strong>优势</strong>: 在预计算和运行时都能提高质量</li>
+<li><strong>适用</strong>: 高质量渲染，离线烘焙</li>
+</ul>
+</li>
+<li>
+<p>压缩技术</p>
+<ul>
+<li><strong>BC6H/BC7</strong>: 压缩 HDR 立方体贴图</li>
+<li><strong>ASTC</strong>: 移动端友好的压缩格式</li>
+<li><strong>优势</strong>: 减少内存占用和带宽</li>
+</ul>
+</li>
+<li>
+<p>自适应采样</p>
+<ul>
+<li><strong>原理</strong>: 根据视角和材质特性动态调整采样质量</li>
+<li><strong>优势</strong>: 在重要区域保持高质量，其他区域降低质量</li>
+<li><strong>实现</strong>: 基于屏幕空间重要性或材质复杂度</li>
+</ul>
+</li>
+<li>
+<p>缓存和复用</p>
+<ul>
+<li><strong>原理</strong>: 缓存已计算的 IBL 结果，避免重复计算</li>
+<li><strong>优势</strong>: 减少 GPU 计算负担</li>
+<li><strong>实现</strong>: 帧间缓存，材质级缓存</li>
+</ul>
+</li>
+<li>
+<p>近似方法</p>
+<ul>
+<li><strong>原理</strong>: 使用数学近似简化复杂计算</li>
+<li><strong>优势</strong>: 显著提高性能，质量损失可控</li>
+<li><strong>示例</strong>: 使用简化的 Fresnel 函数，近似 BRDF</li>
 </ul>
 </li>
 </ul>
-<p>IBL 处理镜面和非镜面？</p>
-<p>IBL 中加速的 trick？</p>
-<p>pbr 中如何区分不同材质？</p>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="3为什么-pbr-中的输入不能是-gamma-校正过的为什么要最后校正">（3）为什么 pbr 中的输入不能是 gamma 校正过的？为什么要最后校正？</h2>
 <ul>
 <li>显示器是非线性的：如果直接把线性空间颜色写入显示器，会显得灰蒙蒙的。解决办法是：在存储/显示时，对颜色做一个 gamma 压缩（通常是 1/2.2），保证在显示器上能正确显示。因此，显示/存储用 gamma 空间（sRGB）。计算/物理模拟 必须在线性空间。</li>
@@ -784,7 +920,7 @@
 <h1 id="12">12.</h1>
 <h1 id="杂项">杂项</h1>
 <h2 id="1项目坐标系">（1）项目坐标系</h2>
-<h2 id="2">（2）</h2>
+<h2 id="2场景里的-grids-怎么绘制的">（2）场景里的 grids 怎么绘制的</h2>
 <h2 id="3几何着色器用在哪里了">（3）几何着色器用在哪里了？</h2>
 <h2 id="4">（4）</h2>
 <h2 id="5ndc-到屏幕坐标的变换">（5）ndc 到屏幕坐标的变换</h2>
@@ -795,7 +931,7 @@
 <ul>
 <li>GLFramebuffer.h 中构造函数里用 unique_ptr 存储纹理对象指针。每个纹理对象只属于这一个帧缓冲对象；当 GLFramebuffer 对象销毁时，纹理会自动删除；避免内存泄漏，确保纹理资源在帧缓冲销毁时被正确释放。如果构造函数中发生异常，unique_ptr 会自动清理已创建的纹理避免部分初始化状态下的资源泄漏。</li>
 </ul>
-<h2 id="10延迟渲染和前向渲染差别延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染和前向渲染差别？延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
+<h2 id="10延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
 <h2 id="11opengl-渲染管线">（11）OpenGL 渲染管线</h2>
 
                 
