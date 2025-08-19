@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-18T18:48:10.667Z">
+<meta property="article:modified_time" content="2025-08-19T19:52:19.077Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9k words
+          11k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          75 mins
+          91 mins
         
       </span>
     
@@ -707,8 +707,10 @@
 </ul>
 <h1 id="4-pbr">4. PBR</h1>
 <h2 id="1pbr-实现">（1）PBR 实现</h2>
-<p>pbr 基于物理的相机、材质、环境光分别是什么</p>
 <ul>
+<li>
+<p>pbr 基于物理的相机、材质、环境光分别是什么</p>
+</li>
 <li>
 <p>NFG 各项</p>
 </li>
@@ -775,6 +777,11 @@
 </li>
 <li>
 <p>IBL 如何处理镜面和非镜面？</p>
+<ul>
+<li>漫反射（非镜面）IBL：用“辐照度立方体贴图”按世界法线 n 取样，得到环境的漫反射入射光，再乘以基底漫反射颜色 diffuseColor。</li>
+<li>镜面反射 IBL：用“环境立方体贴图”按反射向量 reflection 与粗糙度选取 LOD 取样，得到环境高光，再乘以预积分 BRDF LUT（由 NdotV 和粗糙度索引），并按 specularColor 着色。</li>
+<li>金属度-粗糙度模型：金属度越高，漫反射越小、镜面颜色越接近基底色；粗糙度越高，使用更低分辨率的 mip（更模糊）。</li>
+</ul>
 </li>
 <li>
 <p><strong>IBL 中加速的 trick</strong>？</p>
@@ -863,15 +870,215 @@
 <li>PBR 本质上在做能量守恒的物理计算，这些运算必须是线性代数意义上的加减乘除，才能符合物理。如果把 gamma 校正过的输入（非线性值）拿来算，加法/乘法结果会被严重扭曲。</li>
 </ul>
 <h1 id="5-纹理">5. 纹理</h1>
-<h2 id="1虚拟纹理与三维纹理">（1）虚拟纹理与三维纹理</h2>
+<h2 id="1三维纹理">（1）三维纹理</h2>
+<p>本质上是一个立体像素数组（Volume Texture），存储的是三维空间中的体素 (Voxel) 数据。采样坐标是 (u, v, w)，可以理解成在一个立方体里取点采样纹理。</p>
 <h2 id="2mipmap-原理会增加开销吗">（2）mipmap 原理？会增加开销吗？</h2>
+<ul>
+<li>问题背景：
+<ul>
+<li>2D 纹理在缩小显示时（比如一个 1024×1024 贴图的物体在屏幕上只有 50×50 像素大）。</li>
+<li>如果直接采样原图，会出现 摩尔纹、闪烁、aliasing。</li>
+</ul>
+</li>
+<li>原理：
+<ul>
+<li>Mipmap = 多级纹理</li>
+<li>在载入纹理时，GPU 自动生成一系列逐级缩小的版本。渲染时，如果一个像素在屏幕上对应很多 texel，GPU 会选择合适的 mipmap 层来采样。这样避免 aliasing，并提升缓存效率。</li>
+</ul>
+</li>
+<li>会不会增加开销？
+<ul>
+<li>存储开销：一张纹理 + 所有 mipmap 的总大小 ≈ 原图的 4/3 左右。（因为：1+1/4+1/16+…≈4/3）。也就是说，显存占用多了 ~33%。</li>
+<li>渲染性能：
+<ul>
+<li>采样更快：GPU 不必在渲染时从大纹理里跨越性采样（Cache 命中率提高）。</li>
+<li>减少 aliasing（画质更稳定）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="3mipmap-有哪些缺点如何精准采样">（3）mipmap 有哪些缺点？如何精准采样？</h2>
+<ul>
+<li>内存开销增加</li>
+<li>Mipmap 在缩小纹理时，会预先做滤波（通常是 box filter / Gaussian-like）。所以远处物体纹理可能看起来 过于模糊，细节丢失。这种模糊在 斜视角 (grazing angle) 下尤其明显。</li>
+<li>Mipmap 只能按“尺度”来存储，不考虑方向。例如，当一个矩形很斜着面对屏幕时，它在屏幕上投影是一个长条状，但 mipmap 只能 isotropic 缩小，无法针对长条优化。</li>
+<li>GPU 在选择 mipmap 层时，不一定刚好对应某一层，可能在层与层之间。
+<ul>
+<li>Nearest Mipmap（直接选最近的一层，容易跳变）。</li>
+<li>Trilinear Filtering（在两层之间插值，平滑过渡）。</li>
+<li>Anisotropic Filtering（针对倾斜角度的采样优化，解决斜向模糊）。</li>
+</ul>
+</li>
+<li>精确控制 LOD
+<ul>
+<li>默认 LOD 是 GPU 根据屏幕导数（dFdx/dFdy）计算的。</li>
+<li>但在某些效果里（比如环境贴图、特殊材质），可能需要手动控制：
+<ul>
+<li>textureLod()：指定 mipmap 层级，不插值。</li>
+<li>textureGrad()：传入自定义导数，精准控制采样范围。</li>
+<li>textureBias()：在自动计算的 LOD 上加偏移（常用于调节锐度）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="410241000-的-rgba8-在显存存储占用的内存">（4）1024*1000 的 rgba8 在显存存储占用的内存</h2>
+<p>RGBA8 = 8 bits/chan × 4 chans = 4 bytes/像素<br>
+尺寸 1024 × 1000 -&gt; 像素数 1,024,000<br>
+显存占用（不含 mipmap）：<br>
+字节：1,024,000 × 4 = 4,096,000 B<br>
+MB（十进制）：4.096 MB<br>
+MiB（二进制）：3.90625 MiB<br>
+如果开 mipmap，约为总大小 4/3。</p>
 <h2 id="5导入一张很大的-png-需要在-cpu-gpu-做哪些操作">（5）导入一张很大的 png 需要在 cpu、gpu 做哪些操作</h2>
+<h3 id="cpu-端"><strong>CPU 端</strong></h3>
+<ul>
+<li>
+<p>PNG 是压缩格式（基于 DEFLATE + 滤波），不能直接上传给 GPU。</p>
+</li>
+<li>
+<p>CPU 需要用库（如 libpng、stb_image）解码 -&gt; 得到 <strong>原始像素数据</strong>（比如 RGBA8）。</p>
+</li>
+<li>
+<p><strong>可能的处理</strong></p>
+<ul>
+<li>转换颜色空间（sRGB → Linear）。</li>
+<li>重新打包像素格式（比如 GPU 需要 BGRA8、DXT 压缩）。</li>
+<li>生成 mipmap（有些引擎在 CPU 上生成，有些在 GPU 上生成）。</li>
+</ul>
+</li>
+<li>
+<p><strong>传输准备</strong></p>
+<ul>
+<li>把像素数据放到一块连续内存（通常对齐到 4/8/16 字节），方便 DMA 上传。</li>
+</ul>
+</li>
+</ul>
+<h3 id="gpu-端"><strong>GPU 端</strong></h3>
+<ul>
+<li>
+<p><strong>创建纹理对象</strong></p>
+<ul>
+<li>在显存里分配一块区域，存储解码后的像素数据。</li>
+<li>格式通常是 RGBA8、BC 压缩、或浮点格式（HDR）。</li>
+</ul>
+</li>
+<li>
+<p><strong>数据上传</strong></p>
+<ul>
+<li>CPU -&gt; GPU：通过显卡驱动调用（<code>glTexImage2D</code> / <code>vkCmdCopyBufferToImage</code> / <code>ID3D12Resource::UpdateSubresource</code>）。</li>
+<li>一般走 PCIe，总线带宽有限（比如 PCIe 4.0 ×16 ≈ 32 GB/s），所以大纹理传输是个瓶颈。</li>
+</ul>
+</li>
+<li>
+<p><strong>GPU 处理</strong></p>
+<ul>
+<li>如果 CPU 没生成 mipmap，就可能在 GPU 上生成（如 OpenGL 的 <code>glGenerateMipmap</code>）。</li>
+<li>有时 GPU 会做 <strong>tile-based re-layout</strong>（分块存储），优化缓存访问。</li>
+</ul>
+</li>
+</ul>
+<h3 id="大-png-的性能挑战">大 PNG 的性能挑战</h3>
+<ul>
+<li><strong>解码开销</strong>（CPU-bound）：PNG 解码比较慢，因为它是无损压缩，适合存储，不适合直接 runtime。</li>
+<li><strong>上传带宽</strong>（PCIe-bound）：大图要搬很多数据到 GPU，可能卡加载。</li>
+<li><strong>显存占用</strong>：比如 8192×8192 RGBA8 -&gt; 256 MB + mipmap。</li>
+</ul>
 <h2 id="6对于不透明-png-的导入有什么优化cpu-gpu">（6）对于不透明 png 的导入有什么优化？（cpu、gpu）</h2>
+<p>很多 PNG 都是 <strong>RGBA8</strong>，但如果 alpha 通道其实没用（完全不透明），会带来冗余。</p>
+<h3 id="cpu-端优化"><strong>CPU 端优化</strong></h3>
+<ul>
+<li>
+<p><strong>检测 alpha 是否恒为 255</strong></p>
+<ul>
+<li>解码后扫描一遍，如果全是 255，就说明完全不透明。</li>
+<li>可以只上传 <strong>RGB 格式</strong>，节省带宽和显存。</li>
+</ul>
+</li>
+<li>
+<p><strong>存储优化</strong></p>
+<ul>
+<li>不透明图可以转为更高效的格式，比如：
+<ul>
+<li><strong>RGB8 / BGR8</strong>（少 1/4 内存和带宽）。</li>
+<li><strong>压缩格式</strong>：BC1 (DXT1)，不透明版本比 BC3 小一半。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="gpu-端优化"><strong>GPU 端优化</strong></h3>
+<ul>
+<li><strong>减少显存占用</strong>
+<ul>
+<li>用 24-bit RGB 纹理或压缩格式（BC1/DXT1、ETC1/ETC2-RGB、ASTC RGB）。</li>
+<li>比 RGBA 节省 25%～ 50% 显存。</li>
+</ul>
+</li>
+</ul>
+<p>= <strong>渲染优化</strong></p>
+<ul>
+<li>不透明纹理 -&gt; 可以直接用 <strong>不透明渲染管线</strong>：
+<ul>
+<li>关闭 alpha blend（少一次片段混合计算）。</li>
+<li>Early-Z 测试更高效（可以提前丢弃被遮挡片元）。</li>
+</ul>
+</li>
+<li>对 GPU 而言，不透明物体渲染比半透明快很多。</li>
+</ul>
 <h2 id="7给一张纹理接下来的流程是怎样的封装了哪些接口">（7）给一张纹理接下来的流程是怎样的？封装了哪些接口？</h2>
 <p>创建纹理时传递的数据格式是什么？</p>
+<p>给一张纹理：GLTexture 加载/创建并生成 bindless 句柄 -&gt; 写入 MaterialDescription 为 MaterialData（句柄替换）-&gt; 上传材质 SSBO 到 GPU -&gt; 绘制时由实例的 matIdx 选择对应 MaterialData -&gt; 片元用 bindless 句柄直接取样 -&gt; PBR 合成输出。</p>
+<p>PS:<br>
+懒加载版本：先用白色 dummyTexture_占位 -&gt; updateMaterials()写入句柄 -&gt; 后台 stbi_load 读原图 -&gt; 主线程调用 uploadLoadedTextures()创建 GLTexture(w,h,img) -&gt; 再 updateMaterials()更新句柄并上传 SSBO</p>
 <h2 id="8动态合批">（8）动态合批</h2>
+<h3 id="为什么需要合批">为什么需要合批？</h3>
+<ul>
+<li>在渲染管线中，<strong>每一次 Draw Call</strong>（绘制调用）都需要 CPU -&gt; GPU 的状态切换、数据提交。</li>
+<li>当场景里有成千上万个小物体时，Draw Call 成本可能比真正的 GPU 绘制还要大。</li>
+<li>解决办法：<strong>把多个小物体的渲染合并成一次提交（Batching）</strong>。</li>
+</ul>
+<h3 id="动态合批dynamic-batching的原理">动态合批（Dynamic Batching）的原理</h3>
+<ul>
+<li>引擎在运行时（CPU 端），检测多个物体是否可以合并。</li>
+<li>如果条件满足，把这些物体的 <strong>顶点数据拼接成一个大顶点缓冲</strong>，然后用一次 Draw Call 提交。</li>
+<li>GPU 看到的就是一大块连续的几何数据，不需要多次切换状态。</li>
+</ul>
+<h3 id="动态合批的条件">动态合批的条件</h3>
+<p>并不是所有物体都能随便合并，通常需要满足：</p>
+<ul>
+<li><strong>相同的材质 / Shader</strong>（否则 GPU 还是要切换 pipeline）。</li>
+<li><strong>相同的渲染状态</strong>（比如混合模式、深度测试模式）。</li>
+<li><strong>顶点数量不要太大</strong>（拼接开销太高就得不偿失）。</li>
+<li><strong>没有复杂的顶点动画</strong>（因为 CPU 要预处理合并顶点）。</li>
+</ul>
+<h3 id="动态合批-vs-静态合批">动态合批 vs 静态合批</h3>
+<ul>
+<li>
+<p><strong>静态合批 (Static Batching)</strong>：</p>
+<ul>
+<li>在场景导入或 Build 时就提前把物体几何合并。</li>
+<li>适合不会动的物体（地面、建筑）。</li>
+<li>性能更好，因为合并只做一次。</li>
+</ul>
+</li>
+<li>
+<p><strong>动态合批 (Dynamic Batching)</strong>：</p>
+<ul>
+<li>运行时临时拼接。</li>
+<li>适合小而多的动态物体（比如粒子、小道具）。</li>
+<li>但 CPU 有额外开销。</li>
+</ul>
+</li>
+</ul>
+<h3 id="动态合批的缺点">动态合批的缺点：</h3>
+<ul>
+<li>CPU 要在每帧做顶点拼接，带来额外开销。</li>
+<li>对复杂几何体反而可能更慢。</li>
+<li>对内存带宽要求更高（需要复制顶点数据）。</li>
+<li>限制条件较多（材质、状态必须相同）。</li>
+</ul>
 <h1 id="6-场景结构">6. 场景结构</h1>
 <h2 id="1渲染场景是怎么组织的有哪些节点">（1）渲染场景是怎么组织的？有哪些节点？</h2>
 <h2 id="2大型场景中如何避免循环引用不是加-weakptr-这么简单">（2）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
@@ -879,7 +1086,7 @@
 <h2 id="1高斯模糊几个-pass">（1）高斯模糊（几个 pass？）</h2>
 <h2 id="2bloom">（2）bloom</h2>
 <h1 id="8-glsl">8. glsl</h1>
-<h2 id="1手写判断一个点在方向内外">（1）手写判断一个点在方向内/外</h2>
+<h2 id="1手写判断一个点在正方形内外">（1）手写判断一个点在正方形内/外</h2>
 <h1 id="9-剔除技术">9. 剔除技术</h1>
 <h2 id="1视锥体剔除cpugpu">（1）视锥体剔除（cpu/gpu）</h2>
 <h2 id="2背面剔除">（2）背面剔除</h2>
@@ -917,7 +1124,12 @@
 <h2 id="2taa">（2）TAA</h2>
 <h2 id="3其他-aa">（3）其他 AA</h2>
 <p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
-<h1 id="12">12.</h1>
+<h1 id="12-模型序列化与反序列化">12. 模型序列化与反序列化</h1>
+<h1 id="13-减少-draw-call">13. 减少 Draw Call</h1>
+<ul>
+<li>Programmable Vertex Pulling (PVP)</li>
+<li>多重间接绘制 (Multi-Draw Indirect - MDI)</li>
+</ul>
 <h1 id="杂项">杂项</h1>
 <h2 id="1项目坐标系">（1）项目坐标系</h2>
 <h2 id="2场景里的-grids-怎么绘制的">（2）场景里的 grids 怎么绘制的</h2>
