@@ -215,8 +215,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-05-20 18:22" pubdate>
-          May 20, 2025 pm
+        <time datetime="2025-05-20 05:22" pubdate>
+          May 20, 2025 am
         </time>
       </span>
     
@@ -543,7 +543,7 @@
 <hr>
 <ul>
 <li>整体流程？（见上面第一个链接，注意第二个 pass 要把相机空间的点转换到灯光空间里再对比深度）</li>
-<li>light pass 用什么投影？（见<a href="/2025/03/30/interview-review/"> Interview Review</a>）。这里使用定向光，所以用正交投影，假定光源位于光方向上的某个位置即可。</li>
+<li>light pass 用什么投影？（见<a href="/2025/03/29/interview-review/"> Interview Review</a>）。这里使用定向光，所以用正交投影，假定光源位于光方向上的某个位置即可。</li>
 <li>可能出现哪些瑕疵？什么原因（shadow map 分辨率不足、浮点数精度不足：连续的像素位置很接近，则有的像素大于 shadow map，有的则小于 shadow map，从而产生了离散的显示）？如何解决？如何优化 Shadow Mapping（加偏移、PCF、CSM、调整远近平面）？
 <ul>
 <li>调整投影矩阵中的远近平面：调试获得观察空间中的 zmin/zmax，合适的 znear=-zmax，zfar=-zmin 让远近平面恰好包含场景中的模型，不要让模型的点都接近远平面，因为近平面附近精度高</li>
@@ -870,7 +870,7 @@ hit：树结构，遍历左子树遍历右子树，返回离 eye 最近的撞击
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/04/06/interview-review2/" title="Graphics Interview Review 2">
+                      <a href="/2025/04/05/interview-review2/" title="Graphics Interview Review 2">
                         <span class="hidden-mobile">Graphics Interview Review 2</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>

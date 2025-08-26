@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Depth Test In rasterization-based rendering, we use of a depth buffer to prevent triangles rendering in the front while they’re supposed to be behind other triangles. Depth Buffer (Z Buffer)  The dept">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS 8803 CGA - Differentiable Rasterization">
+<meta property="og:url" content="http://example.com/2025/02/25/CS8803-CGA-L12/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Depth Test In rasterization-based rendering, we use of a depth buffer to prevent triangles rendering in the front while they’re supposed to be behind other triangles. Depth Buffer (Z Buffer)  The dept">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/depth_buffer.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/alpha_blending.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/alpha_blending_eg.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/rendering_ord.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/half_angle_sorting.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/illustration_halfangle.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/forward_algorithm.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/grad_approx_inv.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/grad_approx_v.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/grad_approx_3d.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/reg_rep.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/reg_proj.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/example_reg.png">
+<meta property="og:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/loss_func.png">
+<meta property="article:published_time" content="2025-02-25T17:49:54.442Z">
+<meta property="article:modified_time" content="2025-02-25T20:34:19.469Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="Gaussian Splatting">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/02/25/CS8803-CGA-L12/depth_buffer.png">
+  
+  
+  
+  <title>CS 8803 CGA - Differentiable Rasterization - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CS 8803 CGA - Differentiable Rasterization"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-25 11:49" pubdate>
+          February 25, 2025 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          232 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          2 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CS 8803 CGA - Differentiable Rasterization</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="depth-test">Depth Test</h2>
+<p>In rasterization-based rendering, we use of a depth buffer to prevent triangles rendering in the front while they’re supposed to be behind other triangles.</p>
+<h3 id="depth-buffer-z-buffer">Depth Buffer (Z Buffer)</h3>
+<ul>
+<li>The depth-buffer is a buffer that, just like the color buffer (that stores all the fragment colors: the visual output), stores information <em>per fragment</em> and has the same width and height as the color buffer.</li>
+<li>When depth testing is enabled, OpenGL tests the depth value of a fragment against the content of the depth buffer. OpenGL performs a depth test and if this test passes, the fragment is rendered and the depth buffer is updated with the new depth value.</li>
+<li>If the depth test fails, the fragment is discarded.</li>
+</ul>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>e</mi><mi>p</mi><mi>t</mi><mi>h</mi><mo>=</mo><mfrac><mrow><mi>z</mi><mo>−</mo><mi>n</mi><mi>e</mi><mi>a</mi><mi>r</mi></mrow><mrow><mi>f</mi><mi>a</mi><mi>r</mi><mo>−</mo><mi>n</mi><mi>e</mi><mi>a</mi><mi>r</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">depth = \frac{z-near}{far-near}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord mathnormal">pt</span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2834em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8023em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<h3 id="rasterization-with-depth-buffer">Rasterization with depth buffer</h3>
+<ul>
+<li>Project vertices to 2D image space</li>
+<li>Rasterize triangle: find which pixels should be lit</li>
+<li>Compute per-pixel color</li>
+<li>Test visibility (Z-buffer), update frame buffer color</li>
+</ul>
+<p><img src="depth_buffer.png" alt="depth buffer"></p>
+<h3 id="pseudocode-for-depth-test">Pseudocode for Depth Test</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> each triangle<br>    transform into eye space<br>    (perform projection)<br>    setup <span class="hljs-number">3</span> edge equations<br>    <span class="hljs-keyword">for</span> each pixel x,y<br>        <span class="hljs-keyword">if</span> passes <span class="hljs-built_in">all</span> edge equations<br>            compute z<br>            <span class="hljs-keyword">if</span> z&lt;zbuffer[x,y]<br>                zbuffer[x,y]=z<br>                framebuffer[x,y]=shade()<br></code></pre></td></tr></table></figure>
+<p>We render the triangle’s color into this pixel only when its depth value is smaller than the depth in the current depth buffer</p>
+<h2 id="alpha-blending">Alpha Blending</h2>
+<ul>
+<li>Blending in OpenGL is known as the technique to render transparent object.</li>
+<li>Transparency is all about objects not having a solid color, but having a combination of colors from the object itself and any other object behind it with varying intensity.</li>
+<li>A colored glass window is a transparent object; the glass has a color of its own, but the resulting color contains the colors of all the objects behind the glass as well.</li>
+</ul>
+<h3 id="alpha-channel">Alpha Channel</h3>
+<ul>
+<li>The amount of transparency of an object is defined by its color’s alpha value.</li>
+<li>The alpha color value is the 4th component of a color vector</li>
+<li>1.0 indicates completely opaque, 0.0 indicates completely transparent.</li>
+<li>An alpha value of 0.5 tells us the object’s color consist of 50% of its own color and 50% of the colors behind the object.</li>
+</ul>
+<h3 id="naïve-implementation-discarding-fragments-in-the-shader">Naïve Implementation: Discarding Fragments in the Shader</h3>
+<ul>
+<li>In the <em>fragment shader</em>, we can check the alpha value of each fragment and decide to discard it if its alpha value is below a threshold (those parts with a really small alpha value are supposed to be transparent).</li>
+</ul>
+<p><img src="alpha_blending.png" alt="alpha blending algorithm from learnopengl"></p>
+<h3 id="advanced-implementation-blending-with-alpha-value">Advanced Implementation: Blending with Alpha Value</h3>
+<ul>
+<li>While discarding fragments is great and all, it doesn’t give us the flexibility to render semi-transparent images; we either render the fragment or completely discard it.</li>
+<li>To render images with different levels of transparency we have to enableblending, we can do <strong>glEnable(GL_BLEND)</strong> (turn on alpha blending in fragment shader in OpenGL).</li>
+</ul>
+<p>Then the shader will blend two colors based on the blending equation below.</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>u</mi><mi>l</mi><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>C</mi><mrow><mi>s</mi><mi>r</mi><mi>c</mi></mrow></msub><mo>∗</mo><msub><mi>α</mi><mrow><mi>s</mi><mi>r</mi><mi>c</mi></mrow></msub><mo>+</mo><msub><mi>C</mi><mrow><mi>d</mi><mi>s</mi><mi>t</mi></mrow></msub><mo>∗</mo><mi>α</mi><mrow><mi>d</mi><mi>s</mi><mi>t</mi></mrow></mrow><annotation encoding="application/x-tex">C_{result} = C_{src}*\alpha_{src} + C_{dst}*\alpha{dst}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">res</span><span class="mord mathnormal mtight">u</span><span class="mord mathnormal mtight">lt</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord"><span class="mord mathnormal">d</span><span class="mord mathnormal">s</span><span class="mord mathnormal">t</span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>s</mi><mi>r</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">C_{src}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: The source color vector. This is the color output of the fragment shader.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>d</mi><mi>s</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">C_{dst}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: The destination color vector. This is the color vector that is currently stored in the color buffer.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>s</mi><mi>r</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\alpha_{src}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">src</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: The source factor value. Sets the impact of the alpha value on the source color.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mrow><mi>d</mi><mi>s</mi><mi>t</mi></mrow></mrow><annotation encoding="application/x-tex">\alpha{dst}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord"><span class="mord mathnormal">d</span><span class="mord mathnormal">s</span><span class="mord mathnormal">t</span></span></span></span></span>: The destination factor value. Sets the impact of the alpha value on the destination color.</p>
+<p><img src="alpha_blending_eg.png" alt="alpha blending example"></p>
+<ul>
+<li>The glBlendFunc(GLenum sfactor, GLenum dfactor) function expects two parameters that set the option for the source and destination factor.</li>
+<li>OpenGL defined quite a few options for us to set of which we’ll list the most common options below.</li>
+</ul>
+<h3 id="the-order-of-objects-in-the-rendering-sequence-matters">The order of objects in the rendering sequence matters</h3>
+<p>As described in the blending function, we need to figure out which object is source and which one is destination. It means that the order of rendering objects matters - different orders result in different effect (maybe incorrect results).</p>
+<ul>
+<li>
+<p>[Transparent objects] If we only have transparent objects, to make blending work for multiple transparent objects we have to draw the <strong>most distant object first</strong> and the closest object last (back to front).</p>
+</li>
+<li>
+<p>[Non-transparent objects] If we only have non-transparent objects, the order doesn’t matter. The normal non-blended objects can still be drawn as normal using the depth buffer so they don’t have to be sorted. We do have to make sure they are drawn first before drawing the (sorted) transparent objects.</p>
+</li>
+<li>
+<p>[Mix of objects] When drawing a scene with non-transparent and transparent objects, the general outline is usually as follows:</p>
+<ol>
+<li>Draw all opaque objects first.</li>
+<li>Sort all the transparent objects.</li>
+<li>Draw all the transparent objects in sorted order.</li>
+</ol>
+</li>
+</ul>
+<p><img src="rendering_ord.png" alt="An Illustration of Rendering Order"></p>
+<p>This idea has been used by Nvidia for rendering particle smoke</p>
+<ul>
+<li>First calculate a vector which is half way between the view direction and light direction.</li>
+<li>We then render the volume as a series of slices perpendicular to this half-angle vector by accumulating particle splats on the screen buffers.</li>
+</ul>
+<p><img src="half_angle_sorting.png" alt="Half-angle axis sorting"></p>
+<p><img src="illustration_halfangle.png" alt="illustration of axis sorting"></p>
+<p>In ray tracing, when going through each ray, we are implicitly visiting objects in a sorted order.</p>
+<h2 id="forward-pass-of-surface-splat-rendering">Forward Pass of Surface Splat Rendering</h2>
+<p>The forward process is the same as the point-based rendering pipeline as mentioned previously <a href="/2025/02/22/CS8803-CGA-L11/#point-based-rendering-pipeline"> L09-Positional Encoding</a>:<br>
+Shading -&gt; Warping -&gt; Visibility -&gt; Filtering</p>
+<p><img src="forward_algorithm.png" alt="Algorithm"></p>
+<h2 id="backward-pass-of-surface-splat-rendering">Backward Pass of Surface Splat Rendering</h2>
+<h3 id="gradient-approximation">Gradient Approximation</h3>
+<ul>
+<li>The backward pass refers to the information flow from the rendered image to the scene parameters based on approximating the gradient.</li>
+</ul>
+<h4 id="if-the-splat-is-not-visible-on-the-pixel">If the splat is not visible on the pixel</h4>
+<ul>
+<li>
+<p>When the splat is <em>invisible</em>, and it is <em>moving away from the camera</em>, the gradient should always be zero (since it’s impossible to become visible)</p>
+</li>
+<li>
+<p>When the splat is <em>invisible</em>, and it is <em>moving toward the camera</em>, the gradient can be approximated by a linear function (we see a potential that this splat can be visible after some points and we’d like to demonstrate this trend):<br>
+<img src="grad_approx_inv.png" alt="gradient approximation"></p>
+<p>Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>I</mi></mrow><annotation encoding="application/x-tex">\delta I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">\delta p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal">p</span></span></span></span> represent changes in intensity and position.</p>
+</li>
+</ul>
+<h4 id="if-the-splat-is-visible-on-the-pixel">If the splat is visible on the pixel</h4>
+<ul>
+<li>
+<p>When the splat is <em>visible</em>, and it is <em>moving toward the camera or moving away from the camera</em>, the gradient can be approximated by its numerical gradient:</p>
+<p><img src="grad_approx_v.png" alt="gradient approximation"></p>
+</li>
+</ul>
+<h3 id="gradient-approximation-in-3d">Gradient Approximation in 3D</h3>
+<ul>
+<li>The splat is not visible at the pixel and the pixel is not rendered by any other ellipses in front of the splat;</li>
+<li>The splat is not visible at the pixel and the pixel is rendered by other ellipses in front of the splat (the splat is behind other splats);</li>
+<li>The splat is visible at x.</li>
+</ul>
+<p>Here, “splat” refers to the projected contribution of a 3D Gaussian (or surfel) onto the 2D image plane during rendering.</p>
+<p><img src="grad_approx_3d.png" alt="Gradient Approximation in 3D"></p>
+<h2 id="regularization-and-loss">Regularization and Loss</h2>
+<h3 id="why-do-we-need-regularization">Why do we need regularization?</h3>
+<ul>
+<li>The unstructured nature of point clouds, while enabling extensive topology changes, presents a considerable challenge for optimization.</li>
+<li>Gradient computation is fully <em>parallelized</em>, causing points to move independently of one another.</li>
+<li>Since point movements typically result in minor and sparse changes in the rendered image, the gradients associated with individual points <em>lack the structured behavior observed in mesh-based gradients</em>.</li>
+<li>Without appropriate regularization, the optimization can easily lead to convergence toward <em>local minima</em>.</li>
+</ul>
+<h3 id="regularization-repulsion-and-projection">Regularization: Repulsion and Projection</h3>
+<ul>
+<li>Need for Regularization:
+<ul>
+<li>Prevents overfitting to image artifacts.</li>
+<li>Maintains uniform point distribution.</li>
+</ul>
+</li>
+<li>Techniques:
+<ul>
+<li>Repulsion Term: Encourages even distribution by maximizing inter-point distances. It’s aimed at generating uniform point distributions by maximizing the distances between its neighbors on a local projection plane.<br>
+<img src="reg_rep.png" alt="repulsion"></li>
+<li>Projection Term: Aligns points to local tangent planes. It preserves clean surfaces by minimizing the distance from the point to the surface tangent plane.<br>
+<img src="reg_proj.png" alt="repulsion"></li>
+</ul>
+</li>
+</ul>
+<p><img src="example_reg.png" alt="example of regularization terms"></p>
+<h3 id="loss-function">Loss Function</h3>
+<p>The total optimization objective include three terms: the pixel loss, projection loss, and repulsion loss. However, this loss function was not used in Gaussian Splatting. Gaussian Splatting uses a large number of splats to achieve a much simpler loss function.</p>
+<p><img src="loss_func.png" alt="loss function"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/Gaussian-Splatting/" class="print-no-link">#Gaussian Splatting</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CS 8803 CGA - Differentiable Rasterization</div>
+      <div>http://example.com/2025/02/25/CS8803-CGA-L12/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>February 25, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/03/23/GAMES101-L04-TransformationCont-makeup/" title="GAMES 101 L04-Transformation Cont.">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GAMES 101 L04-Transformation Cont.</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/22/CS8803-CGA-L11/" title="CS 8803 CGA - Point-based Rendering">
+                        <span class="hidden-mobile">CS 8803 CGA - Point-based Rendering</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

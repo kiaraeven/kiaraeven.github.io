@@ -1,0 +1,885 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Why Ray Tracing Rasterization couldn’t handle global effects well  (Soft) shadows Especially when the light bounces more than once Rasterization is fast, but quality is relatively low Ray tracing is a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)">
+<meta property="og:url" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Why Ray Tracing Rasterization couldn’t handle global effects well  (Soft) shadows Especially when the light bounces more than once Rasterization is fast, but quality is relatively low Ray tracing is a">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/pinhole.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/recursive_raytracing.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/RayEquation.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/ray_inter_sphere.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/ray_inter_sphere1.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/plane_eq.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/MT_Algo.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/aabb.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/ray_intersect_aabb.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/KTTree.png">
+<meta property="og:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/BVH.png">
+<meta property="article:published_time" content="2025-01-12T03:04:40.472Z">
+<meta property="article:modified_time" content="2025-04-02T20:38:36.299Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/11/GAMES101-L13-RayTracing1/pinhole.png">
+  
+  
+  
+  <title>GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing) - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-11 21:04" pubdate>
+          January 11, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          393 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          4 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="why-ray-tracing">Why Ray Tracing</h1>
+<p>Rasterization couldn’t handle global effects well</p>
+<ul>
+<li>(Soft) shadows</li>
+<li>Especially when the light bounces more than once</li>
+<li>Rasterization is fast, but quality is relatively low</li>
+<li>Ray tracing is accurate, but is very slow.
+<ul>
+<li>Rasterization: real-time, ray tracing: offline</li>
+<li>~10K CPU core hours to render one frame in production</li>
+</ul>
+</li>
+</ul>
+<h1 id="light-ray">Light Ray</h1>
+<ol>
+<li>Light travels in straight lines (though this is wrong)</li>
+<li>Light rays do not “collide” with each other if they cross(though this is still wrong)</li>
+<li>Light rays travel from the light sources to the eye (but the physics is invariant under path reversal -reciprocity).</li>
+</ol>
+<h1 id="ray-casting">Ray Casting</h1>
+<ol>
+<li>Generate an image by casting one ray per pixel</li>
+<li>Check for shadows by sending a ray to the light<br>
+In the figure below, first generate eye ray, and then shading pixels.<br>
+<img src="pinhole.png" alt="pinhole" title="pinhole model"></li>
+</ol>
+<h2 id="recursive-ray-tracing">Recursive Ray Tracing</h2>
+<p>Adding up each ray’s shading result in the corresponding pixel (assume perfect reflection).<br>
+<img src="recursive_raytracing.png" alt="recursive ray tracing" title="recursive ray tracing"></p>
+<h2 id="ray-surface-intersection">Ray-Surface Intersection</h2>
+<p><img src="RayEquation.png" alt="ray equation" title="ray equation"><br>
+The objective is to calculate the t when the ray reach the surface.<br>
+<img src="ray_inter_sphere.png" alt="ray intersect sphere" title="ray intersect sphere"><br>
+<img src="ray_inter_sphere1.png" alt="ray intersect sphere" title="ray intersect sphere"><br>
+And similarly we can calculate the t for intersection with a general implicit surface.<br>
+Ray: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>o</mi><mo>+</mo><mi>t</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">r(t) = o + td</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">o</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">t</span><span class="mord mathnormal">d</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mo>=</mo><mi>t</mi><mo>&lt;</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">0 &lt;= t &lt; \infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6835em;vertical-align:-0.0391em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6542em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord">∞</span></span></span></span><br>
+General implicit surface p: f(p) = 0<br>
+Substitute ray equation: f(o+td) = 0<br>
+Solve for real, positive roots</p>
+<p><strong>Ray Intersection with Explicit Surface</strong><br>
+PS: Ray method to check if a point is inside/outside a close shape/object (works in both 2d and 3d)</p>
+<ul>
+<li>if the number of intersections is odd, the point must be inside.</li>
+<li>if the number of intersection is even, the point must be outside.</li>
+</ul>
+<p>Triangle is in a plane, so the problem can be converted to ray intersection with a plane, and then check if the intersection point is within the triangle.</p>
+<p>We can define a plane with a normal vector and a point passing the plane, and write it as an equation: ax + by + cz + d = 0.<br>
+<img src="plane_eq.png" alt="plane equation" title="plane equation"><br>
+And so we can calculate the ray’s intersection with plane, and then check if the intersection is within the triangle.</p>
+<p>We also have a faster method to compute the ray’s intersection with a triangle directly, which is called the Möller Trumbore Algorithm. Here we use barycentric coordinate to represent the point in the plane. As long as all barycentric coordinates are positive, we assure that the point is inside the triangle.<br>
+<img src="MT_Algo.png" alt="MT" title="MT"></p>
+<h2 id="performance-challenge">Performance Challenge</h2>
+<p>Simple ray-scene intersection exhaustively tests ray-intersection with every object to find the closest hit (with minimum t), which can be very slow.<br>
+Naive algorithm = #pixels x #objects (x #bounces)</p>
+<h2 id="accelerate-ray-tracing">Accelerate Ray Tracing</h2>
+<p>What if we have a complex scene with a lot of triangles? Accelerating ray tracing is important.</p>
+<h3 id="bounding-volume">Bounding Volume</h3>
+<ul>
+<li>Quick way to avoid intersections: bound complex object with a simple volume</li>
+<li>Object is fully contained in the volume, so if it doesn’t hit the volume, it doesn’t hit the object</li>
+<li>Test Bounding volume first, then test object if it hits</li>
+</ul>
+<p>Understanding: box is the intersection of 3 pairs of slabs (3 组相对的平面围成一个 box)<br>
+Specifically:<br>
+We often use an Axis-AlignedBounding Box (AABB)(轴对齐包围盒)<br>
+i.e. any side of the BB is along either x, y, or zaxis</p>
+<p><strong>Why use AABB?</strong><br>
+In this case when calculating the t parameter of a ray we avoid dot product with the normal vector of the plane (we can find an axis perpendicular to the plane directly), so that improve computation efficiency. Here, a ray is represented as <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>o</mi><mo>+</mo><mi>t</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">r(t) = o + t \cdot d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">o</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span>.<br>
+<img src="aabb.png" alt="AABB" title="why aabb"></p>
+<h4 id="ray-intersection-with-aabb">Ray Intersection with AABB</h4>
+<p><img src="ray_intersect_aabb.png" alt="Ray Intersection with AABB" title="Ray Intersection with AABB"></p>
+<p>Recall: a box (3D)= three pairs of infinitely large slabs<br>
+Key ideas</p>
+<ul>
+<li>The ray enters the box only when it enters all pairs of slabs</li>
+<li>The ray exits the box as long as it exits any pair of slabs</li>
+<li>For each pair, calculate the tmin and tmax (negative is fine)</li>
+<li>For the 3D box, t_enter= max{tmin}, t_exit = min{tmax}</li>
+<li>If t_enter &lt; t_exit, we know the ray stays a while in the box (so they must intersect!)</li>
+</ul>
+<p>However, ray is not a line, it’s single directed. And so we should check whether t is negative for physical correctness.</p>
+<ul>
+<li>If t_exit &lt; 0?
+<ul>
+<li>The box is “behind&quot; the ray - no intersection!</li>
+</ul>
+</li>
+<li>If t_exit &gt;= 0 and t_enter &lt; 0?
+<ul>
+<li>The ray’s origin is inside the box - have intersection!</li>
+</ul>
+</li>
+</ul>
+<p>In summary, ray and AABB intersect iff (当且仅当)<br>
+t_enter &lt; t_exit &amp;&amp; texit &gt;= 0</p>
+<h3 id="uniform-spatial-partitions-grids">Uniform Spatial Partitions (Grids)</h3>
+<h4 id="steps">Steps</h4>
+<ol>
+<li>Preprocess - build acceleration grids</li>
+</ol>
+<ul>
+<li>Find bounding box</li>
+<li>Create grids in the box</li>
+<li>Store each object in overlapping cells</li>
+</ul>
+<ol start="2">
+<li>Ray - Scene Intersection<br>
+Step through grid in ray traversal order. Not traversing all grids one by one, instead we can traverse the grid like the method we use to draw a line.<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">For each grid cell<br>    Test intersection <span class="hljs-keyword">with</span> <span class="hljs-built_in">all</span> objects stored at that cell <span class="hljs-comment"># if the cell doesn&#x27;t contain objects, skip it</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="effect">Effect</h4>
+<p>Grid Resolution?</p>
+<ul>
+<li>One grid: No speedup.</li>
+<li>Too many cells: Inefficiency due to extraneous grid traversal.</li>
+<li>Heuristic results: <span class="katex-error" title="ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲cells = Constan…">#cells = Constant * #objs</span>, C is aproximately equivalent to 27 in 3D</li>
+</ul>
+<h4 id="reflection">Reflection</h4>
+<p>When uniform grids succeed?<br>
+Grids work well on large collections of objects that are distributed evenly in size and space.<br>
+Otherwise (“Teapot in a stadium” problem), grids fail.</p>
+<h3 id="spatial-partitions">Spatial Partitions</h3>
+<h4 id="examples">Examples</h4>
+<ul>
+<li>Oct-Tree 八叉树</li>
+<li>KD-Tree</li>
+<li>BSP-Tree</li>
+</ul>
+<h4 id="kd-tree">KD-Tree</h4>
+<p>Given a complex scene, we construct a KD-Tree first then perform ray intersection.</p>
+<p><strong>Data Structure</strong></p>
+<p><img src="KTTree.png" alt="KT" title="KD"></p>
+<ul>
+<li>Internal nodes store
+<ul>
+<li>split axis: x-, y-, or z-axis</li>
+<li>split position: coordinate of split plane along axis</li>
+<li>children: pointers to child nodes</li>
+</ul>
+</li>
+<li>No objects are stored in internal nodes</li>
+<li>Leaf nodes store
+<ul>
+<li>list of objects</li>
+</ul>
+</li>
+</ul>
+<p>After constructing the KD-tree, we traverse the KD-Tree. If a cell is passed by the ray and is a leaf node, test intersection with all objects within it.</p>
+<p><strong>KD-Tree Reflection</strong></p>
+<ul>
+<li>Given a bbox, it’s hard to check if a triangle intersects with the bbox.</li>
+<li>Redundant storage of objects in multiple leaf nodes if an object overlaps several cells.</li>
+</ul>
+<h3 id="object-partitions-amp-bounding-volume-hierarchy-bvh">Object Partitions &amp; Bounding Volume Hierarchy (BVH)</h3>
+<p>To solve the problems in KT-Tree, we use BVH.</p>
+<h4 id="building-bvh">Building BVH</h4>
+<ul>
+<li>Find bounding box</li>
+<li>Recursively split set of objects in two subsets</li>
+<li>Recompute the bounding box of the subsets</li>
+<li>Stop when necessary</li>
+<li>Store objects in each leafnode<br>
+<img src="BVH.png" alt="BVH" title="BVH"></li>
+</ul>
+<h4 id="building-bvh-strategies">Building BVH - Strategies</h4>
+<ul>
+<li>
+<p>How to subdivide a node?</p>
+<ul>
+<li>Choose a dimension to split<br>
+Heuristic #1: Always choose the longest axis in node<br>
+Heuristic #2: Split node at location of median object (given n elements we can find the ith largest elements in O(n) with quick select algorithm)</li>
+</ul>
+</li>
+<li>
+<p>Termination criteria?</p>
+<ul>
+<li>Heuristic: stop when node contains few elements</li>
+</ul>
+</li>
+</ul>
+<p>PS: QuickSelect Algorithm Steps:</p>
+<ol>
+<li>Choose a Pivot:</li>
+</ol>
+<ul>
+<li>Select a random pivot element from the array (or use strategies like picking the last element).</li>
+</ul>
+<ol start="2">
+<li>Partition the Array:</li>
+</ol>
+<ul>
+<li>Rearrange the array such that all elements less than the pivot are on the left, and all elements greater than the pivot are on the right.</li>
+<li>Track the position p of the pivot after partitioning.</li>
+</ul>
+<ol start="3">
+<li>Recursive Search:</li>
+</ol>
+<ul>
+<li>If p is equal to i (zero-based index for the i-th largest element), the pivot is the answer.</li>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>&lt;</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">i&lt;p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6986em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>, recurse into the left subarray (elements smaller than the pivot) 递归进入左子列.</li>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>&gt;</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">i&gt;p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6986em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>, recurse into the right subarray (elements larger than the pivot, adjusting i accordingly).</li>
+</ul>
+<ol start="4">
+<li>Base Case:</li>
+</ol>
+<ul>
+<li>If the array has only one element, return it as the result.</li>
+</ul>
+<h4 id="data-structure">Data Structure</h4>
+<p>Internal nodes store:</p>
+<ul>
+<li>Bounding box</li>
+<li>Children: pointers to child nodes</li>
+</ul>
+<p>Leaf nodes store</p>
+<ul>
+<li>Bounding box</li>
+<li>List of objects</li>
+</ul>
+<p>Nodes represent subset of primitives in scene</p>
+<ul>
+<li>All objects in subtree</li>
+</ul>
+<h4 id="pseudo-code">Pseudo Code</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">Intersect</span>(Ray ray，BVH node)&#123;<br>  <span class="hljs-keyword">if</span>(ray misses node.bbox)<br>    <span class="hljs-keyword">return</span>;<br>  <span class="hljs-keyword">if</span>(node is a leaf node)&#123;<br>    test intersection with all objs;<br>    <span class="hljs-keyword">return</span> closest intersection;<br>  &#125;<br>  hit1 = <span class="hljs-built_in">Intersect</span>(ray,node.child1);<br>  hit2 = <span class="hljs-built_in">Intersect</span>(ray,node.child2);<br>  <span class="hljs-keyword">return</span> the closer of hitl,hit2;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="strengths">Strengths</h4>
+<ol>
+<li>It assures that each triangle will only be stored in one bbox.</li>
+<li>BBoxes are computed based on triangles, so triangles are completely contained within the bboxes. That is to say, there’s no need to concern calculate intersections between triangles and bboxes.</li>
+<li>KD-Trees are static structures, meaning that rebuilding or updating them for dynamic scenes (scenes with moving objects) is computationally expensive. In modern ray tracing applications like real-time rendering in games, dynamic or animated scenes are common. Alternatives like Bounding Volume Hierarchies (BVH) are more flexible and efficient because they allow incremental updates and refitting without rebuilding the entire structure.</li>
+<li>KD-Trees do not handle coherent rays (like those generated by primary rays or shadow rays in ray tracing) as efficiently as BVH. This is because KD-Trees subdivide space rigidly, which can result in more traversal steps for coherent rays. BVH, with its bounding volumes, can encapsulate large regions of space, allowing coherent rays to skip traversal of unnecessary regions more effectively.</li>
+</ol>
+<p>BVH is now the de-facto standard in ray tracing because it is more flexible and efficient for ray traversal, especially for scenes with complex geometries or animations.</p>
+<h4 id="spatial-vs-object-partition">Spatial vs. Object Partition</h4>
+<p><strong>Spatial partition</strong> (e.g.KD-tree)</p>
+<ul>
+<li>Partition space into non-overlapping regions</li>
+<li>An object can be containedin multiple regions</li>
+</ul>
+<p><strong>Object partition</strong> (e.g. BVH)</p>
+<ul>
+<li>Partition set of objects into disjoint subsets</li>
+<li>Bounding boxes for each set may overlap in space</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GAMES 101 L13-Ray Tracing 1 + L14-Ray Tracing 2 (Whitted-Style ray tracing)</div>
+      <div>http://example.com/2025/01/11/GAMES101-L13-RayTracing1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 11, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/13/GAMES101-L15-RayTracing3/" title="GAMES 101 L15-Ray Tracing 3 (Radiometry + BRDF + Probability Review)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GAMES 101 L15-Ray Tracing 3 (Radiometry + BRDF + Probability Review)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/09/GAMES101-L10-Geometry1/" title="GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)">
+                        <span class="hidden-mobile">GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

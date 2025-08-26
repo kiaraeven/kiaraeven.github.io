@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-19T19:56:41.862Z">
+<meta property="article:modified_time" content="2025-08-26T04:17:12.831Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -215,8 +215,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-08-12 23:55" pubdate>
-          August 12, 2025 pm
+        <time datetime="2025-08-12 10:55" pubdate>
+          August 12, 2025 am
         </time>
       </span>
     
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          11k words
+          16k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          92 mins
+          133 mins
         
       </span>
     
@@ -536,7 +536,7 @@
 </ul>
 <h2 id="4其他阴影算法">（4）其他阴影算法</h2>
 <p>pcss（原理、切比雪夫什么时候精确）</p>
-<p>见 <a href="/2025/03/30/interview-review/"> 面试复习：8. 阴影技术</a></p>
+<p>见 <a href="/2025/03/29/interview-review/"> 面试复习：8. 阴影技术</a></p>
 <h1 id="3-透明渲染">3. 透明渲染</h1>
 <h2 id="1oit-实现">（1）OIT 实现</h2>
 <p>传统 Alpha 混合的难点在于，GPU 在光栅化时，同一个像素可能会被多个不同远近的透明片元覆盖，而 GPU 并不知道应该先画哪个。</p>
@@ -1080,16 +1080,384 @@ MiB（二进制）：3.90625 MiB<br>
 <li>限制条件较多（材质、状态必须相同）。</li>
 </ul>
 <h1 id="6-场景结构">6. 场景结构</h1>
-<h2 id="1渲染场景是怎么组织的有哪些节点">（1）渲染场景是怎么组织的？有哪些节点？</h2>
-<h2 id="2大型场景中如何避免循环引用不是加-weakptr-这么简单">（2）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
+<h2 id="1序列化与反序列化">（1）序列化与反序列化</h2>
+<h3 id="为什么需要序列化动机">为什么需要序列化？（动机）</h3>
+<p>直接在运行时加载和解析 .obj 等格式虽然可行，但对于大型复杂场景存在明显缺点。</p>
+<ul>
+<li>加载速度：相比于解析复杂的文本或 JSON 格式，直接从<strong>二进制文件</strong>读取预处理好的数据块要快得多。</li>
+<li>数据优化：序列化过程不仅仅是格式转换，更是一个重要的优化环节。在 SceneConverter 工具中，执行了多项针对引擎渲染流程的优化：
+<ul>
+<li>数据结构转换：将传统的、基于指针的场景图转换为对 GPU 更友好的数据导向设计结构（如“长子-右兄弟”层级表示）。</li>
+<li>网格优化：使用 MeshOptimizer 等库来优化顶点缓存、减少过度绘制，并生成 LOD（Level of Detail）。</li>
+<li>数据合并：将多个使用相同材质的小网格合并成一个大的单一网格，以减少运行时的绘制调用（Draw Calls）次数 。</li>
+<li>材质与纹理处理：转换和降采样纹理，并将材质参数打包成紧凑的 GPU 友好结构 。</li>
+</ul>
+</li>
+</ul>
+<h3 id="总览">总览</h3>
+<ul>
+<li>网格 <code>.meshes</code>：几何体数据（Mesh 描述表 + 包围盒 + 索引块 + 顶点块）</li>
+<li>材质 <code>.materials</code>：<code>MaterialDescription</code> 数组 + 纹理文件名字符串表</li>
+<li>场景 <code>.scene</code>：节点变换数组 + 层级表 + 节点到网格/材质映射 + 可选名称块</li>
+</ul>
+<h3 id="网格-mesh-数据">网格 Mesh 数据</h3>
+<p><strong>See src/scene/VtxData(.h/.cpp)</strong></p>
+<ul>
+<li>
+<p>关键结构</p>
+<ul>
+<li><code>MeshFileHeader</code>：记录 mesh 数量、数据块偏移、索引与顶点块字节大小</li>
+<li><code>Mesh</code>：每个网格的 LOD 与流偏移、索引偏移、顶点偏移、顶点数等</li>
+<li><code>MeshData</code>：承载 <code>meshes_</code>、<code>boxes_</code>、<code>indexData_</code>(uint32)、<code>vertexData_</code>(float)</li>
+</ul>
+</li>
+<li>
+<p>序列化顺序（写）</p>
+<ul>
+<li>文件头 <code>MeshFileHeader</code></li>
+<li><code>Mesh</code> 数组</li>
+<li><code>BoundingBox</code> 数组</li>
+<li>索引数据块（按字节）</li>
+<li>顶点数据块（按字节）</li>
+</ul>
+</li>
+<li>
+<p>反序列化顺序（读）</p>
+<ul>
+<li>首先读取 MeshFileHeader，了解文件概况。</li>
+<li>接着读取 meshCount 个 Mesh 结构体，得到所有网格的“目录”。</li>
+<li>然后一次性地将 indexDataSize 字节的数据读入 indexData 向量，并将 vertexDataSize 字节的数据读入 vertexData 向量。</li>
+<li>当需要渲染某个具体的网格（例如 <code>meshes_[i]</code>）时，程序会：查看它的 lodOffset 和 streamOffset。使用这些偏移量作为“指针”，从巨大的 indexData 和 vertexData 向量中找到只属于这个网格的数据的起始位置。将这部分数据上传到 GPU 或进行其他处理。</li>
+</ul>
+</li>
+</ul>
+<h3 id="材质-materials">材质 Materials</h3>
+<p><strong>See src/scene/Material(.h/.cpp)</strong></p>
+<ul>
+<li>数据内容：<code>MaterialDescription</code> 定长数组 + 纹理文件名字符串表</li>
+<li>序列化（写）
+<ul>
+<li>先写材质数量 + 素材数组；再写字符串表：字符串数、每条长度、内容（含结尾 ‘\0’）</li>
+</ul>
+</li>
+<li>反序列化（读）
+<ul>
+<li>读数量、数组，再读字符串表（按长度+1 读取到缓冲区构造字符串）</li>
+</ul>
+</li>
+</ul>
+<h3 id="场景-scene节点层级映射名字">场景 Scene（节点/层级/映射/名字）</h3>
+<p><strong>See src/scene/(Scene.h/.cpp)</strong></p>
+<ul>
+<li>数据内容：
+<ul>
+<li>节点数 <code>sz</code></li>
+<li><code>localTransform_</code> 数组（sz 个 mat4）</li>
+<li><code>globalTransform_</code> 数组（sz 个 mat4）</li>
+<li><code>hierarchy_</code> 数组（sz 个 <code>Hierarchy</code>）</li>
+<li>映射表：<code>materialForNode_</code>、<code>meshes_</code>（键值对序列化）</li>
+<li>可选：<code>nameForNode_</code> + <code>names_</code> 字符串表 + <code>materialNames_</code> 字符串表</li>
+</ul>
+</li>
+<li>映射表格式：先写 uint32 计数（注意是“uint32 个数”，等于键值对数量 ×2），随后写 [k0, v0, k1, v1, …]</li>
+</ul>
+<h3 id="运行时装载与绑定">运行时装载与绑定</h3>
+<p><strong>See src/core/(GLSceneDataLazy.h/.cpp)</strong></p>
+<ul>
+<li>加载顺序：先 <code>loadMeshData</code> -&gt; 再 <code>loadScene</code> -&gt; 再 <code>loadMaterials</code></li>
+<li>关联：根据场景中的 <code>meshes_</code>、<code>materialForNode_</code> 生成绘制条目 <code>shapes_</code>，并把材质纹理索引替换为 GPU bindless 句柄</li>
+</ul>
+<h3 id="注意点与局限">注意点与局限</h3>
+<ul>
+<li>二进制直接按本机端序/对齐写入，跨平台兼容性与版本演进需自行管理（目前未存版本号，<code>magicValue</code>未校验）</li>
+<li><code>MaterialDescription</code> 对齐按 16 字节检查，需保持编译器一致的打包策略</li>
+<li><code>saveMap/loadMap</code> 的大小字段是“uint32 数量”而非“键值对数量”</li>
+<li>错误处理多用 <code>assert/exit</code>，生产工具链需补充健壮性与文件校验</li>
+</ul>
+<h2 id="2场景树结构">（2）场景树结构</h2>
+<ul>
+<li>场景加载与转换:
+<ul>
+<li>当项目从文件（如 .obj 或 .gltf）加载 3D 模型时，会使用像 Assimp 这样的库来解析原始数据。</li>
+<li>SceneConverter 工具中的 traverse 函数 会遍历 Assimp 加载的节点层级，并构建项目自定义的“长子-右兄弟”树结构，将其存储在 Hierarchy 数组中。这是场景树结构的创建阶段。</li>
+</ul>
+</li>
+<li>计算全局变换矩阵:
+<ul>
+<li>场景中的每个物体都有一个相对于父节点的局部变换矩阵（localTransform*）。为了在世界空间中正确地渲染物体，必须计算出每个节点的全局变换矩阵（globalTransform*）。</li>
+<li>recalculateGlobalTransforms 函数利用这个树结构来高效地完成计算。它从根节点开始，逐层向下遍历。对于每一层的节点，它可以通过 parent_ 索引轻松找到其父节点的、已经计算好的全局变换矩阵，然后乘以自身的局部变换矩阵，得到自己的全局变换矩阵。</li>
+</ul>
+</li>
+<li>生成渲染列表:
+<ul>
+<li>GPU 渲染时，最高效的方式是处理一个扁平、线性的数据列表，而不是一个复杂的树。</li>
+<li>因此，CPU 会遍历这个树结构，将所有带有网格（Mesh）和材质（Material）的可渲染节点提取出来，生成一个线性的**“形状列表”**（即 DrawData 数组）。</li>
+<li>这个形状列表中的每一项都包含了渲染一个物体所需的所有信息索引（网格索引、材质索引、变换矩阵索引等），可以直接用于驱动 GPU 的间接绘制 (Indirect Drawing)。</li>
+</ul>
+</li>
+<li>场景编辑与动态修改:
+<ul>
+<li>当需要对场景进行修改时，例如删除一个节点，项目中的 deleteSceneNodes 函数会直接操作这个 Hierarchy 数组。它会通过修改节点的 firstChild* 和 nextSibling* 链接来断开并移除节点及其所有子节点。</li>
+<li>同样，在合并场景（如合并 Bistro 的内部和外部场景）时，mergeScenes 函数 也是通过操纵这个树结构，将一个场景的根节点作为另一个场景的子节点来连接它们。</li>
+</ul>
+</li>
+<li>场景树结构是在 CPU 端 使用的、用于管理和预处理场景的工具，它的主要作用是：
+<ul>
+<li>管理层级关系：清晰地表示谁是谁的父节点/子节点。</li>
+<li>计算变换：高效地计算出每个物体的最终世界位置。</li>
+<li>生成渲染数据：作为中间表示，用于生成最终提交给 GPU 的、扁平化的渲染指令列表。</li>
+<li>GPU 和着色器最终处理的是这个树结构经过 CPU 运算后得到的结果（例如，全局变换矩阵数组和形状列表），而不是树结构本身。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2渲染场景是怎么组织的有哪些节点">（2）渲染场景是怎么组织的？有哪些节点？</h2>
+<h3 id="场景图组织">场景图组织</h3>
+<p>这部分负责维护节点之间的层级关系和变换。</p>
+<ul>
+<li>
+<p>层级 (Hierarchy)</p>
+<ul>
+<li>
+<p>场景的层级关系通过一种**“长子-右兄弟”（First Child – Next Sibling）**的表示法来存储，它将任意树结构转换为二叉树形式，从而避免了在每个节点中存储一个动态大小的子节点列表。</p>
+</li>
+<li>
+<p>每个节点的层级信息存储在一个 Hierarchy 结构体数组中，包含以下字段：</p>
+<ul>
+<li><code>parent_</code>: 父节点的索引 。</li>
+<li><code>firstChild_</code>: 第一个子节点的索引 。</li>
+<li><code>nextSibling_</code>: 同级的下一个兄弟节点的索引 。</li>
+<li><code>level_</code>: 节点在层级中的深度 。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>变换 (Transforms)</p>
+<ul>
+<li>节点的空间位置和方向由变换矩阵表示，并存储在两个独立的数组中：
+<ul>
+<li><code>localTransforms_</code>: 存储每个节点相对于其父节点的局部变换矩阵 。</li>
+<li><code>globalTransforms_</code>: 存储每个节点计算后的全局（世界空间）变换矩阵 。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="渲染数据组织">渲染数据组织</h3>
+<p>这部分负责将场景中的可渲染对象组织成 GPU 可以高效处理的形式。</p>
+<ul>
+<li>
+<p>节点与数据的映射</p>
+<ul>
+<li>场景中的节点并不直接包含网格或材质数据。相反，它们通过映射表（unordered_map）来关联这些资源：
+<ul>
+<li><code>meshes_</code>: 一个将节点索引映射到网格索引的哈希表。</li>
+<li><code>materialForNode_</code>: 一个将节点索引映射到材质索引的哈希表。</li>
+</ul>
+</li>
+<li>这种方式使得没有几何体或材质的节点（例如，仅用于组织层级的空节点）不会占用不必要的内存。</li>
+</ul>
+</li>
+<li>
+<p>形状列表 (Shape List / DrawData)</p>
+<ul>
+<li>场景图本身不直接用于驱动 GPU 渲染。为了实现高效的渲染（特别是间接绘制），项目会遍历场景图并生成一个扁平化的**“形状列表”** 。</li>
+<li>这个列表中的每一项都是一个 DrawData 结构体，它聚合了渲染一个独立物体所需的所有信息索引 ：
+<ul>
+<li>meshIndex: 网格索引</li>
+<li>materialIndex: 材质索引</li>
+<li>LOD: 使用的细节层次（Level of Detail）索引</li>
+<li>indexOffset 和 vertexOffset: 在全局顶点和索引缓冲区中的偏移量</li>
+<li>transformIndex: 在全局变换矩阵数组中的索引</li>
+</ul>
+</li>
+<li>这个形状列表是最终驱动渲染的核心，GPU 可以高效地处理这个紧凑、线性的数据结构。</li>
+</ul>
+</li>
+<li>
+<p>调试节点</p>
+<ul>
+<li>为了方便调试，场景还可以包含与节点名称相关的组件 ：
+<ul>
+<li><code>names_</code>: 存储所有节点名称字符串的数组 。</li>
+<li><code>nameForNode_</code>: 将节点索引映射到其名称索引的哈希表 。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结">总结</h3>
+<p>总的来说，场景组织分为两个层次：</p>
+<ul>
+<li>逻辑层：一个数据导向的场景图，通过多个平行的数组和哈希表来高效地管理节点的层级、变换和与网格/材质的关联。</li>
+<li>渲染层：一个扁平化的 Shape List，它是从场景图中派生出来的，专门为 GPU 的高效渲染（如间接绘制）而设计。</li>
+</ul>
+<h2 id="3大型场景中如何避免循环引用不是加-weakptr-这么简单">（3）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
 <h1 id="7-hdr">7. hdr</h1>
 <h2 id="1高斯模糊几个-pass">（1）高斯模糊（几个 pass？）</h2>
 <h2 id="2bloom">（2）bloom</h2>
 <h1 id="8-glsl">8. glsl</h1>
 <h2 id="1手写判断一个点在正方形内外">（1）手写判断一个点在正方形内/外</h2>
+<ul>
+<li>在 GLSL 里，把正方形想成 <strong>轴对齐、中心在原点、边长为 2</strong> 的最简单情况：</li>
+</ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">bool</span> inside = <span class="hljs-built_in">all</span>(<span class="hljs-built_in">lessThan</span>(<span class="hljs-built_in">abs</span>(P), <span class="hljs-type">vec2</span>(<span class="hljs-number">1.0</span>)));<br></code></pre></td></tr></table></figure>
+<p>解释</p>
+<ul>
+<li>
+<p><code>abs(P)</code> 把坐标取绝对值。</p>
+</li>
+<li>
+<p><code>vec2(1.0)</code> 定义半边长 1（总边长 2）。</p>
+</li>
+<li>
+<p><code>lessThan</code> 逐分量返回 bvec2，<code>all</code> 把两个分量 AND 起来。</p>
+</li>
+<li>
+<p><code>inside</code> = true 表示点在正方形内，false 表示在外。</p>
+</li>
+<li>
+<p>如果正方形 <strong>中心在 center、边长为 size</strong>，则：</p>
+</li>
+</ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">bool</span> inside = <span class="hljs-built_in">all</span>(<span class="hljs-built_in">lessThan</span>(<span class="hljs-built_in">abs</span>(P - center), <span class="hljs-type">vec2</span>(size * <span class="hljs-number">0.5</span>)));<br></code></pre></td></tr></table></figure>
+<ul>
+<li>旋转/任意矩形<br>
+用两条局部基向量 <code>e1</code>, <code>e2</code> 和中心 <code>c</code>：</li>
+</ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec2</span> d = P - c;<br><span class="hljs-type">float</span> u = <span class="hljs-built_in">dot</span>(d, e1) / <span class="hljs-built_in">dot</span>(e1, e1);<br><span class="hljs-type">float</span> v = <span class="hljs-built_in">dot</span>(d, e2) / <span class="hljs-built_in">dot</span>(e2, e2);<br><span class="hljs-type">bool</span> inside = (<span class="hljs-built_in">abs</span>(u) &lt;= <span class="hljs-number">1.0</span>) &amp;&amp; (<span class="hljs-built_in">abs</span>(v) &lt;= <span class="hljs-number">1.0</span>);<br></code></pre></td></tr></table></figure>
 <h1 id="9-剔除技术">9. 剔除技术</h1>
 <h2 id="1视锥体剔除cpugpu">（1）视锥体剔除（cpu/gpu）</h2>
-<h2 id="2背面剔除">（2）背面剔除</h2>
+<p>视锥体剔除的目的是确定场景中的哪些部分位于摄像机的可见区域（即视锥体）内，从而避免将视锥体外的不可见物体提交给 GPU 进行渲染，以节省性能。</p>
+<h3 id="cpu-视锥体剔除的做法">CPU 视锥体剔除的做法</h3>
+<ul>
+<li>
+<p>提取视锥体信息：</p>
+<ul>
+<li>
+<p>首先，从摄像机的视图-投影矩阵中提取出视锥体的 6 个平面（左、右、上、下、近、远）和 8 个角点。</p>
+<ul>
+<li>
+<p>提取视锥体的 6 个平面</p>
+<ul>
+<li>核心原理：一个点如果在视锥体内，那么它在经过视图-投影矩阵变换后得到的<strong>裁剪空间坐标 (Clip Space Coordinates)</strong> <code>(x_c, y_c, z_c, w_c)</code> 必须满足以下条件：
+<ul>
+<li><code>-w_c &lt;= x_c &lt;= w_c</code></li>
+<li><code>-w_c &lt;= y_c &lt;= w_c</code></li>
+<li><code>-w_c &lt;= z_c &lt;= w_c</code></li>
+</ul>
+</li>
+<li>这六个不等式实际上就定义了视锥体的六个边界平面。例如，<code>w_c + x_c &gt;= 0</code> 定义了左平面，<code>w_c - x_c &gt;= 0</code> 定义了右平面，以此类推。一个世界空间中的点 <code>P_w = (x_w, y_w, z_w, 1)</code> 变换到裁剪空间是通过乘以视图-投影矩阵 <code>VP</code> 完成的： <code>P_c = VP * P_w</code>。如果我们把 <code>VP</code> 矩阵按行展开，那么 <code>x_c</code> 就是 <code>P_w</code> 与 <code>VP</code> 矩阵第一行的点积，<code>w_c</code> 就是 <code>P_w</code> 与第四行的点积。所以，左平面的方程 <code>w_c + x_c &gt;= 0</code> 就可以写成 <code>dot(row_4, P_w) + dot(row_1, P_w) &gt;= 0</code>，即 <code>dot(row_4 + row_1, P_w) &gt;= 0</code>。向量 <code>row_4 + row_1</code> 就定义了这个平面。</li>
+<li><code>getFrustumPlanes</code> 函数正是基于这个原理实现的。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">getFrustumPlanes</span><span class="hljs-params">(glm::mat4 vp, glm::vec4* planes)</span> </span>&#123;<br>    <span class="hljs-comment">// 将矩阵转置，以便按列访问原始的行</span><br>    vp = glm::<span class="hljs-built_in">transpose</span>(vp);<br>    <span class="hljs-comment">// 左平面: vp[3] (w分量) + vp[0] (x分量)</span><br>    planes[<span class="hljs-number">0</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] + vp[<span class="hljs-number">0</span>]);<br>    <span class="hljs-comment">// 右平面: vp[3] (w分量) - vp[0] (x分量)</span><br>    planes[<span class="hljs-number">1</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] - vp[<span class="hljs-number">0</span>]);<br>    <span class="hljs-comment">// 底平面: vp[3] (w分量) + vp[1] (y分量)</span><br>    planes[<span class="hljs-number">2</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] + vp[<span class="hljs-number">1</span>]);<br>    <span class="hljs-comment">// 顶平面: vp[3] (w分量) - vp[1] (y分量)</span><br>    planes[<span class="hljs-number">3</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] - vp[<span class="hljs-number">1</span>]);<br>    <span class="hljs-comment">// 近平面: vp[3] (w分量) + vp[2] (z分量)</span><br>    planes[<span class="hljs-number">4</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] + vp[<span class="hljs-number">2</span>]);<br>    <span class="hljs-comment">// 远平面: vp[3] (w分量) - vp[2] (z分量)</span><br>    planes[<span class="hljs-number">5</span>] = <span class="hljs-built_in">vec4</span>(vp[<span class="hljs-number">3</span>] - vp[<span class="hljs-number">2</span>]);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>最终得到的 <code>planes</code> 数组中的每个 <code>vec4</code> 都代表一个平面方程 <code>Ax + By + Cz + D = 0</code>，可以直接用于判断点是否在平面的内侧。</p>
+</li>
+<li>
+<p>提取视锥体的 8 个角点</p>
+<ul>
+<li>核心原理：视锥体在<strong>规范化设备坐标 (Normalized Device Coordinates - NDC)</strong> 空间中是一个标准的立方体，其 8 个角点的坐标范围是从 <code>(-1, -1, -1)</code> 到 <code>(1, 1, 1)</code>。那么，只要将这 8 个 NDC 空间中的角点坐标<strong>反向变换</strong>回世界空间，就能得到视锥体在世界空间中的 8 个角点。这个反向变换正是通过乘以<strong>视图-投影矩阵的逆矩阵 (Inverse View-Projection Matrix)</strong> 来实现的。</li>
+<li><code>getFrustumCorners</code> 基于这一原理实现。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">getFrustumCorners</span><span class="hljs-params">(glm::mat4 vp, glm::vec4* points)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// 1. 定义NDC空间中的8个角点</span><br>    <span class="hljs-type">const</span> vec4 corners[] = &#123;<br>        <span class="hljs-built_in">vec4</span>(<span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>), <span class="hljs-built_in">vec4</span>( <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>),<br>        <span class="hljs-built_in">vec4</span>( <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>), <span class="hljs-built_in">vec4</span>(<span class="hljs-number">-1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>),<br>        <span class="hljs-built_in">vec4</span>(<span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-built_in">vec4</span>( <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">1</span>),<br>        <span class="hljs-built_in">vec4</span>( <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-built_in">vec4</span>(<span class="hljs-number">-1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">1</span>)<br>    &#125;;<br><br>    <span class="hljs-comment">// 2. 计算视图-投影矩阵的逆矩阵</span><br>    <span class="hljs-type">const</span> glm::mat4 invVP = glm::<span class="hljs-built_in">inverse</span>(vp);<br><br>    <span class="hljs-comment">// 3. 遍历每个NDC角点，将其变换回世界空间</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i != <span class="hljs-number">8</span>; i++) &#123;<br>        <span class="hljs-type">const</span> vec4 q = invVP * corners[i];<br>        <span class="hljs-comment">// 4. 进行透视除法 (w分量归一化)，得到最终的世界坐标</span><br>        points[i] = q / q.w;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>执行两阶段剔除测试：</p>
+<ul>
+<li>遍历场景中每一个需要渲染的物体（在书中是通过遍历间接绘制命令列表来实现的）。</li>
+<li>对于每一个物体，获取其预先计算好的、经过世界变换的轴对齐包围盒 (AABB)。</li>
+<li>执行 isBoxInFrustum 函数进行测试 ，该函数包含两个阶段：
+<ul>
+<li>阶段一（盒在视锥体外？）：检查包围盒的 8 个顶点是否完全位于视锥体任意一个平面的外侧。如果是，则该包围盒不可见 。</li>
+<li>阶段二（视锥体在盒外？）：检查视锥体的 8 个角点是否完全位于包围盒任意一个平面的外侧。如果是，则该包围盒也不可见 。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>只有当一个包围盒通过了这两个阶段的测试，才被认为是可见的。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>更新绘制命令：</p>
+<ul>
+<li>CPU 维护一个间接绘制命令的数组（drawCommands_）。</li>
+<li>根据剔除测试的结果，CPU 会直接修改这个数组中的内容。如果一个物体被判断为不可见，其对应的 DrawElementsIndirectCommand 结构体中的 instanceCount_（实例数量）字段会被设置为 0；如果可见，则设置为 1 。</li>
+<li>完成所有物体的剔除测试后，将这个修改过的、包含可见性信息的命令数组通过 uploadIndirectBuffer() 上传到 GPU 的间接绘制缓冲区中 。</li>
+</ul>
+</li>
+<li>
+<p>渲染：</p>
+<ul>
+<li>GPU 执行 glMultiDrawElementsIndirect() 命令，它会读取间接绘制缓冲区。对于那些 instanceCount 为 0 的命令，GPU 会自动跳过，从而实现了剔除。</li>
+</ul>
+</li>
+<li>
+<p>总结 CPU 做法：剔除逻辑在 CPU 上循环执行，CPU 直接修改一个内存中的绘制命令列表来标记物体的可见性，然后将这个列表上传到 GPU 供其渲染。</p>
+</li>
+</ul>
+<h3 id="gpu-视锥体剔除的做法">GPU 视锥体剔除的做法</h3>
+<p>通过一个计算着色器（Compute Shader）来并行处理.</p>
+<ul>
+<li>
+<p>数据准备（CPU 端）：</p>
+<ul>
+<li>CPU 仍然需要计算视锥体的 6 个平面和 8 个角点。但这次，CPU 不进行剔除计算，而是将这些视锥体信息连同所有物体的包围盒数据，以及原始的间接绘制命令，全部上传到 GPU 的特定缓冲区中（如 Uniform Buffer 和 Shader Storage Buffer Objects - SSBO）。</li>
+</ul>
+</li>
+<li>
+<p>在 GPU 上执行剔除（Compute Shader）：</p>
+<ul>
+<li>启动一个计算着色器（FrustumCulling.comp）
+<ul>
+<li>计算着色器的每个工作项（worker）负责处理一个或多个物体。它会读取传递进来的视锥体信息和对应物体的包围盒信息。</li>
+<li>在着色器内部，执行与 CPU 版本完全相同的 isAABBinFrustum 两阶段剔除逻辑 。</li>
+<li>与 CPU 不同的是，计算着色器直接修改存储在 GPU 显存中的间接绘制命令缓冲区。如果一个物体被剔除，它会将其对应命令的 instanceCount 字段直接在显存中设置为 0 。</li>
+</ul>
+</li>
+<li>同步 (Synchronization)：
+<ul>
+<li>这是一个关键步骤。因为计算着色器修改了渲染管线将要使用的数据，所以在执行渲染命令之前，必须确保计算着色器的工作已经全部完成。</li>
+<li>CPU 会插入一个内存屏障 (Memory Barrier)，具体使用的是 glMemoryBarrier，并带有 GL_COMMAND_BARRIER_BIT 和 GL_SHADER_STORAGE_BARRIER_BIT 标志。这个屏障确保了后续的渲染绘制调用能够“看到”计算着色器对间接绘制缓冲区的修改。</li>
+</ul>
+</li>
+<li>渲染：
+<ul>
+<li>渲染管线像往常一样执行 glMultiDrawElementsIndirect() 命令，但此时它读取的是已经被计算着色器“净化”过的、包含了正确可见性信息的间接绘制缓冲区。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>总结 GPU 做法：剔除逻辑被并行化，在 GPU 的计算着色器中执行。它直接在 GPU 显存中修改绘制命令，省去了 CPU 的循环计算和数据上传的开销，但需要在计算和渲染两个阶段之间进行显式的同步。</p>
+</li>
+</ul>
+<h2 id="2背面剔除back-face-culling">（2）背面剔除（Back-face Culling）</h2>
+<p>背面剔除就是在 <strong>光栅化之前</strong> 把<strong>背向摄像机</strong>的三角形直接扔掉，省掉后面的光栅化、深度测试、片元着色等所有开销。</p>
+<ul>
+<li>
+<p>判定方法<br>
+一个三角形在<strong>裁剪空间</strong>（或 NDC）里，如果它的 <strong>有向面积</strong>（叉积 z 分量）为负，就说明是背面。</p>
+<ul>
+<li>顺时针（CW）通常算背面</li>
+<li>逆时针（CCW）通常算正面</li>
+</ul>
+</li>
+<li>
+<p>在 OpenGL 里</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">glEnable</span>(GL_CULL_FACE);        <span class="hljs-comment">// 开启剔除</span><br><span class="hljs-built_in">glCullFace</span>(GL_BACK);           <span class="hljs-comment">// 剔除背面（可选 GL_FRONT）</span><br><span class="hljs-built_in">glFrontFace</span>(GL_CCW);           <span class="hljs-comment">// 定义正面为逆时针（默认）</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>效果</p>
+<ul>
+<li>对封闭模型可立即减少约 50 % 的三角形处理。</li>
+<li>仅在 <strong>双面关闭</strong> 时有效；若需要双面材质，记得 <code>glDisable(GL_CULL_FACE)</code> 或 <code>glCullFace(GL_FRONT_AND_BACK)</code>。</li>
+</ul>
+</li>
+</ul>
 <h2 id="3顶点命中率">（3）顶点命中率</h2>
 <ul>
 <li>顶点命中率是用来衡量 顶点着色器执行效率 的一个经验指标。值越高，说明剔除和索引复用做得越好。</li>
@@ -1124,8 +1492,7 @@ MiB（二进制）：3.90625 MiB<br>
 <h2 id="2taa">（2）TAA</h2>
 <h2 id="3其他-aa">（3）其他 AA</h2>
 <p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
-<h1 id="12-模型序列化与反序列化">12. 模型序列化与反序列化</h1>
-<h1 id="13-减少-draw-call">13. 减少 Draw Call</h1>
+<h1 id="12-减少-draw-call">12. 减少 Draw Call</h1>
 <ul>
 <li>Programmable Vertex Pulling (PVP)</li>
 <li>多重间接绘制 (Multi-Draw Indirect - MDI)</li>
@@ -1156,9 +1523,47 @@ MiB（二进制）：3.90625 MiB<br>
 </li>
 </ul>
 <h2 id="8gltf-中的内容obj-中的内容">（8）.gltf 中的内容？.obj 中的内容？</h2>
-<h2 id="9项目中是否用到过智能指针">（9）项目中是否用到过智能指针？</h2>
+<h2 id="9项目中智能指针的使用">（9）项目中智能指针的使用</h2>
 <ul>
-<li>GLFramebuffer.h 中构造函数里用 unique_ptr 存储纹理对象指针。每个纹理对象只属于这一个帧缓冲对象；当 GLFramebuffer 对象销毁时，纹理会自动删除；避免内存泄漏，确保纹理资源在帧缓冲销毁时被正确释放。如果构造函数中发生异常，unique_ptr 会自动清理已创建的纹理避免部分初始化状态下的资源泄漏。</li>
+<li>
+<p>GLFramebuffer.h 中构造函数里用 unique_ptr 存储纹理对象指针（支持可变数量的颜色附件（vector 纹理数组）和一个深度附件）。每个纹理对象只属于这一个帧缓冲对象；当 GLFramebuffer 对象销毁时，纹理会自动删除；避免内存泄漏，确保纹理资源在帧缓冲销毁时被正确释放。如果构造函数中发生异常，unique_ptr 会自动清理已创建的纹理避免部分初始化状态下的资源泄漏。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">GLFramebuffer</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    std::vector&lt;std::unique_ptr&lt;GLTexture&gt;&gt; texColors_;<br>    std::unique_ptr&lt;GLTexture&gt; texDepth_;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>GLSceneDataLazy 类中的纹理共享。多个材质可能引用同一个纹理</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">GLSceneDataLazy</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">const</span> std::shared_ptr&lt;GLTexture&gt; dummyTexture_;<br>    std::vector&lt;std::shared_ptr&lt;GLTexture&gt;&gt; allMaterialTextures_;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>dummyTexture_</code><br>
+在纹理加载完成前，所有材质都使用同一个 dummy texture，当多个材质引用同一个虚拟纹理时，需要确保最后一个引用消失时才释放。这样也避免为每个材质创建独立的 dummy texture 副本。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 构造函数中，所有纹理初始化为dummyTexture_</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; f: textureFiles_) &#123;<br>    allMaterialTextures_.<span class="hljs-built_in">emplace_back</span>(dummyTexture_);  <span class="hljs-comment">// 共享同一个dummyTexture_</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>异步纹理加载的多线程共享</p>
+<p>主线程和异步线程都需要访问纹理对象，异步线程创建纹理后，主线程接管所有权，纹理替换需要是原子操作，避免渲染时的数据竞争。</p>
+<ul>
+<li>异步加载机制</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">taskflow_.for_each_index(<span class="hljs-number">0u</span>, (<span class="hljs-type">uint32_t</span>)textureFiles_.<span class="hljs-built_in">size</span>(), <span class="hljs-number">1u</span>, [<span class="hljs-keyword">this</span>](<span class="hljs-type">int</span> idx) &#123;<br>    <span class="hljs-comment">// 异步加载纹理文件</span><br>    <span class="hljs-type">const</span> <span class="hljs-type">uint8_t</span>* img = <span class="hljs-built_in">stbi_load</span>(<span class="hljs-keyword">this</span>-&gt;textureFiles_[idx].<span class="hljs-built_in">c_str</span>(), &amp;w, &amp;h, <span class="hljs-literal">nullptr</span>, STBI_rgb_alpha);<br>    <span class="hljs-keyword">if</span> (img) &#123;<br>        std::lock_guard <span class="hljs-built_in">lock</span>(loadedFilesMutex_);<br>        loadedFiles_.<span class="hljs-built_in">emplace_back</span>(LoadedImageData &#123; idx, w, h, img &#125;);<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>主线程中的纹理替换</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">GLSceneDataLazy::uploadLoadedTextures</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 从异步加载队列中获取新纹理</span><br>    allMaterialTextures_[data.index_] = std::<span class="hljs-built_in">make_shared</span>&lt;GLTexture&gt;(data.w_, data.h_, data.img_);<br><br>    <span class="hljs-comment">// 更新材质，替换虚拟纹理</span><br>    <span class="hljs-built_in">updateMaterials</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>材质系统的纹理引用管理<br>
+不同材质可能使用相同的纹理文件，确保所有引用该纹理的材质都销毁后，纹理才被释放。相同纹理文件只加载一次，通过引用计数共享。</p>
+<ul>
+<li>
+<p>材质更新过程</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">GLSceneDataLazy::updateMaterials</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i != numMaterials; i++) &#123;<br>        <span class="hljs-comment">// 将纹理索引转换为 bindless 句柄</span><br>        out.ambientOcclusionMap_ = <span class="hljs-built_in">getTextureHandleBindless</span>(in.ambientOcclusionMap_, allMaterialTextures_);<br>        out.emissiveMap_ = <span class="hljs-built_in">getTextureHandleBindless</span>(in.emissiveMap_, allMaterialTextures_);<br>        out.albedoMap_ = <span class="hljs-built_in">getTextureHandleBindless</span>(in.albedoMap_, allMaterialTextures_);<br>        <span class="hljs-comment">// ... 其他纹理</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <h2 id="10延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
 <h2 id="11opengl-渲染管线">（11）OpenGL 渲染管线</h2>

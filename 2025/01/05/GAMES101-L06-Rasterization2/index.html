@@ -1,0 +1,731 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Sampling Artifacts (瑕疵)  Jaggies - sampling in space Moire Patterns (摩尔纹) - undersampling images Wagon wheel effect - sampling in time  root cause: signals are changing too fast (high frequency) but s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)">
+<meta property="og:url" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Sampling Artifacts (瑕疵)  Jaggies - sampling in space Moire Patterns (摩尔纹) - undersampling images Wagon wheel effect - sampling in time  root cause: signals are changing too fast (high frequency) but s">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/pre_filter.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/fourier_transform.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/freq_sampling.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/mixed_freq.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/after_lowpass_filter.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/practical_antialiasing_tri.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/MSAA1.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/MSAA2.png">
+<meta property="og:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/MSAA3.png">
+<meta property="article:published_time" content="2025-01-06T02:17:04.484Z">
+<meta property="article:modified_time" content="2025-01-07T05:04:17.429Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/05/GAMES101-L06-Rasterization2/pre_filter.png">
+  
+  
+  
+  <title>GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering) - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-05 20:17" pubdate>
+          January 5, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          200 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          2 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="sampling-artifacts-瑕疵">Sampling Artifacts (瑕疵)</h1>
+<ul>
+<li>Jaggies - sampling in space</li>
+<li>Moire Patterns (摩尔纹) - undersampling images</li>
+<li>Wagon wheel effect - sampling in time</li>
+</ul>
+<p>root cause: signals are changing too fast (high frequency) but sampled too slowly.</p>
+<h1 id="antialiasing-idea-blurring-pre-filtering-before-sampling">Antialiasing idea - Blurring (pre-filtering) Before Sampling</h1>
+<p><img src="pre_filter.png" alt="pre filter" title="Pre-filter for antialiasing"><br>
+Note antialiased edges in rasterized trianglewhere pixel values take intermediate values.</p>
+<h2 id="how-aliases-are-created">How Aliases are Created</h2>
+<h3 id="aliases">Aliases</h3>
+<p>The <strong>Fourier series</strong> represents a periodic function as a sum of sines and cosines (or complex exponentials). This decomposition shows how a function can be expressed as a combination of simple harmonic components. The <strong>Fourier transform</strong> generalizes the Fourier series to analyze non-periodic functions or signals. It <strong>decomposes a signal into its frequency components</strong>, showing how much of each frequency is present in the signal.<br>
+<img src="fourier_transform.png" alt="fourier transform" title="Fourier Transform"><br>
+Higer frequencies needs faster sampling.<br>
+<img src="freq_sampling.png" alt="frequencies and sampling" title="Frequencies and Sampling"></p>
+<p>Two frequencies that are indistinguishable at a given sampling rate are called “<strong>aliases</strong>”.</p>
+<h3 id="filtering">Filtering</h3>
+<p><strong>Filtering</strong>: getting rid of certain frequencies.<br>
+Filtering = Convolution = Average</p>
+<p>Convolution in the spatial domain is equal to multiplicationin the frequency domain, and vice versa</p>
+<ul>
+<li>Option 1:<br>
+Filter by convolution in the spatial domain.</li>
+<li>Option 2:<br>
+Transform to frequency domain (Fourier transform). Multiply by Fourier transform of convolution kernel. Transform back to spatial domain (inverse Fourier).</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>Sampling = Repeating Frequency Contents<br>
+Aliasing = Mixed Frequency Contents<br>
+Aliasing occurs when a signal or image contains high-frequency details that are inadequately sampled.</p>
+<h2 id="how-to-reduce-aliasing-errors">How to Reduce Aliasing Errors</h2>
+<ul>
+<li>Option 1: Increase sampling rate<br>
+Essentially increasing the distance between replicas in the Fourier domain.<br>
+Higher resolution displays, sensors, framebuffers…<br>
+But: costly &amp; may need very high resolution</li>
+<li>Option 2: Antialiasing<br>
+Making Fourier contents “narrower” before repeating, i.e. <strong>Filtering out high frequencies before sampling</strong>.</li>
+</ul>
+<p>See the two figures below. The horizontal axis in the figure represents frequency, with 0 Hz at the center. Moving away from the center represents higher frequencies. Fs/2 and -Fs/2 represent the Nyquist frequency (see explanation below), the highest frequency that can be represented accurately for a sampling rate Fs. Initially, as shown in the first figure, mixed frequencies caused aliases. In the second figure, if we remove the high frequencies, the mixed part no longer exists, anti-aliasing achieved.</p>
+<p><img src="mixed_freq.png" alt="mixed part" title="Initial mixed part"><br>
+<img src="after_lowpass_filter.png" alt="after low pass filter" title="After low pass filter"></p>
+<p>PS: Nyquist-Shannon Sampling Theorem<br>
+To accurately represent a signal, the sampling rate must be at least twice the highest frequency in the signal. This threshold is called the Nyquist frequency:<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>s</mi><mi>a</mi><mi>m</mi><mi>p</mi><mi>l</mi><mi>i</mi><mi>n</mi><mi>g</mi></mrow></msub><mo>&gt;</mo><mo>=</mo><mn>2</mn><msub><mi>f</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mrow><annotation encoding="application/x-tex">f_{sampling} &gt;= 2f_{max}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">am</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">pl</span><span class="mord mathnormal mtight">in</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">2</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><br>
+If this condition is not met, aliasing occurs.</p>
+<p>PPS: If sampled first, low-frequency information will be aliased.</p>
+<h2 id="a-practical-pre-filter">A Practical Pre-Filter</h2>
+<p>Solution:</p>
+<ul>
+<li>Convolve f(x,y) by a 1-pixel box-blur<br>
+Recall: convolving =filtering= averaginge</li>
+<li>Then sample at every pixel’s center</li>
+</ul>
+<p><img src="practical_antialiasing_tri.png" alt="Antialiasing Example" title="Antialiasing Example"></p>
+<h1 id="antialiasing-by-supersampling-multisample-anti-aliasing-msaa">Antialiasing by Supersampling - Multisample Anti-Aliasing (MSAA)</h1>
+<ol>
+<li>Take <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">N \times N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> samples in each pixel.<br>
+<img src="MSAA1.png" alt="MSAA1" title="MSAA1"></li>
+<li>Average the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi><mi>s</mi><mi>N</mi></mrow><annotation encoding="application/x-tex">N /times N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord mathnormal">t</span><span class="mord mathnormal">im</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> samples inside each pixel.<br>
+<img src="MSAA2.png" alt="MSAA2" title="MSAA2"><br>
+<img src="MSAA3.png" alt="MSAA3" title="MSAA3"></li>
+</ol>
+<p>In practice, industry don’t use regularly spaced samples, instead they place samples based on a predefined sampling pattern, to use less samples getting the same effect as more samples.</p>
+<h1 id="other-anti-aliasing-techniques">Other Anti-Aliasing Techniques</h1>
+<ul>
+<li>FXAA (Fast Aproximate AA)</li>
+<li>TAA (Temporal AA)</li>
+</ul>
+<h1 id="super-resolution-super-sampling">Super resolution / Super Sampling</h1>
+<ul>
+<li>From low resolution to high resolution</li>
+<li>Essentially still “not enough samples” problem</li>
+<li>DLSS (Deep Learning Super Sampling) to “guess” the missing part</li>
+</ul>
+<h1 id="z-buffer-深度缓存">Z-Buffer (深度缓存)</h1>
+<ul>
+<li>Store current min. z-value for each sample (pixel)</li>
+<li>Needs an additional buffer for depth values</li>
+<li>frame buffer stores color values</li>
+<li>depth buffer (z-buffer) stores depth</li>
+</ul>
+<p>IMPORTANT: For simplicity we suppose z is always positive (smallerz -&gt; closer, larger z -&gt; further).</p>
+<p>Initialize depth buffer to <span class="katex-error" title="ParseError: KaTeX parse error: Undefined control sequence: \infinity at position 1: \̲i̲n̲f̲i̲n̲i̲t̲y̲">\infinity</span>.</p>
+<p>During rasterization:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (each triangle T)<br>  <span class="hljs-keyword">for</span> (each <span class="hljs-built_in">sample</span> (x,y,z) in T)<br>    <span class="hljs-keyword">if</span> (z &lt; zbuffer[x,y])  <span class="hljs-comment">// closest sample so far</span><br>      framebuffer[x,y] = rgb;<span class="hljs-comment">// update color</span><br>      zbuffer[x,y] = z;  <span class="hljs-comment">// update depth</span><br>    <span class="hljs-keyword">else</span><br>      ;  <span class="hljs-comment">// do nothing, this sample is occluded</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>Complexity</strong>: O(n) for n triangles (assuming constant coverage).</li>
+<li>Drawing triangles in different orders won’t affect the result of z-buffer.</li>
+<li>Z-buffer is the most important visibility algorithmeImplemented in hardware for all GPUs.</li>
+<li>Z-buffer cannot handle transparent objects, they need special methods.</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)</div>
+      <div>http://example.com/2025/01/05/GAMES101-L06-Rasterization2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 5, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/06/GAMES101-L07-Shading1/" title="GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/05/GAMES101-L05-Rasterization1/" title="GAMES 101 L05-Rasterization 1 (Triangles)">
+                        <span class="hidden-mobile">GAMES 101 L05-Rasterization 1 (Triangles)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

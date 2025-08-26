@@ -1,0 +1,771 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Acceleration Data Structures for NeRF The NeRF representation takes position and direction as inputs, and produces color and density as outputs. Recall that in L09 we learned the effectiveness of inpu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS 8803 CGA - Advance topics for NeRF">
+<meta property="og:url" content="http://example.com/2025/02/20/CS8803-CGA-L10/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Acceleration Data Structures for NeRF The NeRF representation takes position and direction as inputs, and produces color and density as outputs. Recall that in L09 we learned the effectiveness of inpu">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/MLP_SH.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/instant_ngp.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/instant_ngp1.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/sep_nerf.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/mipnerf1.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/mipnerf2.png">
+<meta property="og:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/mipnerf3.png">
+<meta property="article:published_time" content="2025-02-20T21:15:50.547Z">
+<meta property="article:modified_time" content="2025-02-23T03:22:51.512Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="NeRF">
+<meta property="article:tag" content="instant NGP">
+<meta property="article:tag" content="Plenoxels">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/02/20/CS8803-CGA-L10/MLP_SH.png">
+  
+  
+  
+  <title>CS 8803 CGA - Advance topics for NeRF - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CS 8803 CGA - Advance topics for NeRF"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-02-20 15:15" pubdate>
+          February 20, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          517 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          5 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CS 8803 CGA - Advance topics for NeRF</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="acceleration-data-structures-for-nerf">Acceleration Data Structures for NeRF</h2>
+<p>The NeRF representation takes position and direction as inputs, and produces color and density as outputs. Recall that in L09 we learned the effectiveness of input encoding - positional encoding that can improve the results significantly with a few lines of code (see <a href="/2025/02/13/CS8803-CGA-L09/#positional-encoding"> L09-Positional Encoding</a>).</p>
+<p>Next step, what is the best data structure for NeRF? Recall the previously mentioned data structures for geometry: meshes (small memory footprint but hard to optimize), voxels (easy to optimize but large memory footprint).</p>
+<h3 id="plenoxels">Plenoxels</h3>
+<p>Idea I: Let’s try to get rid of MLP.</p>
+<p>(Yu*, Friedovich-Keil* et al. 2021, Plenoxels: Radiance Fields without Neural Networks)</p>
+<p>Plenoxels are essentially a “voxel grid + spherical harmonics” approach to storing and rendering a 3D scene without the need for a large MLP network. Instead of learning a neural function (MLP) that outputs density and color at every point, Plenoxels store these quantities directly in a dense 3D grid:</p>
+<ol>
+<li>
+<p><strong>Voxel Grid:</strong> The space is discretized into a regular 3D grid of voxels. Each voxel holds:</p>
+<ul>
+<li>A <strong>density</strong> value (how much light is absorbed or emitted in that region).</li>
+<li><strong>Spherical Harmonic (SH) coefficients</strong> that compactly represent the direction-dependent color of that voxel.</li>
+</ul>
+</li>
+<li>
+<p><strong>Spherical Harmonics (球面谐波):</strong> SHs are a set of basis functions on the sphere. An analogy (类比), we can think of spherical harmonics as the “cosine basis” for functions defined on the surface of a sphere. Instead of using cosines in 1D to capture frequencies of a signal, we use spherical harmonics in 2D (on the sphere) to capture angular variation of a function. We can represent <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false">(</mo><mi>p</mi><mo separator="true">,</mo><mi>ω</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">c(p, \omega)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">c</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span></span></span></span> compactly by projecting into basis of SH. Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false">(</mo><mi>p</mi><mo separator="true">,</mo><mi>ω</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">c(p, \omega)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">c</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span></span></span></span> indicates that color (or radiance) depends on position <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span> in 3D space and direction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ω</mi></mrow><annotation encoding="application/x-tex">\omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span></span></span> on the sphere. Rather than storing the color for every single direction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ω</mi></mrow><annotation encoding="application/x-tex">\omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span></span></span></span> (which would be huge), we project or “expand” <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo stretchy="false">(</mo><mi>p</mi><mo separator="true">,</mo><mi>ω</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">c(p, \omega)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">c</span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span></span></span></span> into a finite number of SH basis functions. By keeping only the SH coefficients, we can get a compact representation of how color varies with direction. By keeping a small number of SH coefficients per voxel (rather than a full directional function), we can get a more memory-efficient representation of how color changes with viewing direction.</p>
+</li>
+<li>
+<p><strong>No MLP Required:</strong> The figure below shows a conventional NeRF-like pipeline where an MLP predicts density and SH coefficients for each 3D position. Plenoxels remove the MLP entirely. We simply optimize the voxel grid’s density and SH coefficients directly from the input images. To learn the voxel grid, we render the scene from the same viewpoints as your training images. Then we compare (via a photometric loss, e.g., mean squared error) the rendered pixels to the real input pixels. Because the voxel grid is just a big table of parameters (density + SH coefficients), we can do gradient-based optimization (like backprop) on those parameters directly. Iterating this process lets the grid converge so that rendered views match the real images.</p>
+</li>
+</ol>
+<p><img src="MLP_SH.png" alt="Use MLP to learn SH coefficients"></p>
+<ol start="4">
+<li><strong>Rendering:</strong> When you render, you sample through the voxel grid. For each ray-voxel intersection, you:
+<ul>
+<li>Retrieve the voxel’s density.</li>
+<li>Evaluate its SH coefficients for the viewing direction to get a color contribution.</li>
+<li>Accumulate these contributions along the ray to form the final pixel color.</li>
+</ul>
+</li>
+</ol>
+<p>In short, Plenoxels turn the 3D volume into a big “lookup table” of densities and SH basis coefficients. This approach sidesteps the complexity and runtime cost of a learned MLP, while still leveraging spherical harmonics for compact, direction-dependent color.</p>
+<h3 id="instant-ngp">Instant NGP</h3>
+<p>Idea II: Let’s try hybrid representations.</p>
+<p>(T. Müller et al. 2022, Instant Neural Graphics Primitives with a Multiresolution Hash Encoding)</p>
+<p>This article shows an approach that enables super-resolution rendering of neural radiance field in real-time and accommodates a new neural representation structure by hybridizing networks and octrees.</p>
+<p>Instant NGP (Instant Neural Graphics Primitives) achieves high-performance rendering and training through a <strong>hybrid data structure</strong> that combines <strong>spatial hashing</strong> with a <strong>small neural network</strong> (MLP).</p>
+<p><img src="instant_ngp.png" alt="Key ideas of instant NGP"></p>
+<ol>
+<li>
+<p><strong>Small, “fully‐fused” MLP</strong><br>
+Instead of using a large network (as in typical neural‐field approaches like NeRF), Instant‐NGP relies on a <em>small</em> multilayer perceptron. By “fully fused”, it means that the neural net operations (layers, activations, etc.) are tightly compiled (often CUDA‐fused) for maximum efficiency. This gives a 5–10× speed‐up over conventional deep‐learning frameworks.</p>
+</li>
+<li>
+<p><strong>Multi‐resolution hash tables</strong><br>
+Alongside the MLP, Instant‐NGP uses a <em>spatial‐hashing</em> strategy to store learned “voxel” parameters at multiple resolutions. In the diagram, the bounding volume is subdivided into overlapping grids (of various coarse‐to‐fine 粗到细 scales). Rather than storing a huge feature grid, each grid cell is hashed to a compact array of learnable parameters.</p>
+</li>
+<li>
+<p><strong>Lookup + interpolation + concatenation</strong><br>
+For a query point <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">x</mi></mrow><annotation encoding="application/x-tex">\mathbf{x}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4444em;"></span><span class="mord mathbf">x</span></span></span></span> in 3D:</p>
+<p><img src="instant_ngp1.png" alt="Key idea of instant NGP: Spatial hashing + small neural networks"></p>
+<ul>
+<li>We find which grid cells (voxel corners) it intersects at each resolution.</li>
+<li>Each cell’s learnable parameters are <em>looked up</em> via hashing.</li>
+<li>Those parameters (at the relevant corners) are blended via linear interpolation to produce a feature vector for each resolution.</li>
+<li>Features from all resolutions are concatenated (plus any other inputs, e.g. viewing direction).</li>
+<li>This concatenated feature vector is fed into the small MLP.</li>
+</ul>
+</li>
+<li>
+<p><strong>Task‐specific GPU rendering/training</strong><br>
+Once the MLP outputs (e.g., color, density, SDF, etc.) are known, Instant‐NGP uses tailored GPU kernels to project and accumulate these results for rendering or training. Because each query is so lightweight and the hashing reduces memory usage, we can train or render with significantly fewer steps—on the order of 100× fewer calls than a large tensor‐based approach.</p>
+</li>
+</ol>
+<p>Put differently, the <em>hash‐based multi‐resolution grid</em> learns a coarse‐to‐fine mapping that acts almost like a highly efficient “lookup table” for local geometry or appearance. The small neural net then only has to learn <em>residual</em> details, so it converges much faster. This combination of “spatial hashing + small MLP + specialized GPU implementation” underpins Instant‐NGP’s ability to train and render neural graphics <em>extremely</em> rapidly. Instant NGP is good at rendering really complex scenes, e.g., an open space with many details.</p>
+<h2 id="separating-nerf-geometry-and-appearance">Separating NeRF Geometry and Appearance</h2>
+<ul>
+<li>NeRF “bakes” appearance / color information into scene geometry, so when scene is re-lit, this requires training of a new NeRF.</li>
+<li>Multiple approaches have focused on disentangling (分解) geometry and appearance information
+<ul>
+<li>NeRD: Decompose images into shape, illumination, and appearance components (compute analytical BRDF as opposed to a single radiance value).</li>
+<li>NeRV (Neural Reflectance and Visibility fields): Decompose image into visibility, direct light, indirect light, and BRDF.</li>
+</ul>
+</li>
+</ul>
+<p>Recall Phong Shading with separated terms for Diffuse and Specular Terms (diffuse + specular + ambient). The key idea is that instead of using SH coefficients, the MLP directly outputs density, diffuse colors, and specular features. Both the diffuse colors and the features are volume-rendered, and a final MLP evaluation is performed at the end to transform the diffuse color and features into the final color.</p>
+<p><img src="sep_nerf.png" alt="Separating NeRF Geometry and Appearance"></p>
+<h2 id="anti-aliasing">Anti-Aliasing</h2>
+<p>Challenges: Multi-Resolution.</p>
+<p>NeRF Rendering at Full Resolution: Produces high-quality, photorealistic results.<br>
+NeRF at Different Distances/Resolutions: Introduces noticeable aliasing artifacts (“jaggies”).<br>
+Training NeRF on Multi-resolution Data: Slightly improves low-resolution performance but degrades high-resolution quality, making it ineffective.<br>
+Introducing <strong>mip-NeRF</strong>: Trained on the same data, it maintains high-resolution rendering across multiple scales.<br>
+Key Advantage of mip-NeRF: Unlike NeRF, its performance does not degrade when trained on multiscale data.</p>
+<h3 id="pre-filtering-with-a-mip-map">Pre-filtering with a mip-map</h3>
+<p>The problem is solved with prefiltering, precomputing images at different scales, a technique known as mipmap or image pyramid. With a prefiltered representation, <strong>trilinear interpolation</strong> can efficiently retrieve a properly downsampled image at the correct location and scale, a method widely used in real-time graphics for <strong>texture mapping</strong>. So, mipmaps reduce image aliasing, mip-NeRF reduces NeRF aliasing.</p>
+<h3 id="difference-between-standard-nerf-and-mip-nerf">Difference between standard NeRF and mip-NeRF</h3>
+<p><strong>Standard NeRF</strong> treats every sample on a ray as a single 3D point and applies a “positional encoding” (the sin/cos expansions) to just that point. By contrast, <strong>Mip‐NeRF</strong> recognizes that each sample is really a small <em>conical</em> region along the ray, so it <em>integrates</em> the positional encoding over that region instead of evaluating it only at a single point.</p>
+<p><img src="mipnerf1.png" alt="standard NeRF"></p>
+<p><img src="mipnerf2.png" alt="mip-NeRF"></p>
+<p>Concretely, standard NeRF does<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">[</mo><mi>sin</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mn>0</mn></msup><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mn>0</mn></msup><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>sin</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mn>1</mn></msup><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mn>1</mn></msup><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mo>…</mo><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">]</mo></mrow><annotation encoding="application/x-tex">\gamma(x) = \big[\sin(2^0 x), \cos(2^0 x), \sin(2^1 x), \cos(2^1 x), \dots\big]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05556em;">γ</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mord"><span class="delimsizing size1">[</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">sin</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span></span></span></span></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span></span></span></span></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">sin</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="delimsizing size1">]</span></span></span></span></span> for each point <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span>.</p>
+<p>However, mip‐NeRF <em>averages</em> (integrates) those basis functions over the portion of space that the ray covers there, yielding</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi mathvariant="normal">_</mi><mrow><mi>x</mi><mo>∼</mo><mi mathvariant="script">N</mi><mo stretchy="false">(</mo><mi>μ</mi><mo separator="true">,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><mo stretchy="false">[</mo><mi>sin</mi><mo>⁡</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mi>ω</mi></msup><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">]</mo><mo>≈</mo><mi>sin</mi><mo>⁡</mo><mo fence="true" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><msup><mn>2</mn><mi>ω</mi></msup><mi>μ</mi><mo fence="true" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mtext> </mtext><mi>exp</mi><mo>⁡</mo><mo fence="true" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><mo>−</mo><msup><mn>4</mn><mi>ω</mi></msup><mfrac><mn>1</mn><mn>2</mn></mfrac><msup><mi>σ</mi><mn>2</mn></msup><mo fence="true" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo></mrow><annotation encoding="application/x-tex">E\_{x\sim \mathcal{N}(\mu,\sigma^2)}[\sin(2^\omega x)] \approx \sin\bigl(2^\omega \mu\bigr)\,\exp\bigl(-4^\omega \tfrac12\sigma^2\bigr)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1241em;vertical-align:-0.31em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord"><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathcal" style="margin-right:0.14736em;">N</span><span class="mopen">(</span><span class="mord mathnormal">μ</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span><span class="mopen">[</span><span class="mop">sin</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">ω</span></span></span></span></span></span></span></span><span class="mord mathnormal">x</span><span class="mclose">)]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mop">sin</span><span class="mopen"><span class="delimsizing size1">(</span></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">ω</span></span></span></span></span></span></span></span><span class="mord mathnormal">μ</span><span class="mclose"><span class="delimsizing size1">)</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen"><span class="delimsizing size1">(</span></span><span class="mord">−</span><span class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">ω</span></span></span></span></span></span></span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing size1">)</span></span></span></span></span><br>
+which captures <em>how the ray “cone” sweeps out</em> a region in space.</p>
+<p><img src="mipnerf3.png" alt="mip-NeRF integrates the basis functions over the portion of space the ray covers"></p>
+<p>By representing samples more accurately (with an integral rather than a point), mip‐NeRF significantly reduces aliasing artifacts and improves multi‐scale consistency in the rendered scenes.</p>
+<h2 id="large-scale-rendering">Large-Scale Rendering</h2>
+<p>When rendering large scenes, since regular spacing does not scale, how to march efficiently?</p>
+<h3 id="idea-i-exponential-stepping">Idea I: Exponential Stepping</h3>
+<ul>
+<li>How to march efficiently?
+<ul>
+<li>Regular spacing is O(size)</li>
+</ul>
+</li>
+<li>Solution:
+<ul>
+<li>Exponential stepping is O(log(size))</li>
+</ul>
+</li>
+</ul>
+<h3 id="idea-ii-skipping-empty-space">Idea II: Skipping Empty Space</h3>
+<ul>
+<li>Exponential stepping does not help (air in front of camera, where steps are most dense)</li>
+<li>Geometry not known in advance (training data are RGB images)</li>
+<li>Solution: online-fitted occupancy grid
+<ul>
+<li>Bitwise: 1 == occupied, 0 == empty</li>
+<li>Z-order: cache-efficient; trivial mip-mapping</li>
+<li>Look-up scale determined by cone width</li>
+</ul>
+</li>
+</ul>
+<h2 id="temporally-stable-training">Temporally Stable Training</h2>
+<p>During training, a NeRF’s weights can “wander” in parameter space from step to step—often causing flickering (闪烁) or noisy updates when viewed as a running render. <strong>Temporally stable training</strong> addresses that by applying a <em>temporal low‐pass filter</em> (in practice, an exponential moving average) to the network weights as they are being optimized.</p>
+<p>Concretely, we still train the network weights in the usual way, but keep a running average of those weights over recent training steps. For inference (i.e., for final rendering or evaluation), use the smoothed (EMA) weights rather than the moment‐to‐moment weights. Because the EMA filters out quick oscillations in parameter space, the resulting rendered views appear more stable over time, eliminating much of the flicker and noise that can come from raw, per‐step weights.</p>
+<h2 id="future-research-directions">Future Research Directions</h2>
+<p>Challenges to Address</p>
+<ul>
+<li>Neural scene representations do not (yet) “fully” disentangle all scene attributes.</li>
+<li>Designing solutions to large-scale dynamic scenes is an open problem.</li>
+<li>Generalization and real-time training/inference still pose significant hurdles (障碍，困难).</li>
+</ul>
+<p>(Few-shot NeRF, Generating NeRFs from 2D Generative Models, Enabling specific edits, Semantic Editing, Manipulating captured scenes)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/NeRF/" class="print-no-link">#NeRF</a>
+      
+        <a href="/tags/instant-NGP/" class="print-no-link">#instant NGP</a>
+      
+        <a href="/tags/Plenoxels/" class="print-no-link">#Plenoxels</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CS 8803 CGA - Advance topics for NeRF</div>
+      <div>http://example.com/2025/02/20/CS8803-CGA-L10/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>February 20, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/02/22/CS8803-CGA-L11/" title="CS 8803 CGA - Point-based Rendering">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CS 8803 CGA - Point-based Rendering</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/13/CS8803-CGA-L09/" title="CS 8803 CGA - Neural Radiance Field">
+                        <span class="hidden-mobile">CS 8803 CGA - Neural Radiance Field</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

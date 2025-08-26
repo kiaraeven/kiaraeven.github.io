@@ -1,0 +1,1020 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Shading - the process of applying a material to an object A Simple Shading Model (Blinn-Phong Reflectance Model) Shading is local Compute light reflected toward camera at a spacific shading point. Inp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)">
+<meta property="og:url" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="Shading - the process of applying a material to an object A Simple Shading Model (Blinn-Phong Reflectance Model) Shading is local Compute light reflected toward camera at a spacific shading point. Inp">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/diffusion_reflection.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/diffusion_reflection2.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/diffusion_reflection3.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/specular_term.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/specular_term2.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/ambient_term.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/shading_frequency.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/GP1.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/tt_mapping.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates1.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates2.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates3.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates4.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BarycentricCoordinates5.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BilinearInterpolation.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BilinearInterpolation1.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BilinearInterpolation2.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/mipmap.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/mipmap1.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/mipmap2.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/mipmap3.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/anisotropic_filtering.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/BumpNormal_mapping.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/bump_mapping.png">
+<meta property="og:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/bump_mapping1.png">
+<meta property="article:published_time" content="2025-01-07T05:03:44.381Z">
+<meta property="article:modified_time" content="2025-01-09T18:41:14.270Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES101">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/01/06/GAMES101-L07-Shading1/diffusion_reflection.png">
+  
+  
+  
+  <title>GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping) - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-06 23:03" pubdate>
+          January 6, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          504 words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          5 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="shading-the-process-of-applying-a-material-to-an-object">Shading - the process of applying a material to an object</h1>
+<h2 id="a-simple-shading-model-blinn-phong-reflectance-model">A Simple Shading Model (Blinn-Phong Reflectance Model)</h2>
+<h3 id="shading-is-local">Shading is local</h3>
+<p>Compute light reflected toward camera at a spacific shading point.</p>
+<p>Inputs:</p>
+<ul>
+<li>Viewer direction, v</li>
+<li>Surface normal, n</li>
+<li>Light direction, l (for each of many lights)</li>
+<li>Surface parameters(color, shininess, …)</li>
+</ul>
+<p>Note:</p>
+<ul>
+<li>v, n, l are all unit vectors.</li>
+<li>shading != shadow. No shadow will be generated.</li>
+</ul>
+<h3 id="diffuse-reflection">Diffuse Reflection</h3>
+<ul>
+<li>Light is scattered uniformly in all directions</li>
+<li>Surface color is the same for all viewing directions</li>
+</ul>
+<p>The amount of light (energy) a shading point gets depends on:</p>
+<ul>
+<li>The angle between l and n.<br>
+<img src="diffusion_reflection.png" alt="Diffusion Reflection" title="Lambert's cosin law"></li>
+<li>Distance from point source of light.<br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>π</mi><mi>I</mi><mo>=</mo><mn>4</mn><mi>π</mi><msup><mi>r</mi><mn>2</mn></msup><msup><mi>I</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">4 \pi I = 4 \pi r^2 I&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">4</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span> (the law of conservation of energy)<br>
+<img src="diffusion_reflection2.png" alt="Diffusion Reflection" title="Energy decreases as distance increases"></li>
+</ul>
+<p>So, the equation for diffusion reflection should be as:<br>
+<img src="diffusion_reflection3.png" alt="Diffusion Reflection" title="Lambertian (diffuse) shading"><br>
+If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">k_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 1, all energy will be reflected. If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">k_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 0, all energy will be absorbed (no evergy reflected, black).</p>
+<h3 id="specular-term-高光项">Specular term (高光项)</h3>
+<ul>
+<li>Intensity depends on view direction.</li>
+<li>Bright near mirror reflection direction.<br>
+If the view direction is close to the mirror reflection direction, we get the specular term.</li>
+</ul>
+<p>Here, the Blinn-Phong convert “V close to mirror direction” to “half vector near normal” for calculation convenience. That is to say, to check if we can see the specular term, we just need to measure how “near” unit vectors are by dot product.<br>
+<img src="specular_term.png" alt="Specular term" title="Specular term"><br>
+Use exponent p because specular can be seen only when the unit vectors are close enough (p can be 100 - 200 in practice).<br>
+<img src="specular_term2.png" alt="Specular term" title="Cosin power plot"></p>
+<h3 id="ambient-term-环境光">Ambient term (环境光)</h3>
+<ul>
+<li>Shading that does not depend on anything</li>
+<li>Add constant color to account for disregarded illumination and fill in black shadows</li>
+<li>This is approximate / fake!<br>
+<img src="ambient_term.png" alt="Ambient term" title="Ambient term"></li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>L (Blinn-Phong reflection) = <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>a</mi></msub><mo>+</mo><msub><mi>L</mi><mi>s</mi></msub><mo>+</mo><msub><mi>L</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">L_a + L_s + L_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></p>
+<h2 id="shading-frequencies">Shading Frequencies</h2>
+<ol>
+<li>Flat shading</li>
+</ol>
+<ul>
+<li><strong>Triangle</strong> face is flat, so one normal vector</li>
+<li>Not good for smooth surfaces</li>
+</ul>
+<ol start="2">
+<li>Gouraud shading</li>
+</ol>
+<ul>
+<li>Interpolate colors from <strong>vertices</strong> (三角形顶点) across triangle</li>
+<li>Each vertex has anormal vector</li>
+</ul>
+<ol start="3">
+<li>Phong shading</li>
+</ol>
+<ul>
+<li>Interpolate normal vectors across each triangle</li>
+<li>Compute full shading model at each <strong>pixel</strong></li>
+<li>Not the Blinn-Phong Reflectance Model</li>
+</ul>
+<p>In fact, although usually Phong shading provides better shading effect, it not always works. The shading effect is also affected by the number of faces. If there are more smaller faces, flat shading can also provide good effect (see below).<br>
+<img src="shading_frequency.png" alt="Shading frequency" title="Shading frequency"></p>
+<p><strong>Methods</strong></p>
+<ol>
+<li>How to define / calculate per-vertex normal vector?</li>
+</ol>
+<ul>
+<li>Best to get vertex normals fromthe underlying geometry, e.g. consider a sphere</li>
+<li>Otherwise have to infer vertex normals from triangle faces<br>
+Simple scheme: average surrounding face normals <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>v</mi></msub><mo>=</mo><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>N</mi><mi>i</mi></msub><mi mathvariant="normal">/</mi><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∣</mi><msub><mo>∑</mo><mi>i</mi></msub><msub><mi>N</mi><mi>i</mi></msub><mi mathvariant="normal">∣</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">N_v = \sum_iN_i / ||\sum_iN_i||</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0497em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">/∣∣</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣∣</span></span></span></span><br>
+Improved scheme: weighted average surround face normals considering face areas</li>
+</ul>
+<ol start="2">
+<li>How to define / calculate per-pixel normal vector?</li>
+</ol>
+<ul>
+<li>Barycentric interpolation (introducing soon) of vertex normals</li>
+<li>Normalize the interpolated directions</li>
+</ul>
+<h1 id="graphics-real-time-rendering-pipeline">Graphics (Real-time Rendering) Pipeline</h1>
+<p><img src="GP1.png" alt="Graphics Pipeline" title="Graphics Pipeline"></p>
+<h2 id="shader-program-着色器">Shader program (着色器)</h2>
+<ul>
+<li>Program vertex and fragment processing stages.</li>
+<li>Describe operation on a single vertex (or fragment).</li>
+<li>Shader function executesonce per fragment.</li>
+<li>Outputs color of surfaceat the current fragment’s screen sample position.</li>
+</ul>
+<h2 id="gpus-graphics-pipeline-implementation">GPUs - Graphics Pipeline Implementation</h2>
+<p>Specialized processors for executing graphics pipeline computations.</p>
+<h1 id="texture-mapping">Texture Mapping</h1>
+<p>(think of in map progection in GIS)<br>
+Each triangle vertex is assigned a texture coordinate (u, v).<br>
+<img src="tt_mapping.png" alt="tt_mapping" title="uv coordinates"><br>
+u and v are always ranged in [0, 1]</p>
+<p>Texture can be used multiple times, so designing tilable texture is important.</p>
+<h2 id="interpolation-across-triangles-barycentric-coordinates-重心坐标">Interpolation Across Triangles: Barycentric Coordinates (重心坐标)</h2>
+<ul>
+<li>Why do we want to interpolate?
+<ul>
+<li>Specify values at vertices</li>
+<li>Obtain smoothly varying values across triangles</li>
+</ul>
+</li>
+<li>What do we want to interpolate?
+<ul>
+<li>Texture coordinates, colors, normal vectors, …(any attribute)</li>
+</ul>
+</li>
+</ul>
+<h3 id="barycentric-coordinates">Barycentric Coordinates</h3>
+<p><strong>Definition</strong><br>
+It defines a coordinate system to locate points with triangle vertices. If all coordinates are positive, the point must be inside the triangle.<br>
+<img src="BarycentricCoordinates.png" alt="BC" title="Barycentric Coordinates"><br>
+And so, intuitively we can get the representations of each vertex.<br>
+<img src="BarycentricCoordinates1.png" alt="BC" title="Barycentric Coordinates"></p>
+<p><strong>Calculation</strong><br>
+Each coordinate can be calculated based on the area of the triangle corresponding to each vertex.<br>
+<img src="BarycentricCoordinates2.png" alt="BC" title="Proportional to area"><br>
+And then if the three inside triangles’ areas are equivalent, we get the centroid of the triangle, where the coordinate is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mi mathvariant="normal">/</mi><mn>3</mn><mo separator="true">,</mo><mn>1</mn><mi mathvariant="normal">/</mi><mn>3</mn><mo separator="true">,</mo><mn>1</mn><mi mathvariant="normal">/</mi><mn>3</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(1/3, 1/3, 1/3)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1/3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1/3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1/3</span><span class="mclose">)</span></span></span></span>.<br>
+<img src="BarycentricCoordinates3.png" alt="BC" title="Centroid"><br>
+Also, we can calculate the barycentric coordinate for any point. No need to remember the equation.<br>
+<img src="BarycentricCoordinates4.png" alt="BC" title="Calculation"></p>
+<p><strong>Interpolation</strong><br>
+Finally, interpolate any attribute based on barycentric coordinates.<br>
+<img src="BarycentricCoordinates5.png" alt="BC" title="Interpolation"><br>
+Note: Barycentric coordinates are not invariant under projection, so if we need to perform interpolation for 3d objects attributes, we should use 3d coordinates of the triangle vertices. For example, when interpolating z values, since the triangles have been projected onto 2d screen, we need to perform an inverse transform to get the 3d coordinates again and do the calculation.</p>
+<h2 id="applying-texture">Applying Texture</h2>
+<h3 id="simpie-texture-mapping-diffuse-color">Simpie Texture Mapping: Diffuse Color</h3>
+<p>Usually a pixel’s center</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> each rasterized screen sample (x,y):<br>  (u,v) = evaluate texture coordinate at (x,y) <span class="hljs-comment"># Usually a pixel&#x27;s center</span><br>  texcolor = texture.sample(u,v) <span class="hljs-comment"># Using barycentric coordinates</span><br>  <span class="hljs-comment"># set sample&#x27;s color to texcolor</span><br>  <span class="hljs-comment"># Here the texcolor usually refers the diffuse albedo Kd(recall the Blinn-Phong reflectance model)</span><br></code></pre></td></tr></table></figure>
+<h3 id="texture-magnification">Texture Magnification</h3>
+<p><strong>What if the texture is too small?</strong></p>
+<p>Texture magnification occurs when a texture image is stretched over a surface, and the texture’s resolution is smaller than the resolution of the rendered object. This means there are fewer texels (texture pixels) in the texture than screen pixels in the rendered object. As a result, the rendering process must decide how to fill in the extra pixel information for the surface.</p>
+<p><strong>Key Problems in Texture Magnification</strong></p>
+<ol>
+<li>
+<p>Pixel-Texel Mapping:<br>
+When the screen space is sampled, each pixel may correspond to a fractional texel or may span multiple texels.<br>
+Since texels are discrete, this results in gaps or blocky artifacts.</p>
+</li>
+<li>
+<p>Artifacts:<br>
+Pixelation: The texture can appear blocky if texels are simply enlarged to fill multiple screen pixels (nearest-neighbor interpolation).<br>
+Blurriness: Using linear filtering may smooth the texture too much, losing detail.</p>
+</li>
+</ol>
+<p><strong>Solutions</strong></p>
+<ol>
+<li>
+<p>Bilinear Filtering</p>
+<ul>
+<li>Description:
+<ul>
+<li>Interpolates between the colors of the four nearest texels to compute a smooth color.</li>
+</ul>
+</li>
+<li>Advantages:
+<ul>
+<li>Reduces blockiness and provides smoother results.</li>
+</ul>
+</li>
+<li>Disadvantages: - Blurs the texture, especially when magnified a lot.</li>
+</ul>
+</li>
+</ol>
+<p><img src="BilinearInterpolation.png" alt="BilinearInterpolation" title="Bilinear Interpolation"><br>
+<img src="BilinearInterpolation1.png" alt="BilinearInterpolation" title="Bilinear Interpolation"><br>
+<img src="BilinearInterpolation2.png" alt="BilinearInterpolation" title="Bilinear Interpolation"></p>
+<ol start="2">
+<li>Bicubic Filtering
+<ul>
+<li>Description:
+<ul>
+<li>Uses more neighboring texels (16 or more) and applies cubic interpolation for smoother transitions.</li>
+</ul>
+</li>
+<li>Advantages:
+<ul>
+<li>Produces high-quality results with less blurriness.</li>
+</ul>
+</li>
+<li>Disadvantages:
+<ul>
+<li>More computationally expensive.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="texture-minification">Texture Minification</h3>
+<p><strong>What if the texture is too large?</strong></p>
+<p>When the texture is too large (i.e., the resolution of the texture is much higher than the resolution of the rendered object on the screen), the graphics pipeline must handle texture minification, where multiple texels map to a single screen pixel.</p>
+<p><strong>Problems with Large Textures</strong></p>
+<ol>
+<li>
+<p>Information Loss:<br>
+Many texels contribute to the color of a single screen pixel, leading to a loss of detail.<br>
+Without proper filtering, this can result in <strong>aliasing artifacts</strong>, such as shimmering or moiré patterns, especially when the camera moves or rotates.</p>
+</li>
+<li>
+<p>Memory and Performance:<br>
+High-resolution textures require significant memory and processing power.<br>
+Sampling and filtering large textures for every pixel can be computationally expensive.</p>
+</li>
+</ol>
+<p><strong>Solution</strong></p>
+<ol>
+<li>
+<p>Mipmapping (allows fast, approximate, <strong>square</strong> range queries)</p>
+<ul>
+<li>
+<p>Description:</p>
+<ul>
+<li>Mipmaps are <strong>precomputed</strong>, downscaled versions of the original texture, stored in a chain.<br>
+For example, if the original texture is 1024×1024, mipmaps will include textures of size 512×512, 256×256, 128×128, and so on, down to 1×1.<br>
+During rendering, the GPU selects the appropriate mipmap level based on the distance or size of the object on screen.<br>
+<img src="mipmap.png" alt="mipmap" title="mipmap"></li>
+</ul>
+</li>
+<li>
+<p>Advantages:</p>
+<ul>
+<li>Reduces aliasing by using appropriately sized textures for minification.<br>
+Improves performance by avoiding sampling from unnecessarily high-resolution textures.</li>
+</ul>
+</li>
+<li>
+<p>Disadvantages:</p>
+<ul>
+<li>Requires additional memory to store mipmaps (about 33% extra because every next level’s required memory is 1/4 of the last level).<br>
+<img src="mipmap1.png" alt="mipmap" title="mipmap storage overhead"></li>
+</ul>
+</li>
+<li>
+<p>Gradient Calculation for Level Selection:<br>
+In the left part of the figure below, the texture space (u, v) is mapped to the screen space (x, y) using derivatives like du/dx, du/dy, etc. Here, du/dx, du/dy, dv/dx, and dv/dy are partial derivatives that represent the rate of change of the texture coordinates (u, v) with respect to screen space coordinates (x, y). For example, du/dx is the rate at which the u-coordinate (horizontal texture coordinate) changes as you move horizontally (x) in the screen space. Large derivatives (e.g., ∣du/dx∣ or ∣dv/dy∣) mean many texels map to one screen pixel, indicating minification.<br>
+The Lod (Level of Detail) value D is determined based on the maximum gradient L. L represents how many texels (texture pixels) map to a single screen pixel. A higher L means significant minification, so lower-resolution mipmaps are used to approximate the texture. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mi>l</mi><mi>o</mi><msub><mi>g</mi><mn>2</mn></msub><mi>L</mi></mrow><annotation encoding="application/x-tex">D = log_2L</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathnormal">L</span></span></span></span>: Determines which mipmap level to use for sampling.<br>
+<img src="mipmap2.png" alt="mipmap" title="how gradients determine the appropriate mipmap level for sampling based on the pixel-to-texel ratio"></p>
+</li>
+<li>
+<p>Bilinear Filtering Within Levels:<br>
+In each mipmap level (e.g., Level D or D+1), bilinear interpolation is applied. This means the four nearest texels in the mipmap contribute to the color of the pixel on the screen.<br>
+Trilinear Interpolation Across Levels:<br>
+If D is not an integer, the rendering system performs linear interpolation between two mipmap levels (e.g., D and D+1). The final color is a weighted average of the bilinear results from both mipmap levels.<br>
+<img src="mipmap3.png" alt="mipmap" title="how bilinear and trilinear interpolation smooth the transition between levels"></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Anisotropic Filtering (各向异性过滤)</p>
+<ul>
+<li>Description:<br>
+Mipmap can only do square range queries, but anisotropic filtering considers the distortion caused by the viewing angle (e.g., foreshortening) and adjusts texel sampling accordingly.<br>
+<img src="anisotropic_filtering.png" alt="anisotropic_filtering" title="anisotropic filtering"></li>
+<li>Advantages:<br>
+Improves texture sharpness when viewed at oblique angles.</li>
+<li>Disadvantages:<br>
+Adds computational overhead.</li>
+<li>Ripmaps and summed area tables
+<ul>
+<li>Can look up axis-alignedrectangular zones.</li>
+<li>Diagonal footprint is still a problem.</li>
+</ul>
+</li>
+<li>EWA filtering
+<ul>
+<li>Use multiple lookups</li>
+<li>Weighted average</li>
+<li>Mipmap hierarchy still helps</li>
+<li>Can handle irregular footprints</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="practical-use-of-texture">Practical use of texture</h2>
+<p>In modern GPUs, <strong>texture = memory + range query</strong> (filtering)</p>
+<ul>
+<li>General method to bring data to fragment calculationsMany applications</li>
+</ul>
+<p>Many applications:</p>
+<ul>
+<li>Environment lighting (environment map: spherical map - record environment light in a sphere, cube map)</li>
+<li>Store microgeometry</li>
+<li>Procedural textures</li>
+<li>Solid modeling</li>
+<li>Store precomputed shading</li>
+<li>Volume rendering</li>
+<li>…</li>
+</ul>
+<h3 id="bump-mapping">Bump mapping</h3>
+<ul>
+<li>
+<p>Textures doesn’t have to only represent colors</p>
+</li>
+<li>
+<p>What if it stores the height / normal?</p>
+</li>
+<li>
+<p>Bump/normal mapping (凹凸/法线贴图)</p>
+</li>
+<li>
+<p>Fake the detailed geometry</p>
+</li>
+<li>
+<p>As the figure below shows, we didn’t change the geometry itself, instead we use some fake normals to create illumination changes, so that it looks like there are a lot of bumps.<br>
+<img src="BumpNormal_mapping.png" alt="normal mapping" title="Normal Mapping"></p>
+</li>
+<li>
+<p>Adding surface detail without adding more triangles</p>
+</li>
+<li>
+<p>Perturb (扰动) surface normal per pixel (for shading computations only)</p>
+</li>
+<li>
+<p>“Height shift” per texel defined by a texture</p>
+</li>
+</ul>
+<p><strong>How to modify normal vector?</strong></p>
+<ul>
+<li>
+<p>How to perturb the normal (flatland)</p>
+<ul>
+<li>First obtain the tangent line here (1, dp), and the tangent line is rotated 90° to obtain the normal.<br>
+<img src="bump_mapping.png" alt="bump mapping" title="flatland-perturb normal"></li>
+</ul>
+</li>
+<li>
+<p>How to perturb the normal (3d)</p>
+<ul>
+<li>Two tangents are computed by moving a point one unit in each of the two directions x and y. Subsequently, the two tangents form a plane, which is cross-multiplied to obtain the new normal vector.<br>
+<img src="bump_mapping1.png" alt="bump mapping" title="3d-perturb normal"></li>
+</ul>
+</li>
+</ul>
+<p>Note that the above methods are in local coordinates, so that the original normal is (0,1) or (0,0,1). We can calculate the perturbed normal in this local coordinates and convert it to world coordinate space later.</p>
+<h3 id="displacement-mapping-位移贴图">Displacement mapping (位移贴图)</h3>
+<ul>
+<li>a more advanced approach</li>
+<li>Uses the same texture as in bumping mapping</li>
+<li>Actually moves the vertices</li>
+</ul>
+<p>Unlike bump mapping, which only simulates surface detail by modifying how light interacts with it, displacement mapping alters the underlying surface geometry itself. For each point (vertex) on the surface, the displacement map is sampled, and the vertex’s position is moved (displaced) along the surface normal by an amount proportional to the map’s value.</p>
+<h3 id="3d-procedural-noise-solid-modeling">3D Procedural Noise + Solid Modeling</h3>
+<p>Procedural noise is a mathematical method for generating pseudo-random patterns in 3D space that can be used to create natural effects like wood grain, marble, clouds, and terrain. Solid modeling is the representation of 3D objects with full volumetric and geometric information. It goes beyond surface models (which only represent the shell) to include the interior structure of objects.<br>
+n solid modeling, 3D procedural noise is often used as a modifier to shape or texture the solid object. For instance:</p>
+<ul>
+<li>Adding procedural noise to a sphere to create a bumpy or irregular surface.</li>
+<li>Using noise to carve out caves or tunnels in a volumetric model of a terrain.</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES101/" class="print-no-link">#GAMES101</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GAMES 101 L07-Shading 1 + L08-Shading 2 + L09-Shading 3 (illumination, shading 着色, graphics pipeline, and texture mapping)</div>
+      <div>http://example.com/2025/01/06/GAMES101-L07-Shading1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 6, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/09/GAMES101-L10-Geometry1/" title="GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GAMES 101 L10-Geometry 1 + L11-Geometry 2 + L12-Geometry 3 (implicit/explicit geometry + shadow mapping)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/05/GAMES101-L06-Rasterization2/" title="GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)">
+                        <span class="hidden-mobile">GAMES 101 L06-Rasterization 2 (Antialiasing 反走样 and Z-Buffering)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
