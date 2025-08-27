@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-26T04:17:12.831Z">
+<meta property="article:modified_time" content="2025-08-27T04:00:44.237Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          16k words
+          18k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          133 mins
+          151 mins
         
       </span>
     
@@ -1032,53 +1032,6 @@ MiB（二进制）：3.90625 MiB<br>
 <p>给一张纹理：GLTexture 加载/创建并生成 bindless 句柄 -&gt; 写入 MaterialDescription 为 MaterialData（句柄替换）-&gt; 上传材质 SSBO 到 GPU -&gt; 绘制时由实例的 matIdx 选择对应 MaterialData -&gt; 片元用 bindless 句柄直接取样 -&gt; PBR 合成输出。</p>
 <p>PS:<br>
 懒加载版本：先用白色 dummyTexture_占位 -&gt; updateMaterials()写入句柄 -&gt; 后台 stbi_load 读原图 -&gt; 主线程调用 uploadLoadedTextures()创建 GLTexture(w,h,img) -&gt; 再 updateMaterials()更新句柄并上传 SSBO</p>
-<h2 id="8动态合批">（8）动态合批</h2>
-<h3 id="为什么需要合批">为什么需要合批？</h3>
-<ul>
-<li>在渲染管线中，<strong>每一次 Draw Call</strong>（绘制调用）都需要 CPU -&gt; GPU 的状态切换、数据提交。</li>
-<li>当场景里有成千上万个小物体时，Draw Call 成本可能比真正的 GPU 绘制还要大。</li>
-<li>解决办法：<strong>把多个小物体的渲染合并成一次提交（Batching）</strong>。</li>
-</ul>
-<h3 id="动态合批dynamic-batching的原理">动态合批（Dynamic Batching）的原理</h3>
-<ul>
-<li>引擎在运行时（CPU 端），检测多个物体是否可以合并。</li>
-<li>如果条件满足，把这些物体的 <strong>顶点数据拼接成一个大顶点缓冲</strong>，然后用一次 Draw Call 提交。</li>
-<li>GPU 看到的就是一大块连续的几何数据，不需要多次切换状态。</li>
-</ul>
-<h3 id="动态合批的条件">动态合批的条件</h3>
-<p>并不是所有物体都能随便合并，通常需要满足：</p>
-<ul>
-<li><strong>相同的材质 / Shader</strong>（否则 GPU 还是要切换 pipeline）。</li>
-<li><strong>相同的渲染状态</strong>（比如混合模式、深度测试模式）。</li>
-<li><strong>顶点数量不要太大</strong>（拼接开销太高就得不偿失）。</li>
-<li><strong>没有复杂的顶点动画</strong>（因为 CPU 要预处理合并顶点）。</li>
-</ul>
-<h3 id="动态合批-vs-静态合批">动态合批 vs 静态合批</h3>
-<ul>
-<li>
-<p><strong>静态合批 (Static Batching)</strong>：</p>
-<ul>
-<li>在场景导入或 Build 时就提前把物体几何合并。</li>
-<li>适合不会动的物体（地面、建筑）。</li>
-<li>性能更好，因为合并只做一次。</li>
-</ul>
-</li>
-<li>
-<p><strong>动态合批 (Dynamic Batching)</strong>：</p>
-<ul>
-<li>运行时临时拼接。</li>
-<li>适合小而多的动态物体（比如粒子、小道具）。</li>
-<li>但 CPU 有额外开销。</li>
-</ul>
-</li>
-</ul>
-<h3 id="动态合批的缺点">动态合批的缺点：</h3>
-<ul>
-<li>CPU 要在每帧做顶点拼接，带来额外开销。</li>
-<li>对复杂几何体反而可能更慢。</li>
-<li>对内存带宽要求更高（需要复制顶点数据）。</li>
-<li>限制条件较多（材质、状态必须相同）。</li>
-</ul>
 <h1 id="6-场景结构">6. 场景结构</h1>
 <h2 id="1序列化与反序列化">（1）序列化与反序列化</h2>
 <h3 id="为什么需要序列化动机">为什么需要序列化？（动机）</h3>
@@ -1294,7 +1247,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 <h2 id="3大型场景中如何避免循环引用不是加-weakptr-这么简单">（3）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
 <h1 id="7-hdr">7. hdr</h1>
-<h2 id="1高斯模糊几个-pass">（1）高斯模糊（几个 pass？）</h2>
+<h2 id="1">（1）</h2>
 <h2 id="2bloom">（2）bloom</h2>
 <h1 id="8-glsl">8. glsl</h1>
 <h2 id="1手写判断一个点在正方形内外">（1）手写判断一个点在正方形内/外</h2>
@@ -1486,6 +1439,53 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 <h1 id="10-ao-算法">10. AO 算法</h1>
 <h2 id="1-ssao">(1) SSAO</h2>
+<p>项目中的 SSAO 是作为一个多趟后处理效果来实现的。核心思路是不直接在三维空间中计算光线遮挡，而是在渲染完成后的二维屏幕空间中，利用<strong>深度缓冲</strong>的信息来近似计算。</p>
+<p>整个实现流程可以分为以下四个主要步骤：</p>
+<h3 id="scene-rendering-pass">Scene Rendering Pass</h3>
+<ul>
+<li>目标：获取后续计算所需的全屏几何信息。</li>
+<li>过程：正常将整个场景渲染到一个离屏的帧缓冲对象 FBO 中。这个 FBO 至少包含两个附件：
+<ul>
+<li>颜色纹理：存储场景的原始渲染颜色。</li>
+<li>深度纹理：存储场景中每个像素的深度值。这是 SSAO 计算最关键的输入数据。</li>
+</ul>
+</li>
+</ul>
+<h3 id="ssao-pass">SSAO Pass</h3>
+<ul>
+<li>目标：利用深度图生成一张包含 SSAO 遮蔽值的纹理。</li>
+<li>过程：这一步会渲染一个全屏四边形，并运行一个专门的 SSAO 片段着色器（SSAO.frag）。这个着色器为屏幕上的每一个像素执行以下操作：
+<ul>
+<li>读取中心点深度：从深度纹理中读取当前像素的深度值 Z，并将其从屏幕空间转换到观察空间。</li>
+<li>定义采样核心：着色器内部预定义了一个包含 8 个采样点偏移量（offsets）的数组，这些点构成一个采样核心。</li>
+<li>随机旋转采样核心：为了避免采样图案重复导致条纹等瑕疵，项目采用了一种源于 Crytek 的技术。它使用一张小的、平铺的随机旋转纹理（4x4 像素的 rot_texture.bmp，对应着色器里的<code>texRotation</code>）。这个小纹理纹理的每一个像素存储的不是颜色，而是一个随机的三维向量。这个向量的 X, Y, Z 分量分别存储在像素的 R, G, B 通道中。像素的颜色值范围是 [0, 1]，在使用时需要被映射到 [-1, 1] 的向量范围，以便表示空间中任意方向的向量。着色器从这张纹理中为当前像素采样一个随机向量，并把这个向量视为一个随机平面的法向量。然后，通过将预定义的 8 个采样点相对于该平面进行反射，为每个像素都生成了一组独特的、随机分布的采样方向。</li>
+<li>邻域深度比较：对旋转后的 8 个采样点，执行以下操作：
+<ul>
+<li>将采样点投影回屏幕空间，并在深度纹理中对该位置进行采样，得到邻域深度 zSample。</li>
+<li>计算邻域深度 zSample 与中心点深度 Z 之间的差值 dist。</li>
+<li>根据这个差值计算一个遮蔽因子 occl。这里只考虑 dist &lt;= 0 的情况，也即采样点是遮挡物的情况</li>
+<li>累加与平均：将 8 个采样点的遮蔽因子进行累加和平均，最终得到当前像素的环境光遮蔽值（一个 0 到 1 之间的灰度值），并输出到 SSAO 纹理中。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="ssao-blur-pass">SSAO Blur Pass</h3>
+<ul>
+<li>目标：平滑 SSAO 计算趟产生的噪点，使遮蔽效果更柔和、自然。</li>
+<li>过程：由于随机采样会产生大量噪点，需要对生成的 SSAO 纹理进行模糊处理。项目中采用了一种高效的**可分离高斯模糊（Separable Gaussian Blur）**算法（GS_BlurX.frag 和 GS_BlurY.frag）标准的高斯模糊需要用一个二维的核心（例如 11x11）去对图像进行卷积，这意味着每个像素都需要采样 <code>11 * 11 = 121</code> 次，计算量非常大。而可分离的技巧在于，一个二维高斯模糊可以被拆分成两个独立的一维高斯模糊。这样，每个像素只需要采样 11 + 11 = 22 次，大大降低了计算量，但能达到和二维模糊几乎完全相同的效果。分两步完成：
+<ul>
+<li>水平模糊：渲染一个全屏四边形，对 SSAO 纹理进行水平方向的模糊，并将结果输出到一张临时的模糊纹理中。</li>
+<li>垂直模糊：再次渲染一个全屏四边形，对上一步生成的临时纹理进行垂直方向的模糊，并将最终结果写回到原始的 SSAO 纹理中。<br>
+这个过程使用了两张 FBO 进行“ping-pong”(一个是原始的 SSAO 结果 FBO，另一个是临时的 blur FBO)，以避免在同一次渲染中同时读写一张纹理。</li>
+</ul>
+</li>
+</ul>
+<h3 id="combine-pass">Combine Pass</h3>
+<ul>
+<li>目标：将计算出的环境光遮蔽效果应用到原始的场景图像上。</li>
+<li>过程：最后一次渲染一个全屏四边形，并运行一个组合着色器（SSAO_combine.frag）。该着色器同时采样原始场景的颜色纹理和经过模糊的 SSAO 纹理。使用 mix 函数，根据 SSAO 纹理中的遮蔽值（ssao）来调整原始颜色（color），公式类似于 <code>color * ssao</code>。遮蔽值越接近 0（表示遮蔽越强），最终颜色就越暗。最终将合成后的图像输出到屏幕上。</li>
+</ul>
 <h2 id="2-其他-ao-算法">(2) 其他 AO 算法</h2>
 <h1 id="11-aa-算法">11. AA 算法</h1>
 <h2 id="1fxaa">（1）FXAA</h2>
@@ -1493,9 +1493,76 @@ MiB（二进制）：3.90625 MiB<br>
 <h2 id="3其他-aa">（3）其他 AA</h2>
 <p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
 <h1 id="12-减少-draw-call">12. 减少 Draw Call</h1>
+<h2 id="1动态合批">（1）动态合批</h2>
+<h3 id="为什么需要合批">为什么需要合批？</h3>
 <ul>
-<li>Programmable Vertex Pulling (PVP)</li>
-<li>多重间接绘制 (Multi-Draw Indirect - MDI)</li>
+<li>在渲染管线中，<strong>每一次 Draw Call</strong>（绘制调用）都需要 CPU -&gt; GPU 的状态切换、数据提交。</li>
+<li>当场景里有成千上万个小物体时，Draw Call 成本可能比真正的 GPU 绘制还要大。</li>
+<li>解决办法：<strong>把多个小物体的渲染合并成一次提交（Batching）</strong>。</li>
+</ul>
+<h3 id="动态合批dynamic-batching的原理">动态合批（Dynamic Batching）的原理</h3>
+<ul>
+<li>引擎在运行时（CPU 端），检测多个物体是否可以合并。</li>
+<li>如果条件满足，把这些物体的 <strong>顶点数据拼接成一个大顶点缓冲 VAO</strong>，然后用一次 Draw Call 提交。</li>
+<li>GPU 看到的就是一大块连续的几何数据，不需要多次切换状态。CPU 负责“拼接”，GPU 还是照常用传统 VAO + glDrawElements 来取顶点。</li>
+</ul>
+<h3 id="动态合批的条件">动态合批的条件</h3>
+<p>并不是所有物体都能随便合并，通常需要满足：</p>
+<ul>
+<li><strong>相同的材质 / Shader</strong>（否则 GPU 还是要切换 pipeline）。</li>
+<li><strong>相同的渲染状态</strong>（比如混合模式、深度测试模式）。</li>
+<li><strong>顶点数量不要太大</strong>（拼接开销太高就得不偿失）。</li>
+<li><strong>没有复杂的顶点动画</strong>（因为 CPU 要预处理合并顶点）。</li>
+</ul>
+<h3 id="动态合批-vs-静态合批">动态合批 vs 静态合批</h3>
+<ul>
+<li>
+<p><strong>静态合批 (Static Batching)</strong>：</p>
+<ul>
+<li>在场景导入或 Build 时就提前把物体几何合并。</li>
+<li>适合不会动的物体（地面、建筑）。</li>
+<li>性能更好，因为合并只做一次。</li>
+</ul>
+</li>
+<li>
+<p><strong>动态合批 (Dynamic Batching)</strong>：</p>
+<ul>
+<li>运行时临时拼接。</li>
+<li>适合小而多的动态物体（比如粒子、小道具）。</li>
+<li>但 CPU 有额外开销。</li>
+</ul>
+</li>
+</ul>
+<h3 id="动态合批的缺点">动态合批的缺点：</h3>
+<ul>
+<li>CPU 要在每帧做顶点拼接，带来额外开销。</li>
+<li>对复杂几何体反而可能更慢。</li>
+<li>对内存带宽要求更高（需要复制顶点数据）。</li>
+<li>限制条件较多（材质、状态必须相同）。</li>
+</ul>
+<h2 id="2programmable-vertex-pulling-pvp">（2）Programmable Vertex Pulling (PVP)</h2>
+<p>传统的模式中，CPU 通过设置顶点数组对象（VAO）来详细定义顶点数据的内存布局（如位置、法线、纹理坐标等属性的偏移和步长）。然后，GPU 的固定功能硬件根据 VAO 的配置，自动“推送”这些属性给顶点着色器。而在 PVP“顶点拉取”模式中，这个过程被反过来了：不再为 VAO 配置详细的顶点属性布局。取而代之的是，将所有的顶点数据存放在一个或多个大的通用缓冲区中，例如着色器存储缓冲区（SSBO）。顶点着色器利用内置变量（如 gl_VertexID）作为索引，主动地从这些大缓冲区中“拉取”它所需要的顶点数据。通过 PVP，开发者可以将成百上千个小网格（mesh）合并到单个巨大的缓冲区中，然后用一次绘制调用就将它们全部渲染出来，极大地提升了批处理效率 。</p>
+<h2 id="3多重间接绘制-multi-draw-indirect-mdi">（3）多重间接绘制 (Multi-Draw Indirect - MDI)</h2>
+<p>传统渲染模式下，CPU 需要为每一个（或每一批）物体单独调用一次绘制命令（如 glDrawElements）。而在 MDI 模式下，CPU 预先将成百上千个独立的绘制命令所需的所有参数（如顶点数量、实例数量、索引偏移量、顶点偏移量等）打包成一个结构体数组，并存入一个 GPU 缓冲区中。然后，CPU 只需向 GPU 发送一次 API 调用（例如 glMultiDrawElementsIndirect），GPU 就会自己去读取那个缓冲区，并依次执行里面的所有绘制命令。在项目中的应用如下：</p>
+<ul>
+<li>
+<p>高效渲染大规模场景：项目首先将复杂的场景图处理成一个扁平化的“形状列表”。然后，这个列表被转换成一个包含 DrawElementsIndirectCommand 结构体的间接绘制缓冲区。DrawElementsIndirectCommand 结构体包含了单次绘制所需的所有参数：</p>
+<ul>
+<li>count_: 索引数量</li>
+<li>instanceCount_: 实例数量</li>
+<li>firstIndex_: 索引缓冲区中的起始偏移</li>
+<li>baseVertex_: 顶点缓冲区中的起始偏移</li>
+<li>baseInstance_: 实例的起始 ID，用于在着色器中索引材质或变换矩阵<br>
+准备好这个缓冲区后，整个拥有数万个物体的 Bistro 场景就可以通过一次 glMultiDrawElementsIndirect 调用来渲染，而不是数万次 。</li>
+</ul>
+</li>
+<li>
+<p>实现视锥体剔除：项目中的 CPU 和 GPU 剔除都利用了 MDI。</p>
+<ul>
+<li>CPU 剔除的应用：在 CPU 剔除的例子中，CPU 首先在内存中对所有物体的包围盒进行视锥体测试。对于被剔除的物体，它并不会从间接绘制命令数组中移除该命令，而是简单地将该命令对应的 <code>instanceCount_</code> 字段设置为 0。之后，这个修改过的命令缓冲区被上传到 GPU。当 GPU 执行 glMultiDrawElementsIndirect 时，它会读取到这些命令，但对于 instanceCount 为 0 的命令，它会自动跳过，不进行任何绘制。</li>
+<li>GPU 剔除的应用：CPU 将所有绘制命令和物体的包围盒数据一次性上传到 GPU。CPU 派发一个计算着色器，这个计算着色器在 GPU 上并行地对所有物体的包围盒进行视锥体测试。如果一个物体被剔除，计算着色器直接在 GPU 显存中修改间接绘制缓冲区，将对应命令的 instanceCount 设置为 0。CPU 插入一个内存屏障（glMemoryBarrier）来确保计算着色器的工作完成。最后，CPU 调用 glMultiDrawElementsIndirect。此时，渲染管线读取到的是已经被 GPU 自己“净化”过的命令列表，从而只渲染可见的物体。</li>
+</ul>
+</li>
 </ul>
 <h1 id="杂项">杂项</h1>
 <h2 id="1项目坐标系">（1）项目坐标系</h2>
