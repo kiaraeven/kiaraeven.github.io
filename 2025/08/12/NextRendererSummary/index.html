@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-29T04:50:20.944Z">
+<meta property="article:modified_time" content="2025-08-29T04:54:41.340Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -1290,7 +1290,7 @@ MiB（二进制）：3.90625 MiB<br>
 <li>
 <p><strong>3a. 计算当前帧平均亮度</strong></p>
 <ul>
-<li>将第 1 趟的 HDR 场景图渲染到一个非常小的（例如 64x64 像素）、<strong>单通道</strong>浮点格式（<code>GL_R16F</code>）的<code>luminance</code>纹理中。在渲染时，着色器（<code>GL03_ToLuminance.frag</code>）将 RGB 颜色转换为亮度值。</li>
+<li>将第 1 趟的 HDR 场景图渲染到一个非常小的（例如 64x64 像素）、<strong>单通道</strong>浮点格式（<code>GL_R16F</code>）的<code>luminance</code>纹理中。在渲染时，着色器（<code>ToLuminance.frag</code>）将 RGB 颜色转换为亮度值。</li>
 <li>为这张小亮度图<strong>生成完整的 Mipmap 链</strong>。由于每一级 Mipmap 都是上一级的降采样，最终<strong>1x1 大小的顶层 Mipmap</strong>就近似存储了整个场景的<strong>平均亮度值</strong>。</li>
 </ul>
 </li>
