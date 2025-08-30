@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-08-29T04:54:41.340Z">
+<meta property="article:modified_time" content="2025-08-29T23:39:05.314Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          19k words
+          20k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          160 mins
+          163 mins
         
       </span>
     
@@ -1566,7 +1566,31 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 <h2 id="2-其他-ao-算法">(2) 其他 AO 算法</h2>
 <h1 id="11-aa-算法">11. AA 算法</h1>
-<h2 id="1fxaa">（1）FXAA</h2>
+<h2 id="1fxaa-fast-approximate-anti-aliasing">（1）FXAA (Fast Approximate Anti-Aliasing)</h2>
+<p>FXAA 是一种由 NVIDIA 开发的快速近似抗锯齿技术。它是一种后处理抗锯齿方法，不需要额外的几何信息，只基于最终渲染的图像进行抗锯齿处理。项目中 FXAA 在 HDR pipeline 色调映射之后进行，输入的是处理后的 LDR 图像，输出是抗锯齿过的图像。</p>
+<ul>
+<li>核心思想：
+<ul>
+<li>检测边缘：识别图像中的锯齿边缘</li>
+<li>计算方向：确定边缘的主要方向</li>
+<li>智能采样：沿着边缘方向进行采样</li>
+<li>混合颜色：将采样结果与原像素混合</li>
+</ul>
+</li>
+<li>优势：
+<ul>
+<li>性能高效：单次全屏渲染，计算量小</li>
+<li>无需几何信息：纯后处理，易于集成</li>
+<li>质量可控：通过参数调节抗锯齿强度</li>
+</ul>
+</li>
+<li>局限性：
+<ul>
+<li>丢失细节：只要是对比度高的像素，它都视作边缘像素进行处理。这可能会使图像丢失一些局部高频信息，使得画面不够锐利。解决这一问题的方法是加一个参数相对阈值比例（项目中的 FXAA_LUMA_THRESHOLD），最终阈值 = max(绝对阈值, lumaMax * 相对阈值比例)。这样明亮的地方需要更高的周边对比度才能被判定为边缘。</li>
+<li>参数敏感：需要根据具体场景调整参数</li>
+</ul>
+</li>
+</ul>
 <h2 id="2taa">（2）TAA</h2>
 <h2 id="3其他-aa">（3）其他 AA</h2>
 <p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
