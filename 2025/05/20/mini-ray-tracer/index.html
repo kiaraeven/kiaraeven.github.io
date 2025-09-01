@@ -29,7 +29,7 @@
 <meta property="og:description" content="Tiny Renderer 1. 切线空间-法线贴图 https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_52179126&#x2F;article&#x2F;details&#x2F;147749107 https:&#x2F;&#x2F;github.com&#x2F;ssloy&#x2F;tinyrenderer&#x2F;wiki&#x2F;Lesson-6bis:-tangent-space-normal-mapping   如何把切线空间的法线向量转换到世界空间&#x2F;观察空间？（">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-20T10:22:21.615Z">
-<meta property="article:modified_time" content="2025-06-05T09:23:16.885Z">
+<meta property="article:modified_time" content="2025-09-01T19:56:57.668Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -562,7 +562,7 @@
 <li>首先渲染场景以获取深度图（Z-buffer）。</li>
 <li>然后，对于屏幕上的每个像素点，它在多个 2D 屏幕空间方向上“观察”周围的深度值（将其视为高度图），即向八个方向发射射线（步进 1000 步）。</li>
 <li>它计算每个方向上最高的“地平线仰角”（<code>max_elevation_angle</code>），计算射线当前到达的点和起点的距离以及二者的高度差，以此计算 tan，并通过 atan 得到仰角。</li>
-<li>基于这些地平线仰角，它估算该点被周围“地形”（由深度图表示）遮挡的程度（遮蔽因子=pi/2-max_angle，8 个方向取平均）。遮挡银子越大，环境光越强。</li>
+<li>基于这些地平线仰角，它估算该点被周围“地形”（由深度图表示）遮挡的程度（遮蔽因子=pi/2-max_angle，8 个方向取平均）。遮挡因子越大，环境光越强。</li>
 <li>最后，根据这个遮蔽程度来确定像素的亮度，从而产生环境光遮蔽的效果（遮蔽因子*255 写入纹理）。用 pow(遮蔽因子,n)，n 越大可使得凹凸更明显。</li>
 </ul>
 <p>这种方法与传统的 SSAO 在采样策略上有所不同（2D 射线步进 vs 3D 半球随机采样），但其核心思想——利用屏幕空间的深度信息来估算环境光遮蔽——是相同的。</p>
