@@ -46,7 +46,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-08-17T18:20:01.268Z">
+<meta property="article:modified_time" content="2025-09-02T19:57:30.973Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -257,7 +257,7 @@
         
         
         
-          416 mins
+          420 mins
         
       </span>
     
@@ -724,7 +724,13 @@ SSAO 将球形范围内的所有样本都考虑在内，而不是只考虑表面
 <img src="MSAA2.png" alt="MSAA"><br>
 MSAA 判断一个三角形是否被像素覆盖的时候会计算多个样本，但是在片元着色器计算像素颜色的时候每个像素还是只计算一次。</li>
 <li>为什么是更大的缓冲区？因为要为每个子样本都存储独立的颜色信息和深度信息。这些信息用于判断子采样点是否被三角形覆盖、被哪个三角形覆盖。如下图，中间的图展示了一个像素被两个物体重叠的情况，其中红色物体覆盖了三个样本，蓝色物体覆盖了一个样本。图中的绿色点代表了像素着色器计算的位置，由于红色三角形覆盖了像素的中心，因此这个位置被用于着色器计算；而蓝色物体的像素着色器将在 1 号样本的位置上进行计算。对于 MSAA 而言，所有的四个样本位置都存储了单独的颜色信息和深度信息，右图展示了 EQAA 的 2f4x 模式 (这里的 EQAA 指的是 Enhanced Quality Anti-Aliasing，它是 AMD 提出的 MSAA 改进版，思路是把 颜色信息 和 覆盖率信息 分离存储。在 MSAA 中 每个 采样点 都存有 颜色 &amp; 深度值；而 EQAA 存储得比 MSAA 少，比如这里只有 2 份。2f4x 是一种 EQAA 配置模式，意思是：2 个 color &amp; depth 信息存储 (f = fragment)，4 个覆盖率采样点 (Coverage samples))，四个样本对应了四个 ID 值，这个 ID 值用于在另一个只包含颜色信息和深度信息的表格中进行检索。<br>
-<img src="MSAA3.png" alt="MSAA"></li>
+<img src="MSAA3.png" alt="MSAA"><br>
+更具体地，MSAA 确实会对显存和带宽造成额外开销，不过对 color buffer 和 depth buffer 的影响是不一样的。MSAA 中，每个像素有多个采样点 (samples)。对于每个 sample，需要存储：深度/模板值（因为决定可见性必须 per-sample 判断）、颜色值（但并不总是 per-sample 存储）。
+<ul>
+<li>对 Depth Buffer 的开销会显著增加：因为深度缓冲必须对每个 sample 存储一个独立的深度值。例如 4x MSAA，意味着每像素要存 4 个深度值。因为深度测试、遮挡判断等都需要逐采样点进行。所以 MSAA 下 depth/stencil buffer 的存储和访问成本约为乘以采样数 (N)。</li>
+<li>对 Color Buffer 的开销不会线性增加那么多：Color buffer 在大多数实现中是 per-pixel 逻辑上存储一个最终颜色，而不是每个 sample 都保存独立颜色。在光栅化阶段，fragment shader 每个像素只执行一次（而不是 per-sample，除非 gl_SampleShading 要求）。写入 color buffer 时，GPU 会在“多采样存储区”里维护 sample 级别的覆盖信息，但并不是所有 sample 都存一个完整颜色。只有在需要 Alpha Test / Alpha-to-Coverage / Per-sample shading 时，color buffer 才可能需要额外存储。也就是说，MSAA 对 color buffer 的存储开销基本不变或很少增加。但在 resolve（MSAA -&gt; 普通 framebuffer）阶段，需要额外的带宽开销（因为要混合多个 sample）。</li>
+</ul>
+</li>
 <li>MSAA 的速度要比纯超采样的方案快，因为每个片元只会进行一次着色计算。</li>
 <li>现在延迟渲染已经支持 MSAA 了。传统延迟渲染不支持 MSAA（需额外方案）（<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/135444145">https://zhuanlan.zhihu.com/p/135444145</a> ）。MSAA 对延迟渲染的支持不是很好；有几个原因，一个是 MSAA 本质上是一种发生在光栅化阶段的技术，也就是几何阶段后，着色阶段前，这个技术需要用到场景中的几何信息，但是延迟渲染因为需要节省光照计算的原因，事先把所有信息都放在了 GBuffer 上，着色计算的时候已经丢失了几何信息；而且关键一点是如果强行这么做，MSAA 会增加数倍的带宽性能消耗，因此一般都不会这么做。还有一个原因是是以前 DX9 的时代，MRT (多重渲染目标)技术不支持 MSAA。</li>
 </ul>
@@ -1019,17 +1025,17 @@ G-Buffer 通常存储：
 <ul>
 <li>传统渲染：
 <ul>
-<li>一个 Fragment Shader → 只能写入 一个颜色缓冲区 (Color Attachment)</li>
+<li>一个 Fragment Shader 只能写入 一个颜色缓冲区 (Color Attachment)</li>
 </ul>
 </li>
 <li>MRT 渲染：
 <ul>
-<li>一个 Fragment Shader → 可以同时写入 多个颜色缓冲区<br>
+<li>一个 Fragment Shader 可以同时写入 多个颜色缓冲区<br>
 比如：<br>
-Color Attachment 0 → 位置<br>
-Color Attachment 1 → 法线<br>
-Color Attachment 2 → Albedo (漫反射颜色)<br>
-Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br>
+Color Attachment 0: 位置<br>
+Color Attachment 1: 法线<br>
+Color Attachment 2: Albedo (漫反射颜色)<br>
+Color Attachment 3: Material 参数（Roughness, Metallic, Specular 等）<br>
 这样 <strong>一次几何 Pass 就能同时写入所有 G-Buffer 信息</strong>，从而为后面的 Lighting Pass 提供数据。</li>
 </ul>
 </li>
@@ -1041,14 +1047,22 @@ Color Attachment 3 → Material 参数（Roughness, Metallic, Specular 等）<br
 <li>优点：
 <ul>
 <li>高效处理大量光源：光照计算与几何渲染分离，避免每个像素多次进行光照计算，性能较好。</li>
-<li>减少过度绘制：只对可见像素进行光照计算。</li>
-<li>提供更多屏幕空间信息：在延迟渲染中，对于每个像素，其对应在场景中的位置、法线方向、材质属性（如漫反射系数、镜面反射系数等）都会被存储在 G-buffer 中。这些信息都是关于场景在屏幕空间上的详细描述。例如，位置信息可以精确地指出场景中每个物体在屏幕空间中的投影位置；法线信息可以表示物体表面在该像素点处的朝向，这对于光照计算中确定光线与物体表面的交互关系非常重要。丰富的屏幕空间信息使得延迟渲染可以很容易地支持多种复杂的光照模型和后期处理特效。对于基于屏幕空间的光照模型，如屏幕空间环境光遮蔽（SSAO）、屏幕空间反射（SSR）等。</li>
+<li><strong>减少过度绘制：只对可见像素进行光照计算</strong>。</li>
+<li><strong>提供更多屏幕空间信息</strong>：在延迟渲染中，对于每个像素，其对应在场景中的位置、法线方向、材质属性（如漫反射系数、镜面反射系数等）都会被存储在 G-buffer 中。这些信息都是关于场景在屏幕空间上的详细描述。例如，位置信息可以精确地指出场景中每个物体在屏幕空间中的投影位置；法线信息可以表示物体表面在该像素点处的朝向，这对于光照计算中确定光线与物体表面的交互关系非常重要。丰富的屏幕空间信息使得延迟渲染可以很容易地支持多种复杂的光照模型和后期处理特效。对于基于屏幕空间的光照模型，如屏幕空间环境光遮蔽（SSAO）、屏幕空间反射（SSR）等。</li>
 </ul>
 </li>
 <li>缺点：
 <ul>
 <li>内存和带宽消耗高：需要额外的 G-Buffer 存储几何信息，显存占用较大。带宽(bandwidth)指的是 GPU 在每秒钟内从显存 (VRAM) 读写数据的能力，通常以 GB/s 为单位。带宽高原因是写入阶段每个像素要写多个 Buffer，读取阶段每个像素需要读取多个 Buffer。</li>
-<li>材质复杂度受限（G-Buffer 容量有限）</li>
+<li>材质复杂度受限（G-Buffer 容量有限）：G-buffer 的存储是固定大小的。但“材质”可能包含很多不同的属性：Diffuse color、Specular、Metalness、Roughness、Emission、Clearcoat…，且不同材质模型可能需要的参数也不一样。所以，多材质一般是“统一材质模型 + 特殊材质 Forward 渲染”的折中方案。
+<ul>
+<li>统一材质模型：选择一种通用的 PBR 表达（如 Metallic-Roughness 模型），把所有材质都“转码”成这套参数。<br>
+好处：G-buffer 格式固定，Lighting Pass 简化。<br>
+缺点：材质灵活性受限（特殊材质要走 Forward Path）。</li>
+<li>多渲染路径：常规材质走 Deferred；特殊材质（透明、次表面散射、头发等）走 Forward 或 Forward+。</li>
+<li>多 Pass G-buffer 扩展：在 MRT 中为特殊材质开额外通道，但这会增加显存和带宽消耗。</li>
+</ul>
+</li>
 <li>不支持透明物体：G-Buffer 无法正确处理透明物体的多层叠加效果。透明物体的正确渲染需要：排序（从远到近）；逐片元混合 (Blending) ，即需要知道多个重叠片元的信息。而延迟渲染 G-Buffer，每个像素只存最近的一个片元；后面的透明片元信息会被深度测试丢弃。解决办法是把渲染器分为两个部分：一个是延迟渲染的部分，另一个是专门为了混合或者其他不适合延迟渲染管线的着色器效果而设计的的正向渲染的部分。即透明物体单独使用正向渲染 (Forward Rendering) Pass，也叫 Hybrid Rendering Pipeline (混合渲染管线)。</li>
 <li>迫使对大部分场景的光照使用相同的光照算法：你可以通过包含更多关于材质的数据到 G-Buffer 中来减轻这一缺点。</li>
 <li>抗锯齿问题：传统延迟渲染与 MSAA 不兼容，抗锯齿处理复杂。</li>

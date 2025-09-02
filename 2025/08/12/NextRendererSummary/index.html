@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-09-01T23:33:04.912Z">
+<meta property="article:modified_time" content="2025-09-02T19:41:23.705Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -1693,8 +1693,6 @@ MiB（二进制）：3.90625 MiB<br>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (g_EnableTAA) &#123;<br>    taa.<span class="hljs-built_in">bind</span>();<br>    programTAA.<span class="hljs-built_in">useProgram</span>();<br>    <span class="hljs-built_in">glUniform1i</span>(frameIndexLoc, frameIndex);<br>    <span class="hljs-built_in">glUniform2f</span>(invScreenSizeLoc_TAA, <span class="hljs-number">1.0f</span> / width, <span class="hljs-number">1.0f</span> / height);<br><br>    <span class="hljs-comment">// 绑定纹理</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">0</span>, Gbuffer.<span class="hljs-built_in">getTextureColor</span>(<span class="hljs-number">0</span>).<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 当前帧</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">1</span>, history_taa.<span class="hljs-built_in">getTextureColor</span>().<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 历史帧</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">2</span>, Gbuffer.<span class="hljs-built_in">getTextureColor</span>(<span class="hljs-number">1</span>).<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 运动矢量</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">3</span>, Gbuffer.<span class="hljs-built_in">getTextureDepth</span>().<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 深度</span><br><br>    <span class="hljs-built_in">glDrawArrays</span>(GL_TRIANGLES, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>);<br>    taa.<span class="hljs-built_in">unbind</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
 <h3 id="历史帧管理"><strong>历史帧管理</strong></h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 为下一帧准备历史帧</span><br><span class="hljs-keyword">if</span> (g_EnableTAA) &#123;<br>    <span class="hljs-built_in">glBlitNamedFramebuffer</span>(taa.<span class="hljs-built_in">getHandle</span>(), history_taa.<span class="hljs-built_in">getHandle</span>(),<br>                           <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height,<br>                           GL_COLOR_BUFFER_BIT, GL_LINEAR);<br>&#125;<br>prevView = view; <span class="hljs-comment">// 保存当前帧的VP矩阵</span><br>prevProj = proj;<br></code></pre></td></tr></table></figure>
-<h2 id="3其他-aa">（3）其他 AA</h2>
-<p>msaa 会对 colorbuffer 增加开销吗？对 depthbuffer 呢？</p>
 <h1 id="12-减少-draw-call">12. 减少 Draw Call</h1>
 <h2 id="1动态合批">（1）动态合批</h2>
 <h3 id="为什么需要合批">为什么需要合批？</h3>
@@ -1905,7 +1903,6 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2 id="10延迟渲染遇到多材质怎么办延迟渲染是否支持-msaa">（10）延迟渲染遇到多材质怎么办？延迟渲染是否支持 msaa？</h2>
 
                 
               </div>
