@@ -21,22 +21,29 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Install MinGW See official website and follow the instructions step by step (https:&#x2F;&#x2F;code.visualstudio.com&#x2F;docs&#x2F;cpp&#x2F;config-mingw). Note that we need to add the folder path C:\msys64\ucrt64\bin (for ex">
+    <meta name="description" content="What are needed to illuminate any point p with indirect illumination?  Q1: Which surface patches are directly lit  Shadow Mapping?   Q2: What is the contribution from each surface patch to p  Then sum">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How to set up cpp environment in VSCode (Windows 10)">
-<meta property="og:url" content="http://example.com/2025/01/27/cpp-env-setup-win/index.html">
+<meta property="og:title" content="GAMES 202 - Global Illumination">
+<meta property="og:url" content="http://example.com/2025/09/14/GAMES202-L070809-GI/index.html">
 <meta property="og:site_name" content="Go7">
-<meta property="og:description" content="Install MinGW See official website and follow the instructions step by step (https:&#x2F;&#x2F;code.visualstudio.com&#x2F;docs&#x2F;cpp&#x2F;config-mingw). Note that we need to add the folder path C:\msys64\ucrt64\bin (for ex">
+<meta property="og:description" content="What are needed to illuminate any point p with indirect illumination?  Q1: Which surface patches are directly lit  Shadow Mapping?   Q2: What is the contribution from each surface patch to p  Then sum">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-01-27T07:18:00.294Z">
-<meta property="article:modified_time" content="2025-01-27T07:38:38.931Z">
+<meta property="og:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/LPV-lightleak1.png">
+<meta property="og:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/LPV-lightleak2.png">
+<meta property="og:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/VXGI-pass1.png">
+<meta property="og:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/VXGI-pass2.png">
+<meta property="og:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/VXGI-pass2-diffuse.png">
+<meta property="article:published_time" content="2025-09-14T23:12:22.519Z">
+<meta property="article:modified_time" content="2025-09-15T05:19:12.409Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="GAMES202">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/09/14/GAMES202-L070809-GI/LPV-lightleak1.png">
   
   
   
-  <title>How to set up cpp environment in VSCode (Windows 10) - Go7</title>
+  <title>GAMES 202 - Global Illumination - Go7</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -47,6 +54,8 @@
   <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
 
 
 
@@ -202,7 +211,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="How to set up cpp environment in VSCode (Windows 10)"></span>
+            <span id="subtitle" data-typed-text="GAMES 202 - Global Illumination"></span>
           
         </div>
 
@@ -213,8 +222,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-27 01:18" pubdate>
-          January 27, 2025 am
+        <time datetime="2025-09-14 16:12" pubdate>
+          September 14, 2025 pm
         </time>
       </span>
     
@@ -225,7 +234,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          91 words
+          107 words
         
       </span>
     
@@ -273,24 +282,238 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">How to set up cpp environment in VSCode (Windows 10)</h1>
+            <h1 id="seo-header">GAMES 202 - Global Illumination</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="install-mingw">Install MinGW</h1>
-<p>See official website and follow the instructions step by step (<a target="_blank" rel="noopener" href="https://code.visualstudio.com/docs/cpp/config-mingw">https://code.visualstudio.com/docs/cpp/config-mingw</a>). Note that we need to add the folder path <code>C:\msys64\ucrt64\bin</code> (for example) to both User Variables and Environment Variables. Someone said the order of the path also matters, so put this path in front of others if possible.</p>
-<h1 id="install-cmake">Install CMake</h1>
-<p>Use CMake as the build tool. Download .msi from the official website. Remember to select “Add CMake to system PATH for all users” while installation so that we can use CMake in the command line.</p>
-<p>Test with:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake --version<br></code></pre></td></tr></table></figure>
-<p>Then, if we run <code>cmake ..</code> or <code>cmake -B build</code> in cmd/powershell, we might still get the following error:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">-- Building for: NMake Makefiles<br>CMake Error at CMakeLists.txt:5 (project):<br><br>   &#x27;nmake&#x27; &#x27;-?&#x27;<br><br>  failed with:<br><br>   no such file or directory<br><br><br>CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage<br>-- Configuring incomplete, errors occurred!<br></code></pre></td></tr></table></figure>
-<p>The error is caused by failing to set up the compiler correctly or failing to set up the generator correctly.</p>
-<p>If the error is caused by failing to set up the compiler correctly, we can ass a new line (see below) in the CMakeLists.txt to specify our compiler. Here, remember to put this line before project().</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">set(CMAKE_CXX_COMPILER &quot;F:/D/software/mysys2/install/ucrt64/bin/g++.exe&quot;)<br></code></pre></td></tr></table></figure>
-<p>If the error is caused by failing to set up the generator (generator can be MinGW Makefiles, Ninja, CodeBlocks, etc.) correctly, we can specify our generater in our commands like:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake -G &quot;MinGW Makefiles&quot; ..<br><span class="hljs-meta prompt_"># </span><span class="language-bash">or</span><br>cmake -G &quot;MinGW Makefiles&quot; -B build<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-keyword">for</span> `cmake --build build`, no need to specify the generator.</span><br></code></pre></td></tr></table></figure>
+                <p>What are needed to illuminate any point p with indirect illumination?</p>
+<ul>
+<li>Q1: Which surface patches are directly lit
+<ul>
+<li>Shadow Mapping?</li>
+</ul>
+</li>
+<li>Q2: What is the contribution from each surface patch to p
+<ul>
+<li>Then sum up all the surface patches’ contributions</li>
+<li>Hint: each surface patch is like an area light</li>
+</ul>
+</li>
+</ul>
+<h1 id="in-3d">In 3D</h1>
+<h2 id="reflective-shadow-maps-rsm">Reflective Shadow Maps (RSM)</h2>
+<ul>
+<li>
+<p>Q1: Which surface patches are directly lit</p>
+<ul>
+<li>Perfectly solved with a classic shadow map</li>
+<li>Each pixel on the shadow map is a small surface patch</li>
+</ul>
+</li>
+<li>
+<p>The exact outgoing radiance for each pixel is known, but only for the direction to the camera</p>
+</li>
+<li>
+<p>Assumption</p>
+<ul>
+<li>Any reflector is diffuse</li>
+<li>Therefore, outgoing radiance is uniform toward all directions</li>
+</ul>
+</li>
+<li>
+<p>Q2: What is the contribution from each surface patch to p</p>
+<ul>
+<li>An integration over the solid angle covered by the patch</li>
+<li>Can be converted to the integration on the area of the patch</li>
+</ul>
+</li>
+<li>
+<p>Not all pixels in the RSM can contribute</p>
+<ul>
+<li>Visibility (still, difficult to deal with)</li>
+<li>Orientation</li>
+<li>Distance</li>
+</ul>
+</li>
+<li>
+<p>What is needed to record in an RSM?</p>
+<ul>
+<li>Depth, world coordinate, normal, flux, etc.</li>
+</ul>
+</li>
+<li>
+<p>Often used for <strong>flashlights</strong> in video games</p>
+<ul>
+<li>Gears of War 4, Uncharted 4, The Last of US, etc.</li>
+</ul>
+</li>
+<li>
+<p>Pros and Cons</p>
+<ul>
+<li>Pros:
+<ul>
+<li>Easy to implement (similar to shadow mapping, only two passes needed)</li>
+</ul>
+</li>
+<li>Cons
+<ul>
+<li>Performance scales linearly with #lights</li>
+<li>No visibility check for indirect illumination</li>
+<li>Many assumptions: diffuse reflectors, depth as distance, etc.</li>
+<li>Sampling rate / quality tradeoff</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>RSM is like the virtual point light (VPL) in off-line rendering.</p>
+</li>
+</ul>
+<h2 id="light-propagation-volumes-lpv">Light Propagation Volumes (LPV)</h2>
+<ul>
+<li>
+<p>Key problem</p>
+<ul>
+<li>Query the radiance from anydirection at any shading point</li>
+</ul>
+</li>
+<li>
+<p>Key idea</p>
+<ul>
+<li>Radiance travels in a straight line and does not change</li>
+</ul>
+</li>
+<li>
+<p>Key solution</p>
+<ul>
+<li>Use a 3D grid to propagate radiance from directly illuminated surfaces to anywhere else</li>
+</ul>
+</li>
+<li>
+<p>Process</p>
+<ul>
+<li>
+<p>Step 1: Generation</p>
+</li>
+<li>
+<p>This is to find directly lit surfaces (these are secondary light source)</p>
+<ul>
+<li>Simply applying RSM would suffice!</li>
+</ul>
+</li>
+<li>
+<p>May use a reduced set of diffuse surface patches (virtual light sources)</p>
+</li>
+<li>
+<p>Step 2: Injection</p>
+<ul>
+<li>Pre-subdivide the scene into a 3D grid</li>
+<li>For each grid cell, find enclosed virtual light sources</li>
+<li>Sum up their directional radiance distribution</li>
+<li>Project to first 2 orders of SHs (4 in total)</li>
+</ul>
+</li>
+<li>
+<p>Step 3: Propagation</p>
+<ul>
+<li>For each grid cell, collect the radiance received from each of its 6 faces</li>
+<li>Sum up, and again use SH to represent</li>
+<li>Repeat this propagationseveral times till the volumebecomes stable</li>
+</ul>
+</li>
+<li>
+<p>Step 4: Rendering</p>
+<ul>
+<li>
+<p>For any shading point, find the grid cell it is located in</p>
+</li>
+<li>
+<p>Grab the incident radiance in the grid cell (from all directions)</p>
+</li>
+<li>
+<p>Shade</p>
+</li>
+<li>
+<p>Any problems?</p>
+<ul>
+<li>Hint: look at point p. The other side of the wall shouldn’t be lit by p but with LPV it can be because we don’t consider visibility in light propagation.<br>
+<img src="LPV-lightleak1.png" alt="example"></li>
+<li>This problem is called <strong>light leaking</strong>. (PS: remember VSM can also cause light leaking)<br>
+<img src="LPV-lightleak2.png" alt="light leaking"></li>
+<li>When the grids are large there could be light leaking, but if the grids are small we will need more storage and the computation will be slower.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="voxel-global-lllumination-vxgi">Voxel Global lllumination (VXGI)</h2>
+<ul>
+<li>
+<p>Still a two-pass algorithm</p>
+</li>
+<li>
+<p>Two main differences with RSM</p>
+<ul>
+<li>Directly illuminated pixels -&gt; hierarchical voxels (Voxelize the entire scene and build a hierarchy - think of oct tree with smaller grids)</li>
+<li>Sampling on RSM -&gt; tracing reflected cones in 3D (Note the inaccuracy insampling RSM)</li>
+</ul>
+</li>
+<li>
+<p>Process</p>
+<ul>
+<li>Pass 1 from the light
+<ul>
+<li>Store the incident and normal distributions in each voxel</li>
+<li>Update on the hierarchy<br>
+<img src="VXGI-pass1.png" alt="pass 1"></li>
+</ul>
+</li>
+<li>Pass 2 from the camera
+<ul>
+<li>For glossy surfaces, trace 1 cone toward the reflected direction</li>
+<li>Query the hierarchy based on the (growing) size of the cone - how many voxels can contribute to the shading point at the starting corner of the cone<br>
+<img src="VXGI-pass2.png" alt="pass 2 glossy"></li>
+<li>For diffuse, trace several smaller cones (e.g., 8)<br>
+<img src="VXGI-pass2-diffuse.png" alt="pass 2 diffuse"></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Pretty good results, similar to ray tracing</p>
+</li>
+</ul>
+<h1 id="screen-space">Screen Space</h1>
+<p>post-processing on existing renderings</p>
+<h2 id="screen-space-ambient-occlusion-ssao">Screen Space Ambient Occlusion (SSAO)</h2>
+<ul>
+<li>Why AO?
+<ul>
+<li>Cheap to implement but enhances the sense of relative positions</li>
+</ul>
+</li>
+<li>What is SSAO?
+<ul>
+<li>An approximation of global illumination</li>
+<li>In screen space</li>
+</ul>
+</li>
+<li>Key idea 1
+<ul>
+<li>We don’t know the incident indirect lighting</li>
+<li>Let’s assume it is constant (for all shading points, from all directions)</li>
+</ul>
+</li>
+<li>Key idea 2 &amp; 3
+<ul>
+<li>Considering different visibility (towards all directions) at different shading points</li>
+<li>Assume diffuse materials</li>
+</ul>
+</li>
+</ul>
 
                 
               </div>
@@ -314,12 +537,12 @@
   
     <span>></span>
     
-  <a href="/categories/Learning/Programming/" class="category-chain-item">Programming</a>
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
   
   
     <span>></span>
     
-  <a href="/categories/Learning/Programming/C/" class="category-chain-item">C++</a>
+  <a href="/categories/Learning/Graphics/GAMES/" class="category-chain-item">GAMES</a>
   
   
 
@@ -338,7 +561,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/cpp/" class="print-no-link">#cpp</a>
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/GAMES202/" class="print-no-link">#GAMES202</a>
       
     </div>
   
@@ -350,8 +575,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>How to set up cpp environment in VSCode (Windows 10)</div>
-      <div>http://example.com/2025/01/27/cpp-env-setup-win/</div>
+      <div>GAMES 202 - Global Illumination</div>
+      <div>http://example.com/2025/09/14/GAMES202-L070809-GI/</div>
     </div>
     <div class="license-meta">
       
@@ -363,7 +588,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>January 27, 2025</div>
+          <div>September 14, 2025</div>
         </div>
       
       
@@ -395,18 +620,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/01/27/cmake-cmds/" title="Commenly Used CMake Commands and Explanations">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Commenly Used CMake Commands and Explanations</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/01/25/git-forkandthen/" title="Fork Other&#39;s Repo and Create Personal Repo">
-                        <span class="hidden-mobile">Fork Other&#39;s Repo and Create Personal Repo</span>
+                      <a href="/2025/09/02/GAMES202-L0405-EnvMapping/" title="GAMES 202 L04 and L05 - Environment Mapping">
+                        <span class="hidden-mobile">GAMES 202 L04 and L05 - Environment Mapping</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -460,6 +679,11 @@
 
 
   
+
+
+  
+  
+
 
 
 

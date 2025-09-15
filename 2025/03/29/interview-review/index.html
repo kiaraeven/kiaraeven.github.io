@@ -234,7 +234,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-03-29 14:33" pubdate>
+        <time datetime="2025-03-29 12:33" pubdate>
           March 29, 2025 pm
         </time>
       </span>
@@ -1348,7 +1348,7 @@ Color Attachment 3: Material 参数（Roughness, Metallic, Specular 等）<br>
 </ul>
 <h2 id="12-蒙特卡洛积分">12. 蒙特卡洛积分</h2>
 <p>具体见：<br>
-<a href="/2025/01/14/GAMES101-L16-RayTracing4/"> GAMES101 Lecture 16</a></p>
+<a href="/2025/01/13/GAMES101-L16-RayTracing4/"> GAMES101 Lecture 16</a></p>
 <ul>
 <li>
 <p>蒙特卡洛积分 (Monte Carlo Integration)是一种基于随机采样的数值积分方法</p>
@@ -1388,7 +1388,7 @@ Color Attachment 3: Material 参数（Roughness, Metallic, Specular 等）<br>
 <ul>
 <li>Cosine-Weighted Hemisphere Sampling：对于<em>漫反射</em>材质，重要性采样会根据<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>o</mi><mi>s</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">cos\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">cos</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span>分布采样，这样更多光线指向 法线附近，因为这些方向贡献最大。</li>
 <li>Specular BRDF Sampling：对于<em>镜面或高光</em>材质，重要性采样会根据 BRDF 的高光分布调整，更多采样在主要反射方向，快速收敛，减少噪声。</li>
-<li>光源直接采样 (Light Sampling)：为了减少 Direct Lighting Noise，路径追踪中直接从光源表面面积均匀采样点，计算可见性，直接贡献到当前像素亮度（见<a href="/2025/01/14/GAMES101-L16-RayTracing4/"> GAMES101 Lecture 16</a>）。</li>
+<li>光源直接采样 (Light Sampling)：为了减少 Direct Lighting Noise，路径追踪中直接从光源表面面积均匀采样点，计算可见性，直接贡献到当前像素亮度（见<a href="/2025/01/13/GAMES101-L16-RayTracing4/"> GAMES101 Lecture 16</a>）。</li>
 <li>对光源的重要性采样和基于 GGX 函数(GGX 是一种 BRDF 中使用的 法线分布函数（NDF），描述了一个粗糙表面上的微法线朝向分布，用于模拟高光区域)的重要性采样有什么区别？都是采样集中于被积函数分布可能性较高的区域，但一个是从周围光源分布的角度出发，一个是从物体材质法线分布的角度出发。</li>
 </ul>
 </li>
