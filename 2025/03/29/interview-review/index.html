@@ -33,6 +33,8 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/MSAA1.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/MSAA2.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/MSAA3.png">
+<meta property="og:image" content="http://example.com/2025/03/29/interview-review/SSAA-MSAA-GAMES202.png">
+<meta property="og:image" content="http://example.com/2025/03/29/interview-review/SMAA-GAMES202.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/PCF.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/nvidia-vsm-shader.jpg">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/KDTree.png">
@@ -45,8 +47,9 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ray-polygon.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/tri-tri.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
+<meta property="og:image" content="http://example.com/2025/03/29/interview-review/DLSS-GAMES202.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-09-02T19:57:30.973Z">
+<meta property="article:modified_time" content="2025-09-16T19:15:52.961Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -734,6 +737,8 @@ MSAA 判断一个三角形是否被像素覆盖的时候会计算多个样本，
 <li>MSAA 的速度要比纯超采样的方案快，因为每个片元只会进行一次着色计算。</li>
 <li>现在延迟渲染已经支持 MSAA 了。传统延迟渲染不支持 MSAA（需额外方案）（<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/135444145">https://zhuanlan.zhihu.com/p/135444145</a> ）。MSAA 对延迟渲染的支持不是很好；有几个原因，一个是 MSAA 本质上是一种发生在光栅化阶段的技术，也就是几何阶段后，着色阶段前，这个技术需要用到场景中的几何信息，但是延迟渲染因为需要节省光照计算的原因，事先把所有信息都放在了 GBuffer 上，着色计算的时候已经丢失了几何信息；而且关键一点是如果强行这么做，MSAA 会增加数倍的带宽性能消耗，因此一般都不会这么做。还有一个原因是是以前 DX9 的时代，MRT (多重渲染目标)技术不支持 MSAA。</li>
 </ul>
+<p>PS: Additional notes from GAMES 202.<br>
+<img src="SSAA-MSAA-GAMES202.png" alt="Additional notes"></p>
 <h3 id="4-快速近似抗锯齿fast-approximate-antialiasing-fxaa">(4) 快速近似抗锯齿(fast approximate antialiasing, FXAA)</h3>
 <ul>
 <li>概念：基于屏幕空间的抗锯齿算法，它通过对图像进行<em>后处理</em>来平滑锯齿边缘（不依赖硬件）。与 SSAA 和 MSAA 不同，它不需要多重采样，也不改变渲染分辨率，而是直接在最终的帧缓冲上操作。本质上是一个图像过滤器，通过检测边缘并对边缘区域的像素进行模糊处理，来减少锯齿。</li>
@@ -771,11 +776,13 @@ FXAA 首先通过分析屏幕空间图像中<strong>亮度或颜色的梯度变�
 </ul>
 </li>
 </ul>
-<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">上一帧图像 (历史帧) + 运动矢量<br>          ↓<br>  Reprojection（对齐）<br>          ↓<br>当前帧图像 + <span class="hljs-keyword">Jittering</span><br><span class="hljs-keyword"></span>          ↓<br> Temporal Filtering（历史与当前帧加权平均）<br>          ↓<br>最终平滑的抗锯齿图像<br></code></pre></td></tr></table></figure>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs 1c">上一帧图像 <span class="hljs-punctuation">(</span>历史帧<span class="hljs-punctuation">)</span> <span class="hljs-punctuation">+</span> 运动矢量<br>          <span class="hljs-string">|</span><br>  Reprojection（对齐）<br>          <span class="hljs-string">|</span><br>当前帧图像 <span class="hljs-punctuation">+</span> Jittering<br>          <span class="hljs-string">|</span><br> Temporal Filtering（历史与当前帧加权平均）<br>          <span class="hljs-string">|</span><br>最终平滑的抗锯齿图像<br></code></pre></td></tr></table></figure>
 <h3 id="6-深度学习超采样deep-learning-super-sampling-dlss">(6) 深度学习超采样(Deep Learning Super Sampling, DLSS)</h3>
 <p>在较低分辨率下渲染图像，并利用 AI 网络将其重建为高分辨率图像，同时保留细节和边缘清晰度，提升帧率且保证画质。</p>
 <h3 id="7-亚像素形态学抗锯齿subpixel-morphological-antialiasing-smaa">(7) 亚像素形态学抗锯齿（subpixel morphological antialiasing ，SMAA）</h3>
 <p>SMAA 是一种 屏幕空间后处理抗锯齿技术，它属于 形态学抗锯齿（Morphological Anti-Aliasing, MLAA） 的改进版，结合了 FXAA 的速度优势 和 MLAA 的抗锯齿质量，并加入了 亚像素检测 和 时间域信息（在高级模式下）。</p>
+<p>Additional notes from GAMES 202. The figure on the right shows the process of MLAA.<br>
+<img src="SMAA-GAMES202.png" alt="Additional Notes"></p>
 <h2 id="8-阴影技术">8. 阴影技术</h2>
 <p>参考：</p>
 <p><a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/05%20Advanced%20Lighting/03%20Shadows/01%20Shadow%20Mapping/">https://learnopengl-cn.github.io/05 Advanced Lighting/03 Shadows/01 Shadow Mapping/</a><br>
@@ -3438,6 +3445,7 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 <h2 id="46-超分算法">46. 超分算法</h2>
 <h3 id="1-超分算法">(1) 超分算法</h3>
 <ul>
+<li>简单理解：提升分辨率</li>
 <li>概念：通过插值、卷积或深度学习等方法重建出高分辨率图像的细节和边缘。</li>
 <li>方法：
 <ul>
@@ -3500,11 +3508,11 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 <tbody>
 <tr>
 <td>DLSS 1.0</td>
-<td>早期 AI 超分，效果一般</td>
+<td>早期 AI 超分（out of nowhere / completely guessed），效果一般</td>
 </tr>
 <tr>
 <td>DLSS 2.0</td>
-<td>TSR + AI 反锯齿，高质量</td>
+<td>TSR (temporally reuse samples) + AI 反锯齿，高质量</td>
 </tr>
 <tr>
 <td><strong>DLSS 3.0</strong></td>
@@ -3513,12 +3521,17 @@ M347 1759 V0 H263 V1759 v4800 v1759 h84z"/></svg></span></span></span><span clas
 </tbody>
 </table>
 <ul>
-<li>特点：
+<li>
+<p>特点：</p>
 <ul>
 <li>使用 NVIDIA 专用 Tensor Core 和 AI 模型</li>
 <li>非开源，需 RTX GPU 支持</li>
 <li>图像锐度、边缘清晰度好于 FSR</li>
 </ul>
+</li>
+<li>
+<p>Additional notes from GAMES 202. We cannot use clamp because we need to “really” increase resolution.<br>
+<img src="DLSS-GAMES202.png" alt="additional notes"></p>
 </li>
 </ul>
 </li>
