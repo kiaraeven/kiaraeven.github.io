@@ -4,6 +4,37 @@
   
   
   <entry>
+    <title>GAMES 202 - Physically-Based Rendering</title>
+    <link href="/2025/09/16/GAMES202-L1011-PBR/"/>
+    <url>/2025/09/16/GAMES202-L1011-PBR/</url>
+    
+    <content type="html"><![CDATA[<ul><li><p>Physically-Based Rendering (PBR)</p><ul><li>Everything in rendering should be physically based</li><li>Materials, lighting, camera, light transport, etc.</li><li>Not iust materials, but usually referred to as materials</li></ul></li><li><p>PBR materials in RTR</p><ul><li>For surfaces, mostly just microfacet models (used wrong so not PBR) and Disney principled BRDFs (artist friendly but still not PBR)</li><li>For volumes, mostly focused onfast and approximate single scattering and multiple scattering (for cloud, hair, skin, etc.)</li><li>Usually not much new theory, but a lot of implementation hacks</li><li>Still, performance (speed) is the key factor to consider</li></ul></li></ul><h1 id="microfacets">Microfacets</h1><p><img src="microfacets.png" alt="Microfacets"></p><ul><li>Normal Distribution Function (NDF)<ul><li>Key: the distribution of microfacets’ normals<ul><li>Concentrated &lt;==&gt; glossy</li><li>Spread &lt;==&gt; diffuse</li></ul></li><li>various models to describe it: Beckmann, GGX, etc.<ul><li>Backmann<br><img src="Beckmann.png" alt="Beckmann"></li><li>GGX<br><img src="GGX.png" alt="GGX"><br>Note that the long tail of GGX make it smoother. See the figure below, when Backmann and GGX have the same highlight area, Backmann has obvious boundary arond the highlight area while GGX has bloom around it. And for more rough material, GGX can make it more diffuse and natural. This is why in industry people usually choose GGX.<br><img src="GGX-comp.png" alt="Backmann vs. GGX"></li><li>GTR<br><img src="GTR.png" alt="GTR"></li></ul></li></ul></li><li>Geometry Term<br>If not G term, when n dot i == 0 (graze angle), the denominator of the brdf equation can be really large.<br><img src="geom.png" alt="G Term"></li><li>Fresnel Term</li></ul><h1 id="multiple-bounces">Multiple bounces</h1><ul><li>Missing energy!<ul><li>Especially prominent when roughness is high (when roughness is higher, more light will be reflected and these reflected light are lost)<br><img src="multibounces.png" alt="multiple bounces"></li></ul></li><li>Adding back the missing energy?<ul><li>Accurate methods exist [Heitz et al. 2016]</li><li>But can be too slow for RTR</li></ul></li><li>The Kulla-Conty approximation<ul><li>TBD (L10 1:03:10)</li></ul></li></ul><h1 id="shading-microfacet-models-using-linearly-transformed-cosines-ltc">Shading Microfacet Models using Linearly Transformed Cosines (LTC)</h1><ul><li><strong>Solves the shading of microfacet models</strong><ul><li>Mainly on GGX, though others are also fine</li><li>Not considering shadows</li><li>Under polygon-shaped lighting</li></ul></li><li>Key idea<ul><li>Any outgoing 2D BRDF lobe can be transformed to a cosine</li><li>The shape of the light can also be transformed along</li><li>Integrating the transformed light on a cosine lobe is analytic</li></ul></li><li>Observations<ul><li>BRDF -&gt; Cosine</li><li>Direction: i -&gt; i’</li><li>Domain to integrate: p -&gt; p’</li></ul></li><li>Approach<br><img src="LTC.png" alt="LTC Approach"></li></ul><h1 id="disneys-principled-brdf">Disney’s Principled BRDF</h1><ul><li><p>Motivation</p><ul><li>No physically-based materials are good at represent all real materials<ul><li>e.g. lacking diffuse term in most microfacet models</li></ul></li><li>Physically-based materials are not artist friendly<ul><li>e.g. “the complex index of refraction n-ik”</li></ul></li></ul></li><li><p>High level design goal</p><ul><li>Art directable, not necessarily physically correct.</li><li>But again, referred to as PBR in real-time rendering.</li></ul></li><li><p>What is “principled”?</p><ul><li>Intuitive rather than physical parameters should be used.</li><li>There should be as few parameters as possible.</li><li>Parameters should be zero to one over their plausible range.</li><li>Parameters should be allowed to be pushed beyond their plausible range where it makes sense.</li><li>All combinations of parameters should be as robust and plausibleas possible.</li></ul></li><li><p>How does it work?</p><ul><li>subsurface: more diffuse than diffuse</li><li>specularTint: specular with specific color</li><li>sheen: simulate the soft, fuzzy highlights characteristic of microfiber surfaces, like velvet, satin, or felt. This effect is caused by tiny fibers sticking up from the surface that scatter light.</li><li>sheenTint: This value controls the color of the sheen highlight. By default, the sheen is white. The sheenTint parameter allows you to blend the material’s base color into the sheen highlight, creating a richer, more saturated, and more realistic look for colored fabrics. A value of 0 gives a white sheen, while a value of 1 fully tints the sheen with the object’s base color.</li><li>clearcoat: simulate a thin, transparent layer of lacquer or varnish on top of a base material. This is common on materials like car paint, polished wood, or carbon fiber. Clearcoat value controls the strength or thickness of the transparent layer.</li><li>clearcoatGlossy: This controls the smoothness or sharpness of the reflections on the clearcoat layer itself. A high “glossy” value (or low “roughness”) results in sharp, mirror-like reflections on the coating. A lower value simulates a rougher, more diffuse coating, resulting in blurry or hazy reflections.<br><img src="Disney.png" alt="Param table"></li></ul></li><li><p>Pros and Cons</p><ul><li>Easy-to-understand / control</li><li>A wide range of materials in a single mode</li><li>Open source implementation is available</li><li>Not physically based</li><li>Huge parameter space</li></ul></li></ul><h1 id="non-photorealistic-rendering-npr-fast-and-reliable-stylization">Non-Photorealistic Rendering (NPR) == (fast and reliable) stylization</h1><ul><li>Characteristics of NPR<ul><li>Starts from photorealistic rendering</li><li>Exploits abstraction</li><li>Strengthens important parts</li></ul></li></ul><h2 id="outline-rendering">Outline Rendering</h2><ul><li><p>Outlines are not just contours</p><ul><li><em>B</em>oundary / border edge</li><li><em>C</em>rease (折痕)</li><li><em>M</em>aterial edge</li><li><em>S</em>ilhouette edge (it should be the outermost edge and should be shared by several faces)<br><img src="outline.png" alt="outlines"></li></ul></li><li><p>Implementations</p><ul><li>Shading: shading normal contour edges<ul><li>Darken the surface area where the shading <strong>normal is perpendicular to viewing direction</strong></li><li>Use smoothstep() to create edge fading effect</li><li>issue: edge at different places may have different witdths. Wider if the normals change smoothly and narrower if the normals change quickly.</li></ul></li><li>Geometry: Backface fattening<ul><li>Render front face normally</li><li><strong>“Fatten” backfaces (make backfaces the expected edge color), then render again</strong></li><li>Extension: fatten along vertex normals</li></ul></li><li>Image: Edge detection in images<ul><li>Usually use a <strong>Sobel detector</strong></li></ul></li></ul></li></ul><h2 id="color-blocks">Color blocks</h2><ul><li>Two different ways<ul><li>Hard shading: thresholding on shading</li><li>Posterization: thresholding on final image color<br><img src="color-blocks.png" alt="color blocks"></li></ul></li><li>May not be binary: Quantization<br><img src="quant.png" alt="quantization"></li><li>Different styles on different components</li></ul><h2 id="strokes-surface-stylization">Strokes Surface Stylization</h2><ul><li>Sometimes we do not want color blocks. Instead we want to mimic sketching.</li><li>Idea:<ul><li>Replace point-wise shading with <strong>pre-generated stroke textures</strong></li><li>Density?</li><li>Continuity?</li></ul></li><li>Tonal art maps (TAMs)<ul><li>Strokes of different densities</li><li>Each density has a MIPMAP (use mipmap to avoid the effect when the object is farther the texture density increases and so the texture looks darker)<br><img src="sketch.png" alt="sketch style"></li></ul></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Learning</category>
+      
+      <category>Graphics</category>
+      
+      <category>GAMES</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>graphics</tag>
+      
+      <tag>GAMES202</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>GAMES 202 - Global Illumination</title>
     <link href="/2025/09/14/GAMES202-L070809-GI/"/>
     <url>/2025/09/14/GAMES202-L070809-GI/</url>
@@ -554,9 +585,9 @@
       
       <tag>graphics</tag>
       
-      <tag>NeRF</tag>
-      
       <tag>radiance</tag>
+      
+      <tag>NeRF</tag>
       
     </tags>
     
