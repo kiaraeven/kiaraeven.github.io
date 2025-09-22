@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-09-21T08:46:50.197Z">
+<meta property="article:modified_time" content="2025-09-22T01:03:17.816Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          24k words
+          25k words
         
       </span>
     
@@ -238,7 +238,7 @@
         
         
         
-          201 mins
+          210 mins
         
       </span>
     
@@ -1287,7 +1287,9 @@ MiB（二进制）：3.90625 MiB<br>
 <ul>
 <li>为了让高光区域产生柔和的光晕效果，对其进行模糊处理。</li>
 <li>采用<strong>可分离高斯模糊</strong>，通过<strong>乒乓操作（ping-pong）<strong>在两个临时的<code>bloom</code> FBO 之间交替进行</strong>水平模糊</strong>和<strong>垂直模糊</strong>，迭代多次（4 次）以获得更大范围的模糊效果。</li>
+<li>水平模糊为例：</li>
 </ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">const</span> <span class="hljs-type">vec2</span> gaussFilter[<span class="hljs-number">11</span>] = <span class="hljs-type">vec2</span>[](<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-5.0</span>,  <span class="hljs-number">3.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-4.0</span>,  <span class="hljs-number">6.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-3.0</span>, <span class="hljs-number">10.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-2.0</span>, <span class="hljs-number">15.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-1.0</span>, <span class="hljs-number">20.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">0.0</span>, <span class="hljs-number">25.0</span>/<span class="hljs-number">133.0</span>),  <span class="hljs-comment">// 中心权重最大</span><br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">1.0</span>, <span class="hljs-number">20.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">2.0</span>, <span class="hljs-number">15.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">3.0</span>, <span class="hljs-number">10.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">4.0</span>,  <span class="hljs-number">6.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">5.0</span>,  <span class="hljs-number">3.0</span>/<span class="hljs-number">133.0</span>)<br>);<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec3</span> color = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">float</span> scale = <span class="hljs-number">1.0</span> / <span class="hljs-built_in">textureSize</span>(texSSAO, <span class="hljs-number">0</span>).x; <span class="hljs-comment">// X方向像素大小</span><br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">11</span>; i++)<br>    &#123;<br>        <span class="hljs-comment">// 只在X方向偏移，Y方向保持不变</span><br>        <span class="hljs-type">vec2</span> coord = <span class="hljs-type">vec2</span>(uv.x + gaussFilter[i].x * scale, uv.y);<br>        color += <span class="hljs-built_in">textureLod</span>(texSSAO, coord, <span class="hljs-number">0</span>).rgb * gaussFilter[i].y;<br>    &#125;<br><br>    outColor = <span class="hljs-type">vec4</span>(color, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
 <h3 id="第-3-趟-平均亮度计算与光照适应">第 3 趟: 平均亮度计算与光照适应</h3>
@@ -1296,7 +1298,7 @@ MiB（二进制）：3.90625 MiB<br>
 <li>
 <p><strong>3a. 计算当前帧平均亮度</strong></p>
 <ul>
-<li>将第 1 趟的 HDR 场景图渲染到一个非常小的（例如 64x64 像素）、<strong>单通道</strong>浮点格式（<code>GL_R16F</code>）的<code>luminance</code>纹理中。在渲染时，着色器（<code>ToLuminance.frag</code>）将 RGB 颜色转换为亮度值。</li>
+<li>将第 1 趟的 HDR 场景图渲染到一个非常小的（例如 64x64 像素）、<strong>单通道</strong>浮点格式（<code>GL_R16F</code>）的<code>luminance</code>纹理中（GPU 硬件自动处理降采样）。在渲染时，着色器（<code>ToLuminance.frag</code>）将 RGB 颜色转换为亮度值。</li>
 <li>为这张小亮度图<strong>生成完整的 Mipmap 链</strong>。由于每一级 Mipmap 都是上一级的降采样，最终<strong>1x1 大小的顶层 Mipmap</strong>就近似存储了整个场景的<strong>平均亮度值</strong>。</li>
 </ul>
 </li>
@@ -1307,6 +1309,7 @@ MiB（二进制）：3.90625 MiB<br>
 <li>该着色器使用两个 1x1 的“乒乓”纹理，一个存储<strong>上一帧</strong>的适应后亮度，一个用于写入<strong>当前帧</strong>的适应后亮度。</li>
 <li>它读取上一帧的亮度和当前帧的平均亮度，并根据一个<code>adaptationSpeed_</code>参数，平滑地在这两者之间进行插值，模拟出亮度逐渐变化的效果。</li>
 </ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">local_size_x</span> = <span class="hljs-number">1</span>, <span class="hljs-keyword">local_size_y</span> = <span class="hljs-number">1</span>, <span class="hljs-keyword">local_size_z</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">in</span>;<br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">readonly</span>  <span class="hljs-type">image2D</span> imgLuminancePrev;  <span class="hljs-comment">// 上一帧亮度</span><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">readonly</span>  <span class="hljs-type">image2D</span> imgLuminanceCurr;  <span class="hljs-comment">// 当前帧亮度</span><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">2</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">writeonly</span> <span class="hljs-type">image2D</span> imgLuminanceAdapted; <span class="hljs-comment">// 输出适应亮度</span><br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">float</span> lumPrev = <span class="hljs-built_in">imageLoad</span>(imgLuminancePrev, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)).x;<br>    <span class="hljs-type">float</span> lumCurr = <span class="hljs-built_in">imageLoad</span>(imgLuminanceCurr, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)).x;<br><br>    <span class="hljs-comment">// 指数平滑算法，模拟人眼适应</span><br>    <span class="hljs-type">float</span> newAdaptation = lumPrev + (lumCurr - lumPrev) * (<span class="hljs-number">1.0</span> - <span class="hljs-built_in">pow</span>(<span class="hljs-number">0.98</span>, <span class="hljs-number">30.0</span> * adaptationSpeed));<br><br>    <span class="hljs-comment">// 输出到1x1像素</span><br>    <span class="hljs-built_in">imageStore</span>(imgLuminanceAdapted, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>), <span class="hljs-type">vec4</span>(<span class="hljs-type">vec3</span>(newAdaptation), <span class="hljs-number">1.0</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
 <h3 id="第-4-趟-最终合成与色调映射">第 4 趟: 最终合成与色调映射</h3>
@@ -1328,6 +1331,45 @@ MiB（二进制）：3.90625 MiB<br>
 <li><strong>曝光调整</strong>：根据适应后的平均亮度和一个可调的<code>exposure</code>参数，对 HDR 场景颜色进行缩放。</li>
 <li><strong>色调映射</strong>：使用 <strong>Extended Reinhard</strong> 色调映射算子，将经过曝光调整的、范围极广的 HDR 颜色值，非线性地压缩到[0, 1]的 LDR 范围内。<code>maxWhite</code>参数控制白点位置。</li>
 <li><strong>效果合成</strong>：将经过色调映射的场景颜色与辉光纹理的颜色（按<code>bloomStrength</code>缩放）相加，得到最终的输出颜色。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>PS: 常见色调映射算法</strong></p>
+<ul>
+<li>全局算子（Global Operators）<br>
+对图像中的所有像素应用完全相同的变换函数，不考虑像素的邻域信息。它们计算速度快，实现简单，是实时应用（如游戏）中的主流选择。
+<ul>
+<li>a. Reinhard Operator
+<ul>
+<li>最经典和基础的色调映射算子之一。它通过一个简单的非线性公式，模拟人眼对光线的非线性响应，将 HDR 值映射到[0, 1]的 LDR 范围。</li>
+<li>核心思想: 简单地将颜色值除以 1 + 颜色值。</li>
+<li>特点: 实现非常简单，效果自然，能够有效防止高光区域的过度饱和与。但缺点是可能会导致图像整体对比度下降，画面显得有些“灰”。后续有引入“白点”参数的改进版，以更好地控制最亮区域的映射。</li>
+</ul>
+</li>
+<li>b. Filmic Tone Mapping (电影质感色调映射)
+<ul>
+<li>模仿胶片电影的色彩和光线响应曲线，通常能产生更具艺术感和视觉吸引力的效果。</li>
+<li>核心思想: 使用“S”形曲线（Sigmoid curve）进行映射。这种曲线的特点是在两端（极暗和极亮区域）斜率平缓，能够柔和地压缩高光和暗部细节，而在中间调区域保持较好的对比度。</li>
+<li>著名实现:
+<ul>
+<li>Uncharted 2: “Hejl &amp; Burgess-Dawson”: 由《神秘海域 2》的开发团队提出，在游戏界非常流行。它提供了一个效果出色且性能高效的电影质感映射曲线，能够很好地处理高光部分的细节，并带来鲜明的色彩观感。</li>
+<li>ACES (Academy Color Encoding System): 由美国电影艺术与科学学院推出的色彩管理系统，旨在标准化影视制作流程中的色彩。ACES 提供了一套标准的色调映射变换（RRT 和 ODT），其效果被认为是行业“黄金标准”。它的色彩还原非常精确，对比度自然，能够产生极其逼真的电影级画面。在高端游戏和影视渲染中被广泛采用。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>局部算子（Local Operators）
+<ul>
+<li>局部算子在处理每个像素时，会考虑其周围邻域像素的信息。这类算法通常能保留更多的局部细节和对比度，效果更出色，但计算成本也更高。</li>
+<li>a. Photographic Tone Reproduction (摄影色调再现)
+<ul>
+<li>由 Reinhard 等人在 2002 年提出的另一著名算法，它模拟了传统摄影师在暗房中通过“加光”（Dodging）和“减光”（Burning）技术来调整照片局部明暗的技巧。</li>
+<li>核心思想: 算法会估算每个像素点的局部亮度，并根据这个局部亮度来调整该像素的映射方式。例如，一个暗部区域中的亮像素会被保留，而一个亮部区域中的暗像素也会被保留，从而极大地提升了画面的局部对比度和细节。</li>
+<li>特点: 效果非常出色，细节保留完好。主要缺点是计算量大，需要对图像进行高斯模糊等操作来估算局部亮度，在实时渲染中应用较少，更多用于离线渲染和图像处理。</li>
 </ul>
 </li>
 </ul>
@@ -1692,7 +1734,7 @@ MiB（二进制）：3.90625 MiB<br>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 转换到YCgCo色彩空间以减少闪烁</span><br>curColor = RGB2YCoCgR(ToneMap(curColor));<br>preColor = RGB2YCoCgR(ToneMap(preColor));<br></code></pre></td></tr></table></figure>
 <h4 id="aabb-裁剪variance-clipping"><strong>AABB 裁剪（Variance Clipping）</strong></h4>
 <p>根据当前帧当前像素周围的 5 个或 9 个像素的颜色作为依据，来截断采样到的历史帧颜色，用以缓解 TAA ghosting 问题。将颜色的 RGB 三个通道当做 AABB 的三维，可以求出这 9 个像素的颜色的 AABB。</p>
-<p>采样周围九个像素的色彩值，计算从相邻像素采样的颜色值 © 的平均值 (mu) 和标准差 (sigma)。然后，通过从平均值中减去/加上标准差的倍数 (VarianceClipGamma) 来计算 aabbMin 和 aabbMax 值。这有助于减少采样数据中极端颜色变化（异常值）的影响，从而产生更稳定和视觉上更令人愉悦的结果。这也可以避免最终图像中出现闪烁伪影。</p>
+<p>采样周围九个像素的色彩值，计算从相邻像素采样的颜色值 C 的平均值 (mu) 和标准差 (sigma)。然后，通过从平均值中减去/加上标准差的倍数 (VarianceClipGamma) 来计算 aabbMin 和 aabbMax 值。这有助于减少采样数据中极端颜色变化（异常值）的影响，从而产生更稳定和视觉上更令人愉悦的结果。这也可以避免最终图像中出现闪烁伪影。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 使用3x3邻域计算颜色统计信息</span><br><span class="hljs-type">vec3</span> mu = m1 / N;  <span class="hljs-comment">// 均值</span><br><span class="hljs-type">vec3</span> sigma = <span class="hljs-built_in">sqrt</span>(<span class="hljs-built_in">abs</span>(m2 / N - mu * mu));  <span class="hljs-comment">// 标准差</span><br>aabbMin = mu - VarianceClipGamma * sigma;<br>aabbMax = mu + VarianceClipGamma * sigma;<br><br><span class="hljs-comment">// 将历史颜色裁剪到AABB范围内减少 ghosting 现象</span><br>preColor = clipAABB(curColor, preColor);<br></code></pre></td></tr></table></figure>
 <h4 id="时域混合"><strong>时域混合</strong></h4>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> c = <span class="hljs-number">0.05</span>; <span class="hljs-comment">// 历史帧权重</span><br>out_FragColor = <span class="hljs-type">vec4</span>(c * curColor.rgb + (<span class="hljs-number">1</span>-c) * preColor, <span class="hljs-number">1.0</span>);<br></code></pre></td></tr></table></figure>
