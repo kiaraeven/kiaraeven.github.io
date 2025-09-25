@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-05-25T13:23:27.964Z">
+<meta property="article:modified_time" content="2025-09-25T07:13:58.414Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -239,7 +239,7 @@
         
         
         
-          346 mins
+          347 mins
         
       </span>
     
@@ -432,17 +432,23 @@
 <ul>
 <li>相同作用域(比如命名空间或者同一个类)内，拥有相同的方法名，但具有不同的参数类型和/或参数数量的方法，返回类型可以相同或不同。</li>
 <li>编译期允许根据所提供的参数不同来调用不同的函数。</li>
+<li>方法的异常类型和数目不会影响重载。</li>
 </ul>
 </li>
 <li>重写（Override）
 <ul>
 <li>重写是指在派生类中，用相同签名实现基类中的虚函数。</li>
 <li>当派生类需要改变或扩展基类方法的功能时，就需要用到重写。</li>
+<li>重写和重载的本质区别是，使用了 override 修饰符的方法，此方法始终只有一个被使用。</li>
 <li>重写的条件包括：
 <ul>
 <li>方法具有相同的名称。</li>
 <li>方法具有相同的参数类型和数量。</li>
 <li>方法具有相同的返回类型。</li>
+<li>所抛出的一场和被重写方法一样。</li>
+<li>被重写的方法不能是 private</li>
+<li>静态方法不能被重写为非静态的方法</li>
+<li>重写方法的访问修饰符一定要大于被重写方法的修饰符（public &gt; protected &gt; default &gt; private）</li>
 </ul>
 </li>
 </ul>
@@ -489,7 +495,7 @@
 <li>成员访问可能读取错误地址</li>
 </ul>
 <p>对象内存布局（简化）：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[C object]</span><br>┌──────────────┐<br>│ vptr_A       │ ← <span class="hljs-selector-tag">A</span> 子对象（起始地址）<br>└──────────────┘<br>┌──────────────┐<br>│ vptr_B       │ ← <span class="hljs-selector-tag">B</span> 子对象（偏移 +<span class="hljs-number">8</span>）<br>└──────────────┘<br></code></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[C object]</span><br>┌──────────────┐<br>│ vptr_A       │ &lt;- <span class="hljs-selector-tag">A</span> 子对象（起始地址）<br>└──────────────┘<br>┌──────────────┐<br>│ vptr_B       │ &lt;- <span class="hljs-selector-tag">B</span> 子对象（偏移 +<span class="hljs-number">8</span>）<br>└──────────────┘<br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>A*</code> 指向 <code>vptr_A</code></li>
 <li><code>B*</code> 指向 <code>vptr_B</code></li>
