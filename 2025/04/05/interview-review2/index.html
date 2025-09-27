@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-09-26T07:15:21.214Z">
+<meta property="article:modified_time" content="2025-09-26T23:35:50.454Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          46k words
+          47k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          381 mins
+          392 mins
         
       </span>
     
@@ -971,7 +971,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <li>不能取地址  &amp;（除非绑定到  const  左值引用）</li>
 <li>字面量、表达式计算结果都是右值。</li>
 <li>纯右值（PRvalue）：真正的右值，如  10, x + y</li>
-<li>亡值（Xvalue）：即将销毁但仍占有资源的对象，如  std::move(obj)</li>
+<li>将亡值（Xvalue）：即将销毁但仍占有资源的对象，如  std::move(obj)</li>
 </ul>
 </li>
 <li>
@@ -1015,6 +1015,34 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <li>
 <p>判断左/右值引用：std::is_rvalue_reference() / std::is_lvalue_reference()</p>
 </li>
+<li>
+<p>++i/–i 是左值；i++/i–是右值。</p>
+<ul>
+<li>++i 为例，它返回的不是一个临时拷贝，而是 <code>i</code> 这个对象本身。由于返回的是 <code>i</code> 本身，而 <code>i</code> 是一个有确定内存地址的变量，所以这个表达式的结果也是一个左值。
+<ul>
+<li>将 <code>i</code> 的值加 1。</li>
+<li><strong>返回 <code>i</code> 本身</strong>（即递增后的 <code>i</code>）。</li>
+</ul>
+</li>
+<li>i++ 为例，它返回的是一个<strong>临时的、即将被销毁的值</strong>，而不是 <code>i</code> 本身。这个临时值没有固定的内存地址（对程序员来说），因此它是一个右值。
+<ul>
+<li>创建一个 <code>i</code> 的<strong>临时拷贝</strong>，用于保存 <code>i</code> 的原始值。</li>
+<li>将 <code>i</code> 的值加 1。</li>
+<li><strong>返回那个临时拷贝</strong>。</li>
+</ul>
+</li>
+<li>对于像 <code>int</code> 这样的内置类型，编译器通常会优化掉 <code>i++</code> 的临时对象，性能差异可以忽略不计。但对于复杂的自定义类型（如迭代器、类对象），<code>i++</code> 需要调用构造函数创建一个临时对象，这会带来额外的开销。因此，在 C++ 中，尤其是在 <code>for</code> 循环中使用迭代器时，<strong>总是推荐使用 <code>++it</code> 而不是 <code>it++</code></strong>。</li>
+<li>如果重载这两个运算符，也应该遵循这个标准：前置版本返回引用 (<code>MyType&amp;</code>)，后置版本返回值 (<code>MyType</code>)。</li>
+</ul>
+</li>
+<li>
+<p>字符串<code>&quot;abc&quot;</code>是左值。</p>
+<ul>
+<li>像 42、3.14、true 这样的字面量确实是右值 (纯右值 prvalue)。字符串字面量是这个普遍规则中的一个重要例外。</li>
+<li>根据 C++ 标准，字符串字面量是<strong>存储在内存中并具有静态生命周期</strong>的对象。它<strong>有固定的内存地址</strong>，当编译器遇到字符串字面量 “abc” 时，它会把这个字符序列（包括末尾的 \0）存储在程序内存的特定区域（通常是<strong>只读数据段</strong>）。</li>
+<li>字符串字面量不可修改。不能写这样的代码：<code>&quot;abc&quot;[0] = 'x';</code>。这会导致未定义行为，因为字符串字面量通常存储在只读内存中。很多人会错误地将“不可修改”与“右值”划等号。但实际上，一个表达式可以是不可修改的左值。<code>&quot;abc&quot;</code>的类型是<code>const char[4]</code>（‘a’, ‘b’, ‘c’, ‘\0’）。这是一个 const 的数组，因此它是一个不可修改的左值。</li>
+</ul>
+</li>
 </ul>
 <h3 id="2-move-原理-移动语义的概念和优势">(2) move 原理 / 移动语义的概念和优势</h3>
 <ul>
@@ -1032,7 +1060,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <ul>
 <li>将左值转换为右值，以触发移动语义</li>
 <li>不会真正“移动”数据，只是改变对象的属性</li>
-<li>用于触发移动构造和移动赋值，避免深拷贝，提高性能。</li>
+<li><strong>用于触发移动构造和移动赋值，避免深拷贝，提高性能</strong>。</li>
 </ul>
 </li>
 <li>
@@ -1041,7 +1069,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 </ul>
 <h3 id="3-引用折叠">(3) 引用折叠</h3>
 <p><code>std::forward&lt;T&gt;(arg)</code>  通过  <em>引用折叠</em>（Reference Collapsing）和  <em>类型推导</em>  来决定参数是否应该保留右值特性</p>
-<p>例如，通过引用折叠，T&amp;&amp; 自动变成合适的左值引用或右值引用。根据引用折叠规则，只有 T 是非引用类型时，T&amp;&amp; 才真正是右值引用。</p>
+<p>例如，<strong>通过引用折叠，T&amp;&amp; 自动变成合适的左值引用或右值引用</strong>。根据引用折叠规则，只有 T 是非引用类型时，T&amp;&amp; 才真正是右值引用。</p>
 <ul>
 <li>
 <p>如果传左值，T = int&amp;，T&amp;&amp; = int&amp; &amp;&amp;，折叠为 int&amp;；</p>
@@ -1057,7 +1085,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <ul>
 <li>
 <p>完美转发 是指在泛型模板函数中，以参数的原始形式（左值或右值）传递给目标函数，从而避免不必要的拷贝或移动操作。<br>
-如下例，在<code>forwarder</code>函数中，参数<code>T&amp;&amp; arg</code>是一个<strong>万能引用</strong>，可以同时接受左值和右值。如果不用 forward，所有右值都会被当成左值，导致额外拷贝或移动。</p>
+如下例，在<code>forwarder</code>函数中，参数<code>T&amp;&amp; arg</code>是一个<strong>万能引用</strong>，可以同时接受左值和右值。<strong>如果不用 forward，所有右值都会被当成左值，导致额外拷贝或移动</strong>。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span>  <span class="hljs-comment">// for std::forward</span></span><br><br><span class="hljs-comment">// 普通的函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Lvalue reference: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp;&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Rvalue reference: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-comment">// 模板函数，使用完美转发</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">forwarder</span><span class="hljs-params">(T&amp;&amp; arg)</span> </span>&#123;<br>    <span class="hljs-comment">// std::forward 保持 arg 的原始值类别</span><br>    <span class="hljs-built_in">process</span>(std::forward&lt;T&gt;(arg));<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">5</span>;<br><br>    forwarder(a);        <span class="hljs-comment">// 传递左值</span><br>    forwarder(<span class="hljs-number">10</span>);       <span class="hljs-comment">// 传递右值</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
@@ -1093,11 +1121,11 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <h3 id="5-拷贝构造函数和移动构造函数的区别">(5) 拷贝构造函数和移动构造函数的区别？</h3>
 <ul>
 <li>定义方式：拷贝构造 T(const T&amp; other)，移动构造 T(T&amp;&amp; other)</li>
-<li>参数类型：拷贝构造接收左值引用（const T&amp;），移动构造接收右值引用（T&amp;&amp;）</li>
+<li>参数类型：<strong>拷贝构造接收左值引用（const T&amp;），移动构造接收右值引用（T&amp;&amp;）</strong></li>
 <li>调用时机：拷贝构造用已有对象初始化新对象，移动构造用临时对象 / 将亡值初始化新对象</li>
 <li>行为：拷贝构造是复制所有资源，而移动构造是资源转移（偷取资源，避免复制）</li>
 <li>例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">A</span>(<span class="hljs-type">const</span> A&amp; other) &#123;<br>      data = <span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>(*other.data); <span class="hljs-comment">// 深拷贝</span><br>  &#125;<br>  <span class="hljs-built_in">A</span>(A&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123; <span class="hljs-comment">// 如果是 const A&amp;&amp;，就不能修改 other 的内容，那就无法移动，只能拷贝</span><br>      data = other.data;       <span class="hljs-comment">// 直接“偷走”指针</span><br>      other.data = <span class="hljs-literal">nullptr</span>;    <span class="hljs-comment">// 置空原始对象</span><br>  &#125;<br><span class="hljs-keyword">private</span>:<br>  <span class="hljs-type">int</span>* data;<br>&#125;;<br></code></pre></td></tr></table></figure>
-PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来告诉编译器：“这个函数保证不会抛出异常”。那为什么移动构造函数/移动赋值函数要加 noexcept？因为标准容器（如 std::vector）在扩容时优先使用 noexcept 的移动构造函数。例如当执行 push_back(A)时，会优先用移动构造，如果这里移动构造不是 noexcept，退而求其次才会用拷贝构造。</li>
+PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来告诉编译器：“这个函数保证不会抛出异常”。那为什么移动构造函数/移动赋值函数要加 noexcept？因为<strong>标准容器（如 std::vector）在扩容时优先使用 noexcept 的移动构造函数</strong>。例如当执行 push_back(A)时，会优先用移动构造，如果这里移动构造不是 noexcept，退而求其次才会用拷贝构造。</li>
 </ul>
 <h2 id="5-哈希冲突">5. 哈希冲突</h2>
 <p>STL 中的 <code>std::unordered_map</code>, <code>std::unordered_set</code>, <code>std::unordered_multimap</code>, <code>std::unordered_multiset</code>底层使用哈希表实现的，可能会发生哈希冲突。哈希冲突是哈希表这种数据结构在实际应用中几乎不可避免的现象。</p>
@@ -1146,8 +1174,20 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </li>
 </ul>
 <h2 id="6-如何设计一个内存池">6. 如何设计一个内存池</h2>
-<h2 id="7-lamda-函数">7. lamda 函数</h2>
-<h3 id="1-lambda-引用陷阱">(1) lambda 引用陷阱</h3>
+<h2 id="7-lamda-函数">7. Lamda 函数</h2>
+<h3 id="1-用法">(1) 用法</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">[capture list](parameter list) -&gt; <span class="hljs-keyword">return</span> type &#123;function body&#125;<br><span class="hljs-comment">//「捕获列表1(参数列表) -&gt; 返回类型&#123;函数体 &#125;</span><br><span class="hljs-comment">//只有[capture list]捕获列表和 &#123;function body &#125; 函数体是必选的</span><br></code></pre></td></tr></table></figure>
+<h3 id="2-变量捕获">(2) 变量捕获</h3>
+<ul>
+<li>[] 不捕获任何变量,这种情况下 lambda 表达式内部不能访问外部的变量</li>
+<li>[&amp;]以引用方式捕获所有变量(保证 lambda 执行时被捕获的变量存在)</li>
+<li>[=]用值的方式捕获所有变量(创建时拷贝，修改被捕获的变量对 lambda 内对象无影响)</li>
+<li>[=,&amp;foo]以引用捕获变量 foo,但其余变量都靠值捕获</li>
+<li>[&amp;,foo]以值捕获 foo,但其余变量都靠引用捕获</li>
+<li>[bar] 以值方式捕获 bar; 不捕获其它变量</li>
+<li>[this]捕获所在类的 this 指针</li>
+</ul>
+<h3 id="3-lambda-引用陷阱">(3) Lambda 引用陷阱</h3>
 <p>Lambda 函数捕获了外部作用域中的一个或多个变量的引用，但是当这个 Lambda 函数稍后被调用执行时，这些被引用的原始变量已经超出了其生命周期（即已经被销毁）。此时，Lambda 函数内部持有的引用就变成了悬垂引用，访问这些引用将导致未定义行为 (Undefined Behavior)，通常表现为程序崩溃、数据损坏或不可预测的结果。</p>
 <h2 id="8-类">8. 类</h2>
 <h3 id="1-空类中默认的成员函数">(1) 空类中默认的成员函数</h3>
@@ -1546,6 +1586,10 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <ul>
 <li>
 <p><code>decltype(expr)</code> 返回 表达式 <code>expr</code> 的类型，不求值、不构造、不执行</p>
+<ul>
+<li>expr 是表达式，<code>decltype(expr)</code>的类型和 expr 相同</li>
+<li>expr 是函数，<code>decltype(expr)</code>的类型和 expr 返回值的类型相同</li>
+</ul>
 </li>
 <li>
 <p>可用于函数返回类型推导</p>
@@ -1582,7 +1626,14 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <ul>
 <li>语法的改进
 <ul>
-<li>(1)统一的初始化方法</li>
+<li>(1)统一的初始化方法（列表初始化）
+<ul>
+<li>C++定义了几种初始化方式，例如对一个 int 变量 x 初始化为 0。其中采用花括号来进行初始化称为列表初始化，无论是初始化对象还是为对象赋新值。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x= <span class="hljs-number">0</span>;<br><span class="hljs-type">int</span> x=&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-type">int</span> x&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">x</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li>用于对内置类型变量时，如果使用列表初始化，且初始值存在丢失信息风险时，编译器会报错。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">long</span> <span class="hljs-type">double</span> d= <span class="hljs-number">3.1415926536</span>;<br><span class="hljs-type">int</span> a = &#123;d&#125;; <span class="hljs-comment">//存在丢失信息风险，转换未执行，</span><br><span class="hljs-type">int</span> a = d; <span class="hljs-comment">//确实丢失信息，转换执行。</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
 <li>(2)成员变量默认初始化</li>
 <li>(3)auto 关键字:允许编译器自动推断变量的类型，减少类型声明的冗余。</li>
 <li>(4)decltype 求表达式的类型</li>
@@ -1592,7 +1643,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <li>(8)右值引用和 move 语义 引入右值引用和移动构造函数，允许高效地将资源从一个对象移动到另一个对象，提高性能。</li>
 </ul>
 </li>
-<li>标准库扩充(往 STL 里新加进一些模板类)2
+<li>标准库扩充(往 STL 里新加进一些模板类)
 <ul>
 <li>(9)无序容器(哈希表)用法和功能同 map 一模一样，区别在于哈希表的效率更高</li>
 <li>(10)正则表达式 可以认为正则表达式实质上是一个字符串，该字符串描述了一种特定模式的字符串</li>
@@ -1626,7 +1677,111 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 </li>
 </ul>
-<h2 id="19-lambda-函数">19. Lambda 函数</h2>
+<h2 id="19-stl-杂项">19. stl 杂项</h2>
+<h3 id="stdlist">std::list</h3>
+<ul>
+<li>双向链表</li>
+<li>用 empty()而非 size() == 0 来判定是否为空。empty()对所有的标准容器都是常数时间操作，而size()对于list耗费的是线性时间。</li>
+</ul>
+<h3 id="stdpair">std::pair</h3>
+<ul>
+<li>pair 在底层被定义为一个 struct，其所有成员默认是 public，两个成员分别是 first 和 second</li>
+<li>std::map 的元素是 pair，<code>pair&lt;const key_type，mapped_type&gt;</code></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">namespace</span> std &#123;<br>  <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">pair</span> &#123;<br>    T1 first;<br>    T2 second;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>对 map 进行插入，元素类型是 pair:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">p.<span class="hljs-built_in">insert</span>(&#123;word，<span class="hljs-number">1</span>&#125;);<br>p.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">pair</span>&lt;string,<span class="hljs-type">int</span>&gt;(word，<span class="hljs-number">1</span>));<br></code></pre></td></tr></table></figure>
+</li>
+<li>insert 对<strong>不包含重复关键字</strong>的容器，插入成功返回<code>pair&lt;iterator，bool&gt;</code>迭代器指向给定关键字元素，bool 指出插入是否成功。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;pair&lt;<span class="hljs-type">char</span>,<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">result</span>(val.<span class="hljs-built_in">begin</span>(),val.<span class="hljs-built_in">end</span>());<br><span class="hljs-built_in">sort</span>(result.<span class="hljs-built_in">begin</span>(), result.<span class="hljs-built_in">end</span>(), [](<span class="hljs-keyword">auto</span> &amp;a, <span class="hljs-keyword">auto</span> &amp;b)&#123; <span class="hljs-keyword">return</span> a.second &gt; b.second;&#125;);<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="stddeque">std::deque</h3>
+<ul>
+<li>分块的内存，相比 vector 稍慢的随机访问</li>
+<li>底层结构：deque 的内存不是连续的，而是<strong>分段连续</strong>的。通常由<strong>一个中控器</strong>（一个<strong>指针数组</strong> map**，同时维护其当前长度）和<strong>多个内存块</strong>（buffers）组成。**中控器里的每个指针指向一个实际存储数据的内存块**。一旦有必要，deque 在其头端或尾端增加新的空间。</li>
+<li>访问原理：当执行 <code>my_deque[i]</code> 时，两步操作：
+<ul>
+<li>计算块索引：通过 i / 每个块的元素数量 来确定元素在哪一个内存块里。</li>
+<li>计算块内偏移：通过 i % 每个块的元素数量 来确定元素在该块内的具体位置。</li>
+<li>解引用：先访问中控器找到对应块的指针，然后再通过指针访问到最终的元素。</li>
+<li>这个过程虽然也是 O(1) 时间复杂度，但它涉及了更多的计算（除法、取模）和两次内存跳转（一次访问中控器，一次访问数据块）。这两次跳转可能会导致 CPU 缓存未命中（cache miss），因为中控器和数据块在内存中可能相距很远。这使得 deque 的随机访问比 vector 慢上一个数量级。</li>
+</ul>
+</li>
+<li>deque 拥有 start 与 finish 迭代器，分别由 deque:begin()与 deque:end()返回。start 指向第一个 buffer 的第一个元素，finish 指向最后一个 buffer 的最后一个元素的下一个位置。</li>
+<li>std::stack 和 std::queue 是容器适配器 (Container Adapters)。它们本身不管理任何数据，而是像一个“接口转换器”，包装了一个底层容器（默认就是 std::deque），并对外提供受限的、特定的接口（如后进先出或先进先出）。适配器是一种设计模式，它的作用是“适配”一个类的接口，使其看起来像用户所期望的另一个接口。</li>
+</ul>
+<h3 id="stdpriority_queue">std::priority_queue</h3>
+<ul>
+<li>std::priority_queue 是在头文件 <code>&lt;queue&gt;</code> 中定义的一个容器适配器类。它提供了一个我们通常期望的优先队列应有的所有功能，是一棵完全二叉树。内部包含一个容器（默认是 std::vector）来存储数据，并自动调用 <code>&lt;algorithm&gt;</code> 中的 heap 相关函数（make_heap, pop_heap, push_heap）来维护堆的性质。</li>
+<li>std::priority_queue 不维护迭代器。</li>
+</ul>
+<h3 id="stdmap-and-stdunordered_map">std::map and std::unordered_map</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">操作 (Operation)</th>
+<th style="text-align:left"><code>std::map</code> (红黑树)</th>
+<th style="text-align:left"><code>std::unordered_map</code> (哈希表)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>插入 (Insertion)</strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>删除 (Deletion)</strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>查找 (Search)</strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>N</strong> 是容器中元素的数量。</p>
+<ul>
+<li><code>std::map</code> 的底层数据结构是<strong>红黑树</strong>，这是一种自平衡的二叉搜索树。这个数据结构从根本上决定了其所有核心操作的复杂度。</li>
+<li><code>std::unordered_map</code> 的底层数据结构是<strong>哈希表</strong>。它通过哈希函数将键 (Key) 映射到一个桶 (Bucket) 的索引上。
+<ul>
+<li>复杂度分析: 平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，最坏 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span>
+<ul>
+<li><strong>平均情况: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></strong>
+<ul>
+<li>当一个好的哈希函数将键均匀地分布在所有桶中时，每个桶里只会有常数个元素（理想情况下只有一个）。</li>
+<li><strong>查找/插入/删除</strong>的过程是：
+<ul>
+<li>计算键的哈希值 (通常是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
+<li>通过哈希值定位到对应的桶 (也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
+<li>在桶内进行少量比较来找到或操作元素 (如果冲突少，也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
+</ul>
+</li>
+<li>因此，在平均情况下，所有核心操作的复杂度都是<strong>摊销常数时间 (Amortized O(1))</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>最坏情况: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>
+<ul>
+<li>最坏情况发生在<strong>哈希冲突 (Hash Collision)</strong> 严重时。例如，一个极差的哈希函数把所有 N 个元素的键都映射到了同一个桶里。</li>
+<li>此时，这个桶就退化成了一个链表（或其他线性结构），里面包含了所有的 N 个元素。</li>
+<li>在这种情况下，<strong>查找/插入/删除</strong>都需要遍历这个长长的链表，时间复杂度退化为<strong>线性时间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>。</li>
+<li>虽然这种情况在实际中很少见（C++ 标准库的哈希函数通常足够好），但在理论上和某些极端数据下是可能发生的。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="迭代器">迭代器</h3>
+<ul>
+<li>迭代器为不同类型的容器提供了统一的访问接口， 隐藏了底层容器的具体实现细节， 允许开发者使用一致的语法来操作不同类型的容器。</li>
+<li>对于序列容器 vector，deque 来说，使用 erase 后，后边的每个元素的迭代器都会失效，后边每个元素都往前移动一位，erase 返回下一个有效的迭代器。</li>
+<li>对于关联容器 map，set 来说，使用了 erase 后，当前元素的迭代器失效，但是其结构是红黑树，删除当前元素，不会影响下一个元素的迭代器，所以在调用 erase 之前，记录下一个元素的迭代器即可。</li>
+<li>对于 list 来说，它使用了不连续分配的内存，并且它的 erase 方法也会返回下一个有效的迭代器，因此上面两种方法都可以使用。</li>
+</ul>
 <h2 id="20-指针和引用的区别">20. 指针和引用的区别</h2>
 <ul>
 <li>指针是一个变量，只不过这个变量存储的是一个地址，指向内存的一个存储单元，即指针是一个实体；而引用跟原来的变量实质上是一个东西，只不过是原变量的一个别名而已。</li>
@@ -1877,6 +2032,31 @@ config.cpp</p>
 </ul>
 <h2 id="24-多线程锁">24. 多线程/锁</h2>
 <p>见 <a href="/2024/12/29/multi-threads/"> CPP 多线程通信/锁/死锁 相关</a></p>
+<h3 id="1-stdthread">(1) std::thread</h3>
+<ul>
+<li><code>thread() noexcept;</code>，默认构造函数，创建一个空的 thread 执行对象。</li>
+<li><code>template &lt;class Fn, class ...Args&gt; explicit thread (Fn&amp;&amp; fn, Args&amp;&amp;... args);</code>，初始化构造函数，创建一个 thread 对象，该 thread 对象可被 joinable，新产生的线程会调用 fn 函数，该函数的参数由 args 给出。</li>
+<li><code>thread (const thread&amp;) = delete;</code>，拷贝构造函数(被禁用)，意味着 thread 不可被拷贝构造。</li>
+<li><code>thread (thread&amp;&amp; x)noexcept;</code>，move 构造函数，move 构造函数，调用成功之后 x 不代表任何 thread 执行对象。</li>
+<li>可被 joinable 的 thread 对象必须在他们销毁之前被主线程 join 或者将其设置为 detached。</li>
+</ul>
+<h3 id="2-stdlock_guard">(2) std::lock_guard</h3>
+<ul>
+<li>创建即加锁，作用域结束自动析构并解锁，无需手工解锁</li>
+<li>不能中途解锁，必须等作用域结束才解锁</li>
+<li>不能复制</li>
+</ul>
+<h3 id="3-stdunique_lock">(3) std::unique_lock</h3>
+<ul>
+<li>unique_lock 是 lock_guard 的升级版，具有 lock_guard 的所有功能，同时又具有其他很多方法使用起来更灵活方便</li>
+<li>允许延迟锁定，限时深度锁定，递归锁定，锁定所有权的转移以及与条件变量一起使用。
+<ul>
+<li>创建时可以不锁定(通过指定第二个参数为 std:defer_lock)，而在需要时再锁定</li>
+<li>可以随时加锁解锁</li>
+<li>作用域规则同 lock_grard，析构时自动释放锁</li>
+</ul>
+</li>
+</ul>
 <h2 id="25-从-cpp-源代码到-exe-经过了哪些过程">25. 从 cpp 源代码到 exe 经过了哪些过程？</h2>
 <ul>
 <li>预处理：处理所有以 # 开头的指令。包括：
@@ -2632,106 +2812,7 @@ config.cpp</p>
 <p>值得注意的是，指向类的<strong>非静态成员函数</strong>的指针与上面讨论的普通函数指针是不同的，因为它们需要一个类的实例来调用（即需要 <code>this</code> 指针）。例如：<code>int (MyClass::*memberFuncPtr)(int);</code>。</p>
 </li>
 </ul>
-<h2 id="33-stl-杂项">33. stl 杂项</h2>
-<h3 id="stdpair">std::pair</h3>
-<ul>
-<li>pair 在底层被定义为一个 struct，其所有成员默认是 public，两个成员分别是 first 和 second</li>
-<li>std::map 的元素是 pair，<code>pair&lt;const key_type，mapped_type&gt;</code></li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">namespace</span> std &#123;<br>  <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">pair</span> &#123;<br>    T1 first;<br>    T2 second;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<ul>
-<li>对 map 进行插入，元素类型是 pair:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">p.<span class="hljs-built_in">insert</span>(&#123;word，<span class="hljs-number">1</span>&#125;);<br>p.<span class="hljs-built_in">insert</span>(<span class="hljs-built_in">pair</span>&lt;string,<span class="hljs-type">int</span>&gt;(word，<span class="hljs-number">1</span>));<br></code></pre></td></tr></table></figure>
-</li>
-<li>insert 对<strong>不包含重复关键字</strong>的容器，插入成功返回<code>pair&lt;iterator，bool&gt;</code>迭代器指向给定关键字元素，bool 指出插入是否成功。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;pair&lt;<span class="hljs-type">char</span>,<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">result</span>(val.<span class="hljs-built_in">begin</span>(),val.<span class="hljs-built_in">end</span>());<br><span class="hljs-built_in">sort</span>(result.<span class="hljs-built_in">begin</span>(), result.<span class="hljs-built_in">end</span>(), [](<span class="hljs-keyword">auto</span> &amp;a, <span class="hljs-keyword">auto</span> &amp;b)&#123; <span class="hljs-keyword">return</span> a.second &gt; b.second;&#125;);<br></code></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="stddeque">std::deque</h3>
-<ul>
-<li>分块的内存，相比 vector 稍慢的随机访问</li>
-<li>底层结构：deque 的内存不是连续的，而是<strong>分段连续</strong>的。通常由<strong>一个中控器</strong>（一个<strong>指针数组</strong> map**，同时维护其当前长度）和<strong>多个内存块</strong>（buffers）组成。**中控器里的每个指针指向一个实际存储数据的内存块**。一旦有必要，deque 在其头端或尾端增加新的空间。</li>
-<li>访问原理：当执行 <code>my_deque[i]</code> 时，两步操作：
-<ul>
-<li>计算块索引：通过 i / 每个块的元素数量 来确定元素在哪一个内存块里。</li>
-<li>计算块内偏移：通过 i % 每个块的元素数量 来确定元素在该块内的具体位置。</li>
-<li>解引用：先访问中控器找到对应块的指针，然后再通过指针访问到最终的元素。</li>
-<li>这个过程虽然也是 O(1) 时间复杂度，但它涉及了更多的计算（除法、取模）和两次内存跳转（一次访问中控器，一次访问数据块）。这两次跳转可能会导致 CPU 缓存未命中（cache miss），因为中控器和数据块在内存中可能相距很远。这使得 deque 的随机访问比 vector 慢上一个数量级。</li>
-</ul>
-</li>
-<li>deque 拥有 start 与 finish 迭代器，分别由 deque:begin()与 deque:end()返回。start 指向第一个 buffer 的第一个元素，finish 指向最后一个 buffer 的最后一个元素的下一个位置。</li>
-<li>std::stack 和 std::queue 是容器适配器 (Container Adapters)。它们本身不管理任何数据，而是像一个“接口转换器”，包装了一个底层容器（默认就是 std::deque），并对外提供受限的、特定的接口（如后进先出或先进先出）。适配器是一种设计模式，它的作用是“适配”一个类的接口，使其看起来像用户所期望的另一个接口。</li>
-</ul>
-<h3 id="stdpriority_queue">std::priority_queue</h3>
-<ul>
-<li>std::priority_queue 是在头文件 <code>&lt;queue&gt;</code> 中定义的一个容器适配器类。它提供了一个我们通常期望的优先队列应有的所有功能，是一棵完全二叉树。内部包含一个容器（默认是 std::vector）来存储数据，并自动调用 <code>&lt;algorithm&gt;</code> 中的 heap 相关函数（make_heap, pop_heap, push_heap）来维护堆的性质。</li>
-<li>std::priority_queue 不维护迭代器。</li>
-</ul>
-<h3 id="stdmap-and-stdunordered_map">std::map and std::unordered_map</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">操作 (Operation)</th>
-<th style="text-align:left"><code>std::map</code> (红黑树)</th>
-<th style="text-align:left"><code>std::unordered_map</code> (哈希表)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><strong>插入 (Insertion)</strong></td>
-<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>删除 (Deletion)</strong></td>
-<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>查找 (Search)</strong></td>
-<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mspace linebreak="newline"></mspace><mi>l</mi><mi>o</mi><mi>g</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-<td style="text-align:left">平均: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> <br>最坏: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
-</tr>
-</tbody>
-</table>
-<p><strong>N</strong> 是容器中元素的数量。</p>
-<ul>
-<li><code>std::map</code> 的底层数据结构是<strong>红黑树</strong>，这是一种自平衡的二叉搜索树。这个数据结构从根本上决定了其所有核心操作的复杂度。</li>
-<li><code>std::unordered_map</code> 的底层数据结构是<strong>哈希表</strong>。它通过哈希函数将键 (Key) 映射到一个桶 (Bucket) 的索引上。
-<ul>
-<li>复杂度分析: 平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，最坏 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span>
-<ul>
-<li><strong>平均情况: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></strong>
-<ul>
-<li>当一个好的哈希函数将键均匀地分布在所有桶中时，每个桶里只会有常数个元素（理想情况下只有一个）。</li>
-<li><strong>查找/插入/删除</strong>的过程是：
-<ul>
-<li>计算键的哈希值 (通常是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
-<li>通过哈希值定位到对应的桶 (也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
-<li>在桶内进行少量比较来找到或操作元素 (如果冲突少，也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>)。</li>
-</ul>
-</li>
-<li>因此，在平均情况下，所有核心操作的复杂度都是<strong>摊销常数时间 (Amortized O(1))</strong>。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>最坏情况: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>
-<ul>
-<li>最坏情况发生在<strong>哈希冲突 (Hash Collision)</strong> 严重时。例如，一个极差的哈希函数把所有 N 个元素的键都映射到了同一个桶里。</li>
-<li>此时，这个桶就退化成了一个链表（或其他线性结构），里面包含了所有的 N 个元素。</li>
-<li>在这种情况下，<strong>查找/插入/删除</strong>都需要遍历这个长长的链表，时间复杂度退化为<strong>线性时间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>。</li>
-<li>虽然这种情况在实际中很少见（C++ 标准库的哈希函数通常足够好），但在理论上和某些极端数据下是可能发生的。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="迭代器">迭代器</h3>
-<ul>
-<li>迭代器为不同类型的容器提供了统一的访问接口， 隐藏了底层容器的具体实现细节， 允许开发者使用一致的语法来操作不同类型的容器。</li>
-<li>对于序列容器 vector，deque 来说，使用 erase 后，后边的每个元素的迭代器都会失效，后边每个元素都往前移动一位，erase 返回下一个有效的迭代器。</li>
-<li>对于关联容器 map，set 来说，使用了 erase 后，当前元素的迭代器失效，但是其结构是红黑树，删除当前元素，不会影响下一个元素的迭代器，所以在调用 erase 之前，记录下一个元素的迭代器即可。</li>
-<li>对于 list 来说，它使用了不连续分配的内存，并且它的 erase 方法也会返回下一个有效的迭代器，因此上面两种方法都可以使用。</li>
-</ul>
+<h2 id="33">33.</h2>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <p>国际标准化组织（ISO）提出的网络通信模型，用来描述网络系统中通信的分层结构，使得不同厂商设备或系统之间可以实现互联互通。</p>
