@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-09-26T23:35:50.454Z">
+<meta property="article:modified_time" content="2025-10-13T05:43:29.176Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          47k words
+          48k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          392 mins
+          397 mins
         
       </span>
     
@@ -652,10 +652,10 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <p>依赖 shared_ptr，<strong>允许拷贝</strong>，但<strong>不会增加引用计数</strong>（没有 use_count() 函数）</p>
 </li>
 <li>
-<p>用于解决 shared_ptr  循环引用问题，缓存中防止指针悬挂</p>
+<p>用于解决 shared_ptr 循环引用问题，缓存中防止指针悬挂</p>
 </li>
 <li>
-<p>可通过 lock() 获取 shared_ptr，判断对象是否仍然有效</p>
+<p>可通过<strong>lock() 获取</strong>shared_ptr，判断对象是否仍然有效</p>
 <ul>
 <li>weak_ptr 是观察者，不拥有对象，不增加引用计数</li>
 <li>如果原对象还活着，lock()返回有效 shared_ptr</li>
@@ -685,7 +685,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 </ul>
 </li>
 <li>
-<p><code>weak_ptr::expired()</code> 来检查判断你观察的对象是否已经被销毁（返回 bool）。只想检测是否过期可以用 expired()，想获取对象 + 安全检查 可以用 lock()。</p>
+<p><strong>weak_ptr::expired()</strong> 来检查判断你观察的对象是否已经被销毁（返回 bool）。只想检测是否过期可以用 expired()，想获取对象 + 安全检查 可以用 lock()。</p>
 </li>
 </ul>
 </li>
@@ -755,10 +755,9 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <ul>
 <li>构造一个临时的 shared_ptr（从右值中移动而来）</li>
 <li>与当前对象 swap()：交换所有权</li>
-<li><strong>临时对象离开作用域，原来的资源会被析构释放</strong>。std::move(other) 本身是一个 xvalue（将亡值），MySharedPtr(std::move(other)) 是一个 prvalue（纯右值），它不绑定任何名称，是临时对象。</li>
+<li><strong>临时对象离开作用域，原来的资源会被析构释放</strong>。std::move(other) 本身是一个 xvalue（将亡值），MySharedPtr(std::move(other)) 是一个 prvalue（纯右值），它不绑定任何名称，是临时对象。这种实现是参考了 gcc 源码的(<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html">https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html</a>)。这样做提供了强异常安全（要么操作成功，要么对象不变：所有操作都在构造临时变量时完成，如果发生异常，this 对象仍然保持原样；一旦临时构造成功，再通过 swap() 原子性地交换资源（不可能失败））保证，避免手动资源释放引发状态不一致，并符合 RAII 和 copy-and-swap 设计风格。<br>
+另：源码中移动构造函数的实现类似，这里用<code>_M_swap</code>是因为<code>_M_refcount</code>是一个复杂的类。</li>
 </ul>
-<p>这种实现是参考了 gcc 源码的（<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html%EF%BC%89%E3%80%82%E8%BF%99%E6%A0%B7%E5%81%9A%E6%8F%90%E4%BE%9B%E4%BA%86%E5%BC%BA%E5%BC%82%E5%B8%B8%E5%AE%89%E5%85%A8%EF%BC%88%E8%A6%81%E4%B9%88%E6%93%8D%E4%BD%9C%E6%88%90%E5%8A%9F%EF%BC%8C%E8%A6%81%E4%B9%88%E5%AF%B9%E8%B1%A1%E4%B8%8D%E5%8F%98%EF%BC%9A%E6%89%80%E6%9C%89%E6%93%8D%E4%BD%9C%E9%83%BD%E5%9C%A8%E6%9E%84%E9%80%A0%E4%B8%B4%E6%97%B6%E5%8F%98%E9%87%8F%E6%97%B6%E5%AE%8C%E6%88%90%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%8F%91%E7%94%9F%E5%BC%82%E5%B8%B8%EF%BC%8Cthis">https://gcc.gnu.org/onlinedocs/gcc-11.1.0/libstdc++/api/a00605_source.html）。这样做提供了强异常安全（要么操作成功，要么对象不变：所有操作都在构造临时变量时完成，如果发生异常，this</a> 对象仍然保持原样；一旦临时构造成功，再通过 swap() 原子性地交换资源（不可能失败））保证，避免手动资源释放引发状态不一致，并符合 RAII 和 copy-and-swap 设计风格。<br>
-另：源码中移动构造函数的实现类似，这里用<code>_M_swap</code>是因为<code>_M_refcount</code>是一个复杂的类。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">shared_ptr</span>(shared_ptr&amp;&amp; __r) <span class="hljs-keyword">noexcept</span><br>: _M_ptr(__r._M_ptr), _M_refcount() &#123;<br>    _M_refcount._M_swap(__r._M_refcount);<br>    __r._M_ptr = <span class="hljs-literal">nullptr</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
@@ -774,7 +773,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/std-make-shared-in-cpp/">https://www.geeksforgeeks.org/std-make-shared-in-cpp/</a></p>
 <p>当我们创建一个指向已存在对象的共享指针时，会发生 3 次不同的内存分配。一次用于控制块，一次用于对象，一次用于 shared_ptr 本身。但是使用 std::make_shared()，只有两次内存分配。一次用于 shared_ptr，另一次用于控制块和对象。这比传统的共享指针效率更高。</p>
 <ul>
-<li>避免额外的内存分配+提高缓存命中率：<code>std::make_shared</code>会在一次内存分配中把对象本体和控制块(引用计数)放在一个内存块里，只调用一次 new，而<code>std::shared_ptr&lt;T&gt;(new T(args...))</code>需要两次分别分配。这不仅减少了 malloc/free 的开销，还能提高缓存命中率（前者控制块和对象连续）。</li>
+<li><strong>避免额外的内存分配+提高缓存命中率</strong>：<code>std::make_shared</code>会在一次内存分配中<strong>把对象本体和控制块(引用计数)放在一个内存块里</strong>，只调用一次 new，而<code>std::shared_ptr&lt;T&gt;(new T(args...))</code>需要两次分别分配。这不仅减少了 malloc/free 的开销，还能提高缓存命中率（前者控制块和对象连续）。</li>
 <li>减少异常安全问题：<code>std::shared_ptr&lt;T&gt;(new T(args...))</code>是两个独立的操作，new T(args…)  可能会抛出异常，造成对象已构造，控制块未构造，从而内存泄漏的结果。<code>std::make_shared</code>进行的是原子操作，先分配统一内存，再构造对象和控制块，构造失败直接回滚，不存在这个问题。</li>
 <li>代码更简洁：<code>auto ptr = std::make_shared&lt;T&gt;(args...)</code>比<code>auto ptr = std::shared_ptr&lt;T&gt;(new T(args...))</code>更简短，可读性更好。前者还避免了手写 new。</li>
 </ul>
@@ -895,10 +894,10 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <h2 id="3-类型转换static_cast-dynamic_cast-const_cast-reinterpret_cast">3. 类型转换：static_cast / dynamic_cast / const_cast / reinterpret_cast</h2>
 <h3 id="1-static_castlttgtexpr">(1) <code>static_cast&lt;T&gt;(expr)</code></h3>
 <ul>
-<li>编译时静态类型转换，主要用于：
+<li><strong>编译时</strong>静态类型转换，主要用于：
 <ul>
 <li>已知安全的类型转换（如基本数据类型的转换，例如 int 转为 float）。它比 C 风格 (T)value 更加安全，具有更明确的语义，并在编译时进行类型检查。</li>
-<li>子类转换为父类（向上转换）。这是因为子类中继承父类所有的成员，转换时只需要切割掉不需要的部分。</li>
+<li><strong>子类转换为父类</strong>（向上转换）。这是因为子类中继承父类所有的成员，转换时只需要切割掉不需要的部分。</li>
 <li>void 指针与其他类型指针转换</li>
 <li>禁止转换 const 属性</li>
 </ul>
@@ -908,7 +907,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 </ul>
 <h3 id="2-dynamic_castlttgtexpr">(2) <code>dynamic_cast&lt;T&gt;(expr)</code></h3>
 <ul>
-<li>运行时安全类型转换（<strong>仅适用于有虚函数的多态类型</strong>），用于多态继承体系中 安全地将基类指针/引用转换为派生类类型。向下转换时，会做 RTTI（运行时类型信息）检查。</li>
+<li>运行时安全类型转换（<strong>仅适用于有虚函数的多态类型</strong>），用于多态继承体系中安全地<strong>将基类指针/引用转换为派生类类型</strong>。向下转换时，会做 RTTI（运行时类型信息）检查。</li>
 <li>要求：
 <ul>
 <li>类型必须是多态类型（即基类有至少一个虚函数）</li>
@@ -925,7 +924,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <h3 id="3-const_castlttgtexpr">(3) <code>const_cast&lt;T&gt;(expr)</code></h3>
 <ul>
 <li>
-<p>不涉及类型变换，只是对类型的修饰属性进行调整，用于添加或移除 const/volatile 限定符。</p>
+<p>不涉及类型变换，只是对类型的修饰属性进行调整，用于<strong>添加或移除 const/volatile 限定符</strong>。</p>
 </li>
 <li>
 <p>用于移除 const 进行非常量操作（<strong>要保证源对象非 const</strong>否则是未定义行为）</p>
@@ -1016,7 +1015,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <p>判断左/右值引用：std::is_rvalue_reference() / std::is_lvalue_reference()</p>
 </li>
 <li>
-<p>++i/–i 是左值；i++/i–是右值。</p>
+<p><code>++i/--i</code> 是左值；<code>i++/i--</code>是右值。</p>
 <ul>
 <li>++i 为例，它返回的不是一个临时拷贝，而是 <code>i</code> 这个对象本身。由于返回的是 <code>i</code> 本身，而 <code>i</code> 是一个有确定内存地址的变量，所以这个表达式的结果也是一个左值。
 <ul>
@@ -1049,7 +1048,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <li>
 <p><code>std::move</code>  的底层原理</p>
 <ul>
-<li><code>std::move()</code>  只是显式地将左值转换为右值，从而触发移动构造或移动赋值，<code>static_cast&lt;T&amp;&amp;&gt;</code>，不会改变对象的生命周期。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::<span class="hljs-function">type&amp;&amp; <span class="hljs-title">move</span><span class="hljs-params">(T&amp;&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">static_cast</span>&lt;<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp;&amp;&gt;(t);<br>&#125;<br></code></pre></td></tr></table></figure>
+<li><code>std::move()</code>  只是<strong>显式地将左值转换为右值</strong>，从而<strong>触发移动构造或移动赋值</strong>，<code>static_cast&lt;T&amp;&amp;&gt;</code>，不会改变对象的生命周期。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::<span class="hljs-function">type&amp;&amp; <span class="hljs-title">move</span><span class="hljs-params">(T&amp;&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">static_cast</span>&lt;<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp;&amp;&gt;(t);<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li><code>std::move(a)</code>  只是告诉编译器把对象变成右值（“我允许你偷走这个对象的资源”），但不会修改对象本身。实际移动操作是移动构造函数或移动赋值运算符完成的。</li>
 <li>用完 std::move 的对象还可以用，但状态不再可靠（比如数据被置空），只能销毁或重新赋值。</li>
@@ -1295,7 +1294,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 <h2 id="9-c内存对齐机制">9. c++内存对齐机制</h2>
 <ul>
-<li>内存对齐是指 编译器在给结构体或变量分配内存时，按照特定规则将变量放在特定地址上的过程，通常这个地址是变量大小或平台对齐要求的整数倍。</li>
+<li>内存对齐是指<strong>编译器</strong>在给结构体或变量分配内存时，<strong>按照特定规则将变量放在特定地址上</strong>的过程，通常这个地址是变量大小或平台对齐要求的整数倍。</li>
 <li>例如，下面结构体分配内存时，不是紧凑排布成 5 字节，而是 a 占用第 0 字节，b 会被放到第 4 字节（从第 4 字节开始）对齐地址（地址 % 4 == 0），所以总大小是 8 字节。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>  <span class="hljs-type">char</span> a;   <span class="hljs-comment">// 1 byte</span><br>  <span class="hljs-type">int</span> b;    <span class="hljs-comment">// 4 bytes</span><br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 <li>为什么要内存对齐？
@@ -1323,7 +1322,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <h3 id="1-定义一个-struct有-int-xchar-c-两个成员这个结构体的大小">(1) 定义一个 struct，有 int x，char c 两个成员，这个结构体的大小？</h3>
 <ul>
 <li>int x 占 4 字节，char c 占 1 字节</li>
-<li>但由于 对齐要求（int 对齐为 4 字节，整个结构体也需要是最大成员类型的对齐倍数）， 编译器会 在末尾补 3 字节填充（padding）</li>
+<li>但由于 对齐要求（int 对齐为 4 字节，整个结构体也需要是最大成员类型的对齐倍数）， 编译器会在末尾补 3 字节填充（padding）</li>
 </ul>
 <h3 id="2-如果增加一个-static-int-这个结构体大小怎么变化">(2) 如果增加一个 static int 这个结构体大小怎么变化？</h3>
 <ul>
@@ -1344,7 +1343,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 <h3 id="1-静态库static-library">(1) 静态库（Static Library）</h3>
 <ul>
-<li>编译时直接把 .lib(windows)/.a(linux) 库的代码（对象文件内容）链接进目标程序</li>
+<li><strong>编译时</strong>直接把 .lib(windows) / .a(linux) 库的代码（对象文件内容）链接进目标程序</li>
 <li>最终生成的 .exe 或 .out 文件中包含所有库代码，不再依赖外部 .lib / .a</li>
 <li>优点：
 <ul>
@@ -1362,7 +1361,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 <h3 id="2-动态库shared-dynamic-library">(2) 动态库（Shared / Dynamic Library）</h3>
 <ul>
-<li>程序运行时再加载 .dll / .so 文件</li>
+<li>程序<strong>运行时</strong>再加载 .dll / .so 文件</li>
 <li>二进制可执行文件中只保留符号引用，不包含实际实现</li>
 <li>优点：
 <ul>
@@ -1398,7 +1397,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <li>
 <p>常量存储区：存放的是<strong>常量</strong>（const），不允许修改，程序运行结束自动释放。</p>
 <ul>
-<li>全局常量、字符串常量（.rodata 常量区）（虚函数表存储在这里）</li>
+<li>全局常量、<strong>字符串字面量</strong>（.rodata 常量区）（<strong>虚函数表</strong>存储在这里）</li>
 </ul>
 </li>
 <li>
@@ -1473,12 +1472,12 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <h2 id="13-如何构造一个只能在堆上创建对象的类如何构造一个只能在栈上创建对象的类">13. 如何构造一个只能在堆上创建对象的类？如何构造一个只能在栈上创建对象的类？</h2>
 <ul>
 <li>
-<p>若要构造只能在堆上创建的类，应将构造函数设为私有并通过静态工厂函数（工厂方法是一种创建对象的设计模式，<br>
+<p>若要构造只能在堆上创建的类，应将<strong>构造函数设为私有</strong>并通过<strong>静态工厂函数</strong>（工厂方法是一种创建对象的设计模式，<br>
 它将对象的创建过程封装在一个静态函数中，而不是让用户直接 new 或构造对象）创建对象；</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">HeapOnly</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// 构造函数私有，外部不能直接 new 或定义对象</span><br>    <span class="hljs-built_in">HeapOnly</span>() &#123;&#125;<br>    ~<span class="hljs-built_in">HeapOnly</span>() &#123;&#125;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 提供静态工厂方法，在堆上创建对象</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> HeapOnly* <span class="hljs-title">create</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">HeapOnly</span>();<br>        <span class="hljs-comment">// return std::shared_ptr&lt;MyClass&gt;(new MyClass()); // 或者返回智能指针从而只能通过智能指针创建</span><br>        <span class="hljs-comment">// std::shared_ptr&lt;T&gt;(new T(...)) 是在类内部调用构造函数，有权限访问私有构造；</span><br>        <span class="hljs-comment">// 而 std::make_shared&lt;T&gt;() 是标准库函数模板，在类外部调用构造函数，无法访问私有成员</span><br>    &#125;<br><br>    <span class="hljs-comment">// 提供释放接口（防止 delete 出错）</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">destroy</span><span class="hljs-params">(HeapOnly* ptr)</span> </span>&#123;<br>        <span class="hljs-keyword">delete</span> ptr;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
-<p>若要构造只能在栈上创建的类，应将 operator new 删除或私有，防止通过 new 分配内存。</p>
+<p>若要构造只能在栈上创建的类，应<strong>将 operator new 删除或私有</strong>，防止通过 new 分配内存。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">StackOnly</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">StackOnly</span>() &#123;&#125;<br>    ~<span class="hljs-built_in">StackOnly</span>() &#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-title">new</span><span class="hljs-params">(<span class="hljs-type">size_t</span>)</span> </span>= <span class="hljs-keyword">delete</span>;<br>    <span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-keyword">new</span>[](<span class="hljs-type">size_t</span>) = <span class="hljs-keyword">delete</span>;<br>&#125;;<br><span class="hljs-comment">// 或者</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">StackOnly</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">StackOnly</span>() &#123;&#125;<br>    ~<span class="hljs-built_in">StackOnly</span>() &#123;&#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-title">new</span><span class="hljs-params">(<span class="hljs-type">size_t</span>)</span></span>;<br>    <span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-keyword">new</span>[](<span class="hljs-type">size_t</span>);<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
@@ -1566,10 +1565,10 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <p>auto 不能定义数组但可以定义指针。</p>
 </li>
 <li>
-<p>auto 无法推导出模板参数。</p>
+<p>auto <strong>无法推导出模板参数</strong>。</p>
 </li>
 <li>
-<p>会移除顶层 const 和引用。</p>
+<p><strong>会移除顶层 const 和引用</strong>。</p>
 <ul>
 <li>
 <p>但可以使用<code>auto&amp;</code>推导引用，使用<code>const auto</code>保留常量性。值得注意的是，<code>auto</code>推导的是值类型，而 <strong><code>auto&amp;</code>推导的是引用类型</strong>。引用的目的是提供对原始变量的直接访问，因此它需要保留原始变量的所有类型信息。因此，引用的类型必须与原始变量的类型完全匹配，包括 const 修饰符。这也就是说如果原始变量是 const 的，auto&amp; 推导出的类型会是 const T&amp;。</p>
@@ -1585,7 +1584,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <h3 id="2-decltype">(2) decltype</h3>
 <ul>
 <li>
-<p><code>decltype(expr)</code> 返回 表达式 <code>expr</code> 的类型，不求值、不构造、不执行</p>
+<p><code>decltype(expr)</code> 返回表达式 <code>expr</code> 的类型，<em>不求值、不构造、不执行</em></p>
 <ul>
 <li>expr 是表达式，<code>decltype(expr)</code>的类型和 expr 相同</li>
 <li>expr 是函数，<code>decltype(expr)</code>的类型和 expr 返回值的类型相同</li>
@@ -1596,7 +1595,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T1, <span class="hljs-keyword">typename</span> T2&gt;</span><br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">add</span><span class="hljs-params">(T1 a, T2 b)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(a + b)</span> </span>&#123;   <br>  <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
-<p>可获取表达式的完整类型（包括 const、引用等）</p>
+<p>可获取表达式的<strong>完整类型（包括 const、引用等）</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br><span class="hljs-type">int</span>&amp; b = a;<br><span class="hljs-keyword">decltype</span>(b) x = a;     <span class="hljs-comment">// x 是 int&amp;</span><br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> a = <span class="hljs-number">1</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; b = a;<br><span class="hljs-keyword">decltype</span>(b) c = <span class="hljs-number">3</span>; <span class="hljs-comment">// c 是 const int &amp; (可以去 https://cppinsights.io/ 验证)</span><br></code></pre></td></tr></table></figure>
 </li>
 <li>
@@ -1628,7 +1627,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <ul>
 <li>(1)统一的初始化方法（列表初始化）
 <ul>
-<li>C++定义了几种初始化方式，例如对一个 int 变量 x 初始化为 0。其中采用花括号来进行初始化称为列表初始化，无论是初始化对象还是为对象赋新值。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x= <span class="hljs-number">0</span>;<br><span class="hljs-type">int</span> x=&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-type">int</span> x&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">x</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>;<br></code></pre></td></tr></table></figure>
+<li>C++定义了几种初始化方式，例如对一个 int 变量 x 初始化为 0。其中采用花括号来进行初始化称为<strong>列表初始化</strong>，无论是初始化对象还是为对象赋新值。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x= <span class="hljs-number">0</span>;<br><span class="hljs-type">int</span> x=&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-type">int</span> x&#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">x</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>;<br></code></pre></td></tr></table></figure>
 </li>
 <li>用于对内置类型变量时，如果使用列表初始化，且初始值存在丢失信息风险时，编译器会报错。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">long</span> <span class="hljs-type">double</span> d= <span class="hljs-number">3.1415926536</span>;<br><span class="hljs-type">int</span> a = &#123;d&#125;; <span class="hljs-comment">//存在丢失信息风险，转换未执行，</span><br><span class="hljs-type">int</span> a = d; <span class="hljs-comment">//确实丢失信息，转换执行。</span><br></code></pre></td></tr></table></figure>
 </li>
@@ -1638,8 +1637,8 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <li>(3)auto 关键字:允许编译器自动推断变量的类型，减少类型声明的冗余。</li>
 <li>(4)decltype 求表达式的类型</li>
 <li>(5)智能指针 std::shared_ptr 和 std::unique_ptr</li>
-<li>(6)空指针 nulptr: 提供了明确表示空指针的关键字，替代了传统的 NULL</li>
-<li>(7)基于范围的 for 循环:简化遍历容器元素的语法</li>
+<li>(6)空指针 nullptr: 提供了明确表示空指针的关键字，替代了传统的 NULL</li>
+<li>(7)基于范围的 for 循环：简化遍历容器元素的语法</li>
 <li>(8)右值引用和 move 语义 引入右值引用和移动构造函数，允许高效地将资源从一个对象移动到另一个对象，提高性能。</li>
 </ul>
 </li>
@@ -1681,7 +1680,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <h3 id="stdlist">std::list</h3>
 <ul>
 <li>双向链表</li>
-<li>用 empty()而非 size() == 0 来判定是否为空。empty()对所有的标准容器都是常数时间操作，而size()对于list耗费的是线性时间。</li>
+<li>用 empty()而非 size() == 0 来判定是否为空。empty()对所有的标准容器都是常数时间操作，而 size()对于 list 耗费的是线性时间。</li>
 </ul>
 <h3 id="stdpair">std::pair</h3>
 <ul>
@@ -1698,7 +1697,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <h3 id="stddeque">std::deque</h3>
 <ul>
 <li>分块的内存，相比 vector 稍慢的随机访问</li>
-<li>底层结构：deque 的内存不是连续的，而是<strong>分段连续</strong>的。通常由<strong>一个中控器</strong>（一个<strong>指针数组</strong> map**，同时维护其当前长度）和<strong>多个内存块</strong>（buffers）组成。**中控器里的每个指针指向一个实际存储数据的内存块**。一旦有必要，deque 在其头端或尾端增加新的空间。</li>
+<li>底层结构：deque 的内存不是连续的，而是<strong>分段连续</strong>的。通常由<strong>一个中控器</strong>（一个<strong>指针数组 map</strong>，同时维护其当前长度）和<strong>多个内存块</strong>（buffers）组成。<strong>中控器里的每个指针指向一个实际存储数据的内存块</strong>。一旦有必要，deque 在其头端或尾端增加新的空间。</li>
 <li>访问原理：当执行 <code>my_deque[i]</code> 时，两步操作：
 <ul>
 <li>计算块索引：通过 i / 每个块的元素数量 来确定元素在哪一个内存块里。</li>
@@ -1865,7 +1864,7 @@ config.cpp</p>
 </ul>
 <h3 id="2-extern-c">(2) extern “C”</h3>
 <ul>
-<li><code>extern &quot;C&quot;</code>是 cpp 提供的关键字，用于告诉编译器按照 C 语言方式<strong>编译和链接</strong>函数或变量，已解决 C++ <strong>名称修饰</strong>（name mangling）带来的兼容性问题。</li>
+<li><code>extern &quot;C&quot;</code>是 cpp 提供的关键字，用于告诉编译器按照 C 语言方式<strong>编译和链接</strong>函数或变量，以解决 C++ <strong>名称修饰</strong>（name mangling）带来的兼容性问题。</li>
 <li>为什么需要 extern “C”?
 <ul>
 <li>C++ <strong>支持函数重载</strong>，所以编译器会在<strong>编译时修改函数名</strong>，加入参数类型信息；C 语言不支持重载，其函数名在编译后不会被修饰。如果 C++ 直接调用 C 语言函数（没有  extern “C”），链接时找不到匹配的名称，会报  undefined reference  错误。</li>
@@ -1881,7 +1880,7 @@ config.cpp</p>
 <li>C++ 调用 C 库、封装 C 接口给其他语言</li>
 <li>extern “C”  只能用于全局作用域，不能嵌套到局部变量或函数内部。</li>
 <li>用  #ifdef __cplusplus （#endif）确保头文件可在 C 和 C++ 两端兼容。</li>
-<li>适用于 函数和变量，但不能用于 类和重载函数</li>
+<li>适用于函数和变量，但不能用于类和重载函数</li>
 </ul>
 </li>
 </ul>
@@ -1896,7 +1895,7 @@ config.cpp</p>
 <li>是否生成多次拷贝：extern 只在定义处生成；inline 则每个 .cpp 中可能各自展开。注意如果在头文件中使用 inline 定义了一个函数，并在多个 .cpp 文件中包含了这个头文件，不会生成多个冲突的拷贝，也不会导致链接错误。因为编译器+链接器会识别 inline 函数的“唯一定义”，只保留一份。编译器在多个 .cpp 中确实会生成对应的函数体（可能优化为内联），但链接器会做合并处理：只保留一份最终定义。如果启用 LTO（链接时优化），可能根本不生成函数体，而直接内联展开。“生成函数体”是指编译器在每个 .cpp（翻译单元）中把 inline 函数编译为机器码（或中间表示），为后续链接或内联做准备。但“多个拷贝”是指链接时在最终可执行文件或静态库中，保留多个独立的全局符号定义，从而导致重复定义错误或浪费空间。</li>
 <li>使用场景：extern 用于声明全局变量（跨多个文件共享一个全局变量）/ 外部接口；inline 定义 header-only 工具函数 / 模板函数</li>
 </ul>
-<p>PS: 用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号。但是不推荐在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline  则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
+<p>PS: 用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号。但是不推荐<strong>在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本</strong>。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline  则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
 <h3 id="4-内联函数-和-宏define的区别">(4) 内联函数 和 宏（#define）的区别</h3>
 <p>内联函数是语义完整、类型安全的函数，由编译器在编译阶段决定是否内联；而宏是<strong>预处理器文本替换</strong>，不进行类型检查，容易引发副作用和调试困难。除非必要，现代 C++ 推荐使用 inline 函数代替函数类宏。</p>
 <h2 id="23-vector">23. vector</h2>
@@ -2059,7 +2058,7 @@ config.cpp</p>
 </ul>
 <h2 id="25-从-cpp-源代码到-exe-经过了哪些过程">25. 从 cpp 源代码到 exe 经过了哪些过程？</h2>
 <ul>
-<li>预处理：处理所有以 # 开头的指令。包括：
+<li>预处理：处理所有以 # 开头的指令。包括，
 <ul>
 <li>展开 #include</li>
 <li>替换 #define 宏</li>
@@ -2067,7 +2066,7 @@ config.cpp</p>
 <li>删除注释等</li>
 </ul>
 </li>
-<li>编译：将预处理后的源码编译成 汇编代码
+<li>编译：将预处理后的源码编译成汇编代码
 <ul>
 <li>语法检查</li>
 <li>变量和函数作用域检查</li>
@@ -2076,7 +2075,7 @@ config.cpp</p>
 <li>生成 .s 汇编文件（人类可读）</li>
 </ul>
 </li>
-<li>汇编（Assembly）：汇编器把 .s 汇编代码变成 机器码（二进制目标文件 .obj 或 .o）
+<li>汇编（Assembly）：汇编器把 .s 汇编代码变成机器码（二进制目标文件 .obj 或 .o）
 <ul>
 <li>一个 .cpp 文件生成一个 .obj</li>
 <li>每个 .obj 文件是单独编译的</li>
@@ -2095,14 +2094,14 @@ config.cpp</p>
 <h2 id="26-const-constexpr-mutable">26. const / constexpr / mutable</h2>
 <h3 id="1-const">(1) const</h3>
 <ul>
-<li>const 表示“值不能修改”，是运行时常量（编译时无法保证是常量），可用于常量指针、常量函数等。</li>
+<li>const 表示“值不能修改”，是<strong>运行时常量（编译时无法保证是常量）</strong>，可用于常量指针、常量函数等。</li>
 <li>可用于任意可赋值表达式。</li>
-<li>不能用于静态数组大小</li>
+<li><strong>不能用于静态数组大小</strong></li>
 <li>性能较低，需运行时计算。</li>
 </ul>
 <h3 id="2-constexpr">(2) constexpr</h3>
 <ul>
-<li>constexpr 表示“在编译期就已知的常量”，是编译时常量（必须在编译期间求值）。</li>
+<li>constexpr 表示“在编译期就已知的常量”，是<strong>编译时常量（必须在编译期间求值）</strong>。</li>
 <li>表达式必须是编译期可求值。</li>
 <li>可用于静态数组大小。</li>
 <li>性能较高，计算结果直接嵌入到编译后的代码中。</li>
@@ -2110,7 +2109,7 @@ config.cpp</p>
 <ul>
 <li>如果函数的返回值不是编译期常量，则其类型不能是 constexpr。例如：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getValue</span><span class="hljs-params">()</span> </span>&#123;    <br>  <span class="hljs-keyword">return</span> <span class="hljs-number">5</span>;  <span class="hljs-comment">// 运行时返回</span><br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> <span class="hljs-title">square</span><span class="hljs-params">()</span> </span>&#123;    <br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">getValue</span>() * <span class="hljs-built_in">getValue</span>();  <span class="hljs-comment">// 编译错误：getValue() 不是常量表达式</span><br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
-<li>如果函数里包含动态内存的分配（new），则其返回值不能是 constexpr</li>
+<li><strong>如果函数里包含动态内存的分配（new），则其返回值不能是 constexpr</strong></li>
 <li>表达式里包含运行时输入的变量</li>
 </ul>
 </li>
@@ -2118,10 +2117,10 @@ config.cpp</p>
 <h3 id="3-mutable">(3) mutable</h3>
 <ul>
 <li>
-<p>在 const 成员函数中，编译器默认阻止修改任何成员变量。但有些成员变量实际上是缓存、标记、日志开关等行为上的“非状态性成员”，这时就需要 mutable。</p>
+<p><strong>在 const 成员函数中，编译器默认阻止修改任何成员变量</strong>。但有些成员变量实际上是缓存、标记、日志开关等行为上的“非状态性成员”，这时就需要 mutable。</p>
 </li>
 <li>
-<p>mutable 用于允许某个类成员变量在 const 成员函数中被修改 和 修饰 lambda 表达式捕获的变量。注意，mutable 是专为此设计的，即除了用于修饰 lambda 捕获的变量，mutable 只能用于类的非静态成员变量，<em>不能用于普通局部变量或全局变量</em>。同时，mutable  也不能用于静态成员变量，因为  static  变量是全局共享的，不受  const  限制。</p>
+<p>mutable 用于<strong>允许某个类成员变量在 const 成员函数中被修改 和 修饰 lambda 表达式捕获的变量</strong>。注意，mutable 是专为此设计的，即除了用于修饰 lambda 捕获的变量，mutable <strong>只能用于类的非静态成员变量</strong>，<em>不能用于普通局部变量或全局变量</em>。同时，mutable 也不能用于静态成员变量，因为 static 变量是全局共享的，不受 const 限制。</p>
 </li>
 <li>
 <p>绕过 const 修饰的唯一合法方式，用于明确标记：这个成员变量不是逻辑上的 const。</p>
@@ -2171,8 +2170,8 @@ config.cpp</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span></span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SmartCopy</span> &#123;<br>  <span class="hljs-keyword">public</span>:   <br>    std::shared_ptr&lt;<span class="hljs-type">int</span>&gt; data;    <br>    <span class="hljs-built_in">SmartCopy</span>(<span class="hljs-type">int</span> val) : <span class="hljs-built_in">data</span>(std::<span class="hljs-built_in">make_shared</span>&lt;<span class="hljs-type">int</span>&gt;(val)) &#123;&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <h2 id="30-模板-template">30. 模板 template</h2>
 <h3 id="1-模板的内部实现原理">(1) 模板的内部实现原理</h3>
-<p>模板是一个编译时的过程。核心思想是代码生成 (Code Generation) 和实例化 (Instantiation)。在<strong>实例化</strong>期间，编译器会获取模板的定义，并将模板参数（如 T 或非类型参数）替换为程序员提供的具体类型（如 int、double）或值。这个过程会生成一个针对这些特定参数的普通类或函数的定义。例如，对于<code>std::vector&lt;int&gt;</code>，编译器会生成一个类似于 <code>class vector_int &#123; ... &#125;</code> 的具体类定义（名称是经过修饰的，下面会提到）。对于 <code>std::vector&lt;std::string&gt;</code>，则会生成另一个独立的类定义。由于一个模板可以被多种不同的类型实例化（例如 <code>MyClass&lt;int&gt;</code> 和 <code>MyClass&lt;double&gt;</code>），编译器需要<strong>为每个实例化版本生成唯一的内部名称，以便链接器能够正确区分和链接它们</strong>。这个过程称为<strong>名称修饰</strong>。例如，<code>void foo&lt;int&gt;(int)</code> 和 <code>void foo&lt;char&gt;(char)</code> 在编译后会有不同的符号名。</p>
-<p>这些由模板实例化产生的具体类和函数定义随后会被正常编译，就像手写了这些特定版本的代码一样。编译器会为每个不同的实例化版本生成相应的机器码。模板的定义（不仅仅是声明）通常需要对编译器可见，以便在需要时进行实例化。这就是为什么模板的实现通常放在头文件中。如果编译器在某个编译单元中看到了模板的使用但找不到其定义，它就无法进行实例化（每个 cpp 是独立的 translation unit 分开编译的，如果在一个 cpp 里定义而在另一个 cpp 中使用，就无法找到其定义，具体见<a href="/2025/05/21/cpp-templates/"> cpp-templates</a>）。</p>
+<p>模板是一个<strong>编译时</strong>的过程。核心思想是代码生成 (Code Generation) 和实例化 (Instantiation)。在<strong>实例化</strong>期间，编译器会<strong>获取模板的定义，并将模板参数（如 T 或非类型参数）替换为程序员提供的具体类型（如 int、double）或值</strong>。这个过程会<strong>生成一个针对这些特定参数的普通类或函数的定义</strong>。例如，对于<code>std::vector&lt;int&gt;</code>，编译器会生成一个类似于 <code>class vector_int &#123; ... &#125;</code> 的具体类定义（名称是经过修饰的，下面会提到）。对于 <code>std::vector&lt;std::string&gt;</code>，则会生成另一个独立的类定义。由于一个模板可以被多种不同的类型实例化（例如 <code>MyClass&lt;int&gt;</code> 和 <code>MyClass&lt;double&gt;</code>），编译器需要<strong>为每个实例化版本生成唯一的内部名称，以便链接器能够正确区分和链接它们</strong>。这个过程称为<strong>名称修饰</strong>。例如，<code>void foo&lt;int&gt;(int)</code> 和 <code>void foo&lt;char&gt;(char)</code> 在编译后会有不同的符号名。</p>
+<p>这些由模板实例化产生的具体类和函数定义随后会被正常编译，就像手写了这些特定版本的代码一样。编译器会为每个不同的实例化版本生成相应的机器码。<strong>模板的定义（不仅仅是声明）通常需要对编译器可见，以便在需要时进行实例化</strong>。这就是为什么<strong>模板的实现通常放在头文件中</strong>。如果编译器在某个编译单元中看到了模板的使用但找不到其定义，它就无法进行实例化（每个 cpp 是独立的 translation unit 分开编译的，如果在一个 cpp 里定义而在另一个 cpp 中使用，就无法找到其定义，具体见<a href="/2025/05/21/cpp-templates/"> cpp-templates</a>）。</p>
 <p>编译器处理模板时，名称查找分两个阶段进行：</p>
 <ul>
 <li>第一阶段 (定义时/解析时): 在模板定义被解析但尚未实例化时，编译器会查找非依赖名称 (non-dependent names)。这些是不依赖于模板参数的名称（例如，全局函数名、在模板外部定义的类型名）。此时会进行基本的语法检查。</li>
@@ -2185,7 +2184,7 @@ config.cpp</p>
 <li>显式实例化: 可以明确指示编译器为特定的模板参数集生成代码。如：</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">std</span>::vector&lt;MyClass&gt;; <span class="hljs-comment">// 显式实例化整个类</span><br><span class="hljs-keyword">template</span> <span class="hljs-type">int</span> <span class="hljs-built_in">myFunc</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-type">double</span>); <span class="hljs-comment">// 显式实例化一个函数模板</span><br></code></pre></td></tr></table></figure>
-<p>这可以用于控制代码生成的位置，有时用于减少编译时间或管理代码大小，尤其是在库的实现中。<code>extern template</code> 声明则可以防止在多个编译单元中重复实例化，以加快编译。</p>
+<p>这可以用于<strong>控制代码生成的位置，有时用于减少编译时间</strong>或管理代码大小，尤其是在库的实现中。<code>extern template</code> 声明则可以防止在多个编译单元中重复实例化，以加快编译。</p>
 <h3 id="2-模板的全特化与偏特化">(2) 模板的全特化与偏特化</h3>
 <p>通用的 <code>template &lt;typename T&gt; ...</code> 形式被称为<strong>主模板 (Primary Template)</strong>。特化就是为主模板提供一个备用定义。</p>
 <h4 id="模板全特化-full-specialization">模板全特化 (Full Specialization)</h4>
@@ -2243,7 +2242,7 @@ config.cpp</p>
 </ul>
 </li>
 <li>
-<p><strong>适用性</strong>：只能用于<strong>类模板</strong>（和 C++14 后的变量模板），<strong>不能用于函数模板</strong>。（对于函数，我们使用函数重载来达到类似效果）。</p>
+<p><strong>适用性</strong>：只能用于<strong>类模板</strong>（和 C++14 后的变量模板），<strong>不能用于函数模板</strong>。（对于函数，使用函数重载来达到类似效果）。</p>
 </li>
 <li>
 <p>示例：假设有一个通用的打印类。</p>
@@ -2812,7 +2811,27 @@ config.cpp</p>
 <p>值得注意的是，指向类的<strong>非静态成员函数</strong>的指针与上面讨论的普通函数指针是不同的，因为它们需要一个类的实例来调用（即需要 <code>this</code> 指针）。例如：<code>int (MyClass::*memberFuncPtr)(int);</code>。</p>
 </li>
 </ul>
-<h2 id="33">33.</h2>
+<h2 id="33-traits">33. Traits</h2>
+<h3 id="basics">Basics</h3>
+<ul>
+<li>萃取（Traits）是一种<strong>编译期</strong>技术，用来从一个类型（Type）中“提取”出类型相关的信息。当编写一个模板时，可能需要知道传入的类型 T 的一些特性，以便为不同的 T 提供最优化的或正确的代码实现。</li>
+</ul>
+<p>萃取技术的核心是模板特化（Template Specialization）。其实现通常遵循以下三步：</p>
+<ul>
+<li>定义一个基础的模板结构体：这个结构体定义了一个通用的、默认的属性集合。</li>
+<li>为特定类型提供特化版本：为那些需要特殊处理的类型（如原生指针），提供一个或多个特化的模板结构体，其中包含该类型的正确信息。</li>
+<li>使用萃取：在泛型代码中，通过这个统一的模板结构体来获取类型信息。编译器会自动根据传入的类型选择最匹配的版本（优先选择特化版本）。</li>
+</ul>
+<h3 id="c标准库中的-traits">C++标准库中的 traits</h3>
+<h4 id="stditerator_traits">std::iterator_traits</h4>
+<p>解决了<strong>原生指针和类类型迭代器</strong>的接口统一问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 假设有这样一个泛型函数</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">some_function</span><span class="hljs-params">(Iterator it)</span> </span>&#123;<br>    <span class="hljs-comment">// 如何获取迭代器指向的元素类型？</span><br>    <span class="hljs-comment">// 如果直接写 Iterator::value_type，当 Iterator 是 `int*` 时就会编译失败。</span><br>    <span class="hljs-comment">// 正确的做法是使用 iterator_traits</span><br>    <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::value_type some_value;<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>标准库为原生指针 <code>T*</code> 提供了 iterator_traits 的特化版本，其内部定义了 value_type 为 T。这样，无论传入的是 <code>std::vector&lt;int&gt;::iterator</code> 还是 <code>int*</code>，<code>std::iterator_traits&lt;Iterator&gt;::value_type</code> 都能正确地提取出其指向的元素类型（在这个例子中都是 int）。</p>
+<h4 id="lttype_traitsgt-头文件"><code>&lt;type_traits&gt;</code> 头文件</h4>
+<p>从 C++11 开始，标准库提供了 <code>&lt;type_traits&gt;</code> 头文件，其中包含大量预定义的萃取工具，用于在编译期查询类型的各种属性，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::is_integral&lt;T&gt; <span class="hljs-comment">// 判断 T 是否为整数类型。</span><br><br>std::is_pointer&lt;T&gt; <span class="hljs-comment">//判断 T 是否为指针。</span><br><br>std::is_class&lt;T&gt; <span class="hljs-comment">// 判断 T 是否为类或结构体。</span><br><br>std::is_pod&lt;T&gt; <span class="hljs-comment">// (C++11, 已在 C++20 中弃用，被 std::is_trivial 和 std::is_standard_layout 替代) 判断 T 是否为 POD 类型。</span><br><br>std::remove_reference&lt;T&gt;::type <span class="hljs-comment">// 移除类型的引用。</span><br><br>std::add_const&lt;T&gt;::type <span class="hljs-comment">// 为类型添加 `const` 限定符。</span><br></code></pre></td></tr></table></figure>
+<h3 id="more-about-traits">More about Traits</h3>
+<p>See <a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/cpp/type_traits-header-in-cpp/">https://www.geeksforgeeks.org/cpp/type_traits-header-in-cpp/</a>.</p>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <p>国际标准化组织（ISO）提出的网络通信模型，用来描述网络系统中通信的分层结构，使得不同厂商设备或系统之间可以实现互联互通。</p>
