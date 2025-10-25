@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-10-13T05:43:29.176Z">
+<meta property="article:modified_time" content="2025-10-25T05:37:24.890Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          48k words
+          49k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          397 mins
+          411 mins
         
       </span>
     
@@ -1473,7 +1473,13 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <ul>
 <li>
 <p>若要构造只能在堆上创建的类，应将<strong>构造函数设为私有</strong>并通过<strong>静态工厂函数</strong>（工厂方法是一种创建对象的设计模式，<br>
-它将对象的创建过程封装在一个静态函数中，而不是让用户直接 new 或构造对象）创建对象；</p>
+它将对象的创建过程封装在一个静态函数中，而不是让用户直接 new 或构造对象）<strong>在堆上</strong>创建对象；<br>
+PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
+<ul>
+<li>简单工厂：用一个类+一个方法+switch 来创建对象。（违反开闭）</li>
+<li>工厂方法：用继承的方式，让子类工厂去创建具体对象。（符合开闭）</li>
+<li>抽象工厂：用一个工厂来创建一整套相关的对象（产品家族）。（符合开闭）</li>
+</ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">HeapOnly</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// 构造函数私有，外部不能直接 new 或定义对象</span><br>    <span class="hljs-built_in">HeapOnly</span>() &#123;&#125;<br>    ~<span class="hljs-built_in">HeapOnly</span>() &#123;&#125;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 提供静态工厂方法，在堆上创建对象</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> HeapOnly* <span class="hljs-title">create</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">HeapOnly</span>();<br>        <span class="hljs-comment">// return std::shared_ptr&lt;MyClass&gt;(new MyClass()); // 或者返回智能指针从而只能通过智能指针创建</span><br>        <span class="hljs-comment">// std::shared_ptr&lt;T&gt;(new T(...)) 是在类内部调用构造函数，有权限访问私有构造；</span><br>        <span class="hljs-comment">// 而 std::make_shared&lt;T&gt;() 是标准库函数模板，在类外部调用构造函数，无法访问私有成员</span><br>    &#125;<br><br>    <span class="hljs-comment">// 提供释放接口（防止 delete 出错）</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">destroy</span><span class="hljs-params">(HeapOnly* ptr)</span> </span>&#123;<br>        <span class="hljs-keyword">delete</span> ptr;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
@@ -1867,7 +1873,7 @@ config.cpp</p>
 <li><code>extern &quot;C&quot;</code>是 cpp 提供的关键字，用于告诉编译器按照 C 语言方式<strong>编译和链接</strong>函数或变量，以解决 C++ <strong>名称修饰</strong>（name mangling）带来的兼容性问题。</li>
 <li>为什么需要 extern “C”?
 <ul>
-<li>C++ <strong>支持函数重载</strong>，所以编译器会在<strong>编译时修改函数名</strong>，加入参数类型信息；C 语言不支持重载，其函数名在编译后不会被修饰。如果 C++ 直接调用 C 语言函数（没有  extern “C”），链接时找不到匹配的名称，会报  undefined reference  错误。</li>
+<li>C++ <strong>支持函数重载</strong>，所以编译器会在<strong>编译时修改函数名</strong>，加入参数类型信息；C 语言不支持重载，其函数名在编译后不会被修饰。如果 C++ 直接调用 C 语言函数（没有  extern “C”），<strong>链接时找不到匹配的名称</strong>，会报  undefined reference  错误。</li>
 <li>PS：VS2022 可以打开 Tools-Command line-Developer command prompt，cd 进入.obj（.o）文件所在的文件夹来分析编译的结果，例如查看符号表。</li>
 </ul>
 </li>
@@ -1885,17 +1891,26 @@ config.cpp</p>
 </li>
 </ul>
 <h3 id="3-inline-和-extern">(3) inline 和 extern</h3>
+<ul>
+<li>
 <p>由前述可知，extern 修饰某个函数/变量，可以表明该函数/变量的定义在其他文件中，从而避免重复定义。<br>
-假设有 test.h, test.cpp, and main.cpp 三个文件。test.h 中定义（实现）一个 func1，test.cpp 和 main.cpp 中都 include 了 test.h，并使用 func1。此时编译 main.cpp 会出现错误。</p>
-<p>由前可知，此错误可以用 extern 或 inline 解决，在 test.cpp 中用 extern 声明外部函数 func1。</p>
-<p>而新特性下的 inline 已经不在表明是否内联，是否内联现在完全由编译器决定。新特性下的 inline 允许函数在多个文件中定义，编译时合并为一份，避免多重定义错误。每个文件中出现的定义都被认为是“同一个函数的多次定义”，链接器不会报错。这样用法主要用于函数，也可用于变量（C++17 起）。在上述例子中，可以在头文件里用 inline 修饰 func1。值得注意的是，不同文件里的多个定义应该完全一样，因为如果定义不同不同编译器可能随机使用某个定义。</p>
+假设有 test.h, test.cpp, and main.cpp 三个文件。test.h 中定义（实现）一个 func1，test.cpp 和 main.cpp 中都 include 了 test.h，并使用 func1。此时编译 main.cpp 会出现错误。由前可知，此错误可以用 extern 或 inline 解决，在 test.cpp 中用 extern 声明外部函数 func1。而新特性下的 inline 已经不在表明是否内联，是否内联现在完全由编译器决定。新特性下的 inline 允许函数在多个文件中定义，编译时合并为一份，避免多重定义错误。每个文件中出现的定义都被认为是“同一个函数的多次定义”，链接器不会报错。这样用法主要用于函数，也可用于变量（C++17 起）。在上述例子中，可以在头文件里用 inline 修饰 func1。值得注意的是，<strong>不同文件里的多个定义应该完全一样，因为如果定义不同不同编译器可能随机使用某个定义</strong>。</p>
+</li>
+<li>
+<p>Vague Linkage（模糊链接） 是一种 C++ 规则，它允许模板和内联函数在多个 .cpp 文件中被重复定义，链接器在链接时会“智能地”将这些重复的定义合并成一个，而不是像对待普通函数那样报错。前提是所有这些重复的定义必须完全一致（遵守 ODR (One Definition Rule)），否则会导致未定义行为。</p>
+</li>
+<li>
 <p>extern 和 inline 的对比：</p>
 <ul>
 <li>编译器行为：extern 是声明符号，定义在别处；inline 允许多次定义（每个 翻译单元 TU 都有）</li>
 <li>是否生成多次拷贝：extern 只在定义处生成；inline 则每个 .cpp 中可能各自展开。注意如果在头文件中使用 inline 定义了一个函数，并在多个 .cpp 文件中包含了这个头文件，不会生成多个冲突的拷贝，也不会导致链接错误。因为编译器+链接器会识别 inline 函数的“唯一定义”，只保留一份。编译器在多个 .cpp 中确实会生成对应的函数体（可能优化为内联），但链接器会做合并处理：只保留一份最终定义。如果启用 LTO（链接时优化），可能根本不生成函数体，而直接内联展开。“生成函数体”是指编译器在每个 .cpp（翻译单元）中把 inline 函数编译为机器码（或中间表示），为后续链接或内联做准备。但“多个拷贝”是指链接时在最终可执行文件或静态库中，保留多个独立的全局符号定义，从而导致重复定义错误或浪费空间。</li>
 <li>使用场景：extern 用于声明全局变量（跨多个文件共享一个全局变量）/ 外部接口；inline 定义 header-only 工具函数 / 模板函数</li>
 </ul>
-<p>PS: 用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号。但是不推荐<strong>在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本</strong>。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline  则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
+</li>
+<li>
+<p>用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。<strong>即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号</strong>。但是不推荐<strong>在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本</strong>。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline 则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
+</li>
+</ul>
 <h3 id="4-内联函数-和-宏define的区别">(4) 内联函数 和 宏（#define）的区别</h3>
 <p>内联函数是语义完整、类型安全的函数，由编译器在编译阶段决定是否内联；而宏是<strong>预处理器文本替换</strong>，不进行类型检查，容易引发副作用和调试困难。除非必要，现代 C++ 推荐使用 inline 函数代替函数类宏。</p>
 <h2 id="23-vector">23. vector</h2>
@@ -2156,6 +2171,100 @@ config.cpp</p>
 </ul>
 <h2 id="28-字节序大端序小端序">28. 字节序：大端序/小端序</h2>
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/YobhzS5gYBfYC5DXFXpLRw">https://mp.weixin.qq.com/s/YobhzS5gYBfYC5DXFXpLRw</a></p>
+<h3 id="什么是字节序byte-order">什么是字节序（Byte Order）？</h3>
+<p>在计算机中，数据通常以字节（Byte, 8 bits）为单位存储。但是，现代计算机处理的大多数数据类型（如 <code>int</code>、<code>long</code>、<code>float</code>）都占用多个字节（例如，一个 32 位的 <code>int</code> 占用 4 个字节）。当需要把一个多字节的数据存储到内存中时，就面临一个问题：<strong>这 4 个字节应该按照什么顺序存放？</strong></p>
+<p><strong>字节序</strong>（Byte Order，或 Endianness）就是指<strong>多字节数据在内存中存储的顺序</strong>。</p>
+<p>主要有两种顺序：<strong>大端序（Big-Endian）</strong> 和 <strong>小端序（Little-Endian）</strong>。</p>
+<h3 id="大端序big-endian">大端序（Big-Endian）</h3>
+<ul>
+<li><strong>定义：</strong> 数据的高位字节（Most Significant Byte, MSB）存放在低地址，低位字节（Least Significant Byte, LSB）存放在高地址。</li>
+<li><strong>特点：</strong> 符合人类的阅读习惯（从左到右，从高位到低位）。</li>
+<li><strong>例子：</strong> 假设有一个 32 位整数 <code>0x12345678</code>，它在内存（假设起始地址为 <code>0x100</code>）中的存储方式如下：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">内存地址</th>
+<th style="text-align:center">0x100</th>
+<th style="text-align:center">0x101</th>
+<th style="text-align:center">0x102</th>
+<th style="text-align:center">0x103</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>存储内容</strong></td>
+<td style="text-align:center"><strong>0x12</strong> (高位)</td>
+<td style="text-align:center"><strong>0x34</strong></td>
+<td style="text-align:center"><strong>0x56</strong></td>
+<td style="text-align:center"><strong>0x78</strong> (低位)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="小端序little-endian">小端序（Little-Endian）</h3>
+<ul>
+<li><strong>定义：</strong> 数据的低位字节（LSB）存放在低地址，高位字节（MSB）存放在高地址。</li>
+<li><strong>特点：</strong> 更符合计算机电路处理的逻辑（低位在低地址，方便进行加法进位等运算），也是目前主流 PC 架构（x86, ARM）最常用的字节序。</li>
+<li><strong>例子：</strong> 同样的 32 位整数 <code>0x12345678</code>，在内存中的存储方式如下：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">内存地址</th>
+<th style="text-align:center">0x100</th>
+<th style="text-align:center">0x101</th>
+<th style="text-align:center">0x102</th>
+<th style="text-align:center">0x103</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>存储内容</strong></td>
+<td style="text-align:center"><strong>0x78</strong> (低位)</td>
+<td style="text-align:center"><strong>0x56</strong></td>
+<td style="text-align:center"><strong>0x34</strong></td>
+<td style="text-align:center"><strong>0x12</strong> (高位)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="网络字节序network-byte-order">网络字节序（Network Byte Order）</h3>
+<ul>
+<li>
+<p><strong>定义：</strong> 在计算机网络中传输数据时，为了保证不同类型的计算机（大端序或小端序）能够正确地理解数据，TCP/IP 协议规定了一种统一的字节序标准，这就是网络字节序。</p>
+</li>
+<li>
+<p><strong>标准：</strong> 网络字节序<strong>统一规定为大端序（Big-Endian）</strong>。</p>
+</li>
+<li>
+<p><strong>原因：</strong> 互联网诞生之初，很多大型主机（如 IBM Mainframe）都使用大端序。为了避免混乱，协议制定者选择了当时更有影响力的大端序作为标准。因此，在进行网络编程时，如果主机是小端序（比如大多数人的 PC），你在发送多字节数据（如 IP 地址、端口号）之前，必须先把它从<strong>主机字节序（Host Byte Order）</strong> 转换为<strong>网络字节序（Network Byte Order）</strong>。</p>
+</li>
+<li>
+<p>常用函数：<code>htons()</code> (Host to Network Short), <code>htonl()</code> (Host to Network Long)。</p>
+</li>
+<li>
+<p>接收方收到数据后，再用 <code>ntohs()</code>, <code>ntohl()</code> 转换回自己的主机字节序。</p>
+</li>
+</ul>
+<h3 id="为什么要有字节序">为什么要有字节序？</h3>
+<p>根本原因在于<strong>处理器架构设计的不同选择</strong>。</p>
+<ul>
+<li><strong>历史原因：</strong> 早期的 CPU 设计者们在“哪种方式更高效、更合理”上产生了分歧。
+<ul>
+<li><strong>Intel (x86)<strong>选择了</strong>小端序</strong>。</li>
+<li><strong>Motorola (68k)<strong>选择了</strong>大端序</strong>。</li>
+<li><strong>PowerPC, ARM</strong> 等架构后来甚至支持<strong>双端序（Bi-endian）</strong>，可以切换模式。</li>
+</ul>
+</li>
+<li><strong>没有绝对优劣：</strong>
+<ul>
+<li><strong>大端序</strong>对人类更友好，方便调试时直接查看内存（看到的顺序和书写顺序一致），也方便比较大小（先比高位）。</li>
+<li><strong>小端序</strong>在某些底层运算（如任意精度的整数加法）时稍微方便一点，因为是从低位开始计算，进位可以直接向高地址传播。</li>
+</ul>
+</li>
+</ul>
+<p>由于没有一种方式具有压倒性优势，导致两种标准一直并存至今，这才产生了“字节序”兼容性的问题。</p>
+<h3 id="如何确定系统的字节序">如何确定系统的字节序？</h3>
+<p>将一个整数值 1 存储到内存中，使用 char* 类型的指针访问内存。当系统是小端序时，低字节（1）会存储在低地址处，输出值为 1。如果是大端序，则高字节（1）会存储在低地址处，输出值为 0。</p>
 <h2 id="29-浅拷贝-和-深拷贝">29. 浅拷贝 和 深拷贝</h2>
 <h3 id="1-浅拷贝shallow-copy">(1) 浅拷贝（Shallow Copy）</h3>
 <p>浅拷贝是指在拷贝对象时，仅复制对象的成员变量的值，而不复制对象内部动态分配的资源。对于指针成员变量，浅拷贝会复制指针的值（即地址），使得<strong>原对象和新对象指向同一块内存区域</strong>，共享同个资源。这种方式在对象中没有指针或资源管理需求时是可行的，但在涉及动态内存分配时可能导致问题，如多个对象共享同一资源，进而在析构时出现重复释放(double free)的问题。</p>
@@ -2184,7 +2293,7 @@ config.cpp</p>
 <li>显式实例化: 可以明确指示编译器为特定的模板参数集生成代码。如：</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">std</span>::vector&lt;MyClass&gt;; <span class="hljs-comment">// 显式实例化整个类</span><br><span class="hljs-keyword">template</span> <span class="hljs-type">int</span> <span class="hljs-built_in">myFunc</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-type">double</span>); <span class="hljs-comment">// 显式实例化一个函数模板</span><br></code></pre></td></tr></table></figure>
-<p>这可以用于<strong>控制代码生成的位置，有时用于减少编译时间</strong>或管理代码大小，尤其是在库的实现中。<code>extern template</code> 声明则可以防止在多个编译单元中重复实例化，以加快编译。</p>
+<p>这可以用于<strong>控制代码生成的位置，有时用于减少编译时间</strong>或管理代码大小，尤其是在库的实现中。<code>extern template</code> 声明则可以<strong>防止在多个编译单元中重复实例化，以加快编译</strong>。</p>
 <h3 id="2-模板的全特化与偏特化">(2) 模板的全特化与偏特化</h3>
 <p>通用的 <code>template &lt;typename T&gt; ...</code> 形式被称为<strong>主模板 (Primary Template)</strong>。特化就是为主模板提供一个备用定义。</p>
 <h4 id="模板全特化-full-specialization">模板全特化 (Full Specialization)</h4>
@@ -2382,7 +2491,7 @@ config.cpp</p>
 </ul>
 </li>
 <li>
-<p>*缺点:**</p>
+<p><strong>缺点:</strong></p>
 <ul>
 <li><strong>不灵活</strong>: 模板的作者必须预先知道并显式实例化所有用户可能用到的类型组合。如果用户尝试使用一个未被显式实例化的类型（例如 <code>MyData&lt;float&gt;</code>），将会导致链接错误。这使得模板的通用性大大降低。</li>
 <li><strong>维护负担</strong>: 每次添加对新类型的支持，都需要修改 <code>.cpp</code> 文件并添加相应的显式实例化。</li>
@@ -2832,6 +2941,44 @@ config.cpp</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::is_integral&lt;T&gt; <span class="hljs-comment">// 判断 T 是否为整数类型。</span><br><br>std::is_pointer&lt;T&gt; <span class="hljs-comment">//判断 T 是否为指针。</span><br><br>std::is_class&lt;T&gt; <span class="hljs-comment">// 判断 T 是否为类或结构体。</span><br><br>std::is_pod&lt;T&gt; <span class="hljs-comment">// (C++11, 已在 C++20 中弃用，被 std::is_trivial 和 std::is_standard_layout 替代) 判断 T 是否为 POD 类型。</span><br><br>std::remove_reference&lt;T&gt;::type <span class="hljs-comment">// 移除类型的引用。</span><br><br>std::add_const&lt;T&gt;::type <span class="hljs-comment">// 为类型添加 `const` 限定符。</span><br></code></pre></td></tr></table></figure>
 <h3 id="more-about-traits">More about Traits</h3>
 <p>See <a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/cpp/type_traits-header-in-cpp/">https://www.geeksforgeeks.org/cpp/type_traits-header-in-cpp/</a>.</p>
+<h2 id="34-前向声明forward-declaration">34. 前向声明（Forward Declaration）</h2>
+<ul>
+<li>前向声明是一种在不提供完整定义的情况下，提前向编译器声明某个标识符（如类、函数或变量）存在的方式。</li>
+<li>为什么需要前向声明？
+<ul>
+<li>（1）打破“循环依赖”（Circular Dependency）：这是前向声明最核心的用途。当两个类（或头文件）互相引用时，就会产生循环依赖。这时只需要在一个头文件中用前向声明来代替<code>#include</code>。</li>
+<li>（2）减少编译时间
+<ul>
+<li>减少编译时间：<code>#include</code> 指令本质上是“复制-粘贴”。如果在一个被广泛使用的头文件（例如 Scene.h）中 #include 了一个很庞大、很复杂的头文件（例如 PhysicsEngine.h），那么每一个 #include “Scene.h” 的 .cpp 文件都必须重新解析一遍 PhysicsEngine.h，即使它根本用不到物理引擎。</li>
+<li>如果可以，优先在 .h 文件中使用前向声明。只在 .cpp 文件中（或者在绝对必要时才在 .h 文件中）使用 #include。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>局限性（不完整类型）<br>
+当对一个类进行了前向声明，编译器就认为它是一个<strong>不完整类型</strong>（Incomplete Type）。对于一个看不到完整定义的不完整类型，
+<ul>
+<li>可以做的事（因为编译器不需要知道类的大小和布局）：
+<ul>
+<li>声明指向该类型的指针：<code>MyClass* p;</code></li>
+<li>声明对该类型的引用：<code>MyClass&amp; r;</code></li>
+<li>声明返回类型或参数类型为该类型的函数：<code>void Func(MyClass* p);</code> 或 <code>MyClass&amp; GetInstance();</code></li>
+</ul>
+</li>
+<li>不能做的事（因为编译器需要知道类的大小和布局）：
+<ul>
+<li>创建该类的对象（实例化）：<code>MyClass obj; // 错误！编译器不知道要分配多少内存</code></li>
+<li>在类中将其作为成员变量（按值）</li>
+<li>访问其成员：<code>p-&gt;DoSomething(); // 错误！编译器不知道 MyClass 是否有 DoSomething 方法</code></li>
+<li>用它作为基类（继承）：<code>class Derived : public MyClass &#123; ... &#125;; // 错误！</code></li>
+<li>对它使用 sizeof 运算符：<code>int size = sizeof(MyClass); // 错误！</code></li>
+<li>（通常）不能用于模板参数：<code>std::vector&lt;MyClass&gt; vec; // 错误！vector 需要知道 MyClass 的大小和构造函数</code></li>
+<li>注意：<code>std::vector&lt;MyClass*&gt;</code> 是完全合法的，因为指针是完整类型。C++17 中的 std::unique_ptr 等智能指针进行了一些改进，允许在某些情况下使用不完整类型，但你仍然需要在析构函数定义的地方看到完整类型。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <p>国际标准化组织（ISO）提出的网络通信模型，用来描述网络系统中通信的分层结构，使得不同厂商设备或系统之间可以实现互联互通。</p>
