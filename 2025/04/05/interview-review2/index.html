@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-10-25T05:37:24.890Z">
+<meta property="article:modified_time" content="2025-10-26T06:41:11.500Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          49k words
+          50k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          411 mins
+          417 mins
         
       </span>
     
@@ -284,7 +284,7 @@
                 <p>I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer network and os part? Let’s see if we have enough room for these two parts in this blog, or we need another new blog for them …). Anyway, let’s review cpp basics. Again, this is for interviews in Chinese, so I’ll use English only when it’s necessary.</p>
 <h1 id="c-basics">C++ Basics</h1>
 <h2 id="1-多态虚函数">1. 多态/虚函数</h2>
-<p>虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当用基类的指针来操作一个派生类的时候，这张虚函数表就指明了实际应该调用的函数。</p>
+<p>虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当<strong>用基类的指针来操作一个派生类</strong>的时候，这张虚函数表就指明了实际应该调用的函数。</p>
 <h3 id="1-多态">(1) 多态</h3>
 <ul>
 <li>定义：同一个接口可以表现出不同行为</li>
@@ -301,10 +301,10 @@
 <ul>
 <li>基类需要有虚函数
 <ul>
-<li>PS: 用派生类的指针去访问/调用虚函数时，实际上并未发生动态多态，因为编译时就能确定对象类型为派生类型，然后直接生成调用派生类虚函数的代码即可，这种叫做静态绑定。这里静态绑定是指编译时就能确定函数调用地址，而动态绑定是指在运行时根据对象实际类型，通过 vptr-&gt;vtable 确定调用地址。</li>
+<li>PS: 用派生类的指针去访问/调用虚函数时，实际上并未发生动态多态，因为编译时就能确定对象类型为派生类型，然后直接生成调用派生类虚函数的代码即可，这种叫做静态绑定。这里<strong>静态绑定是指编译时就能确定函数调用地址，而动态绑定是指在运行时根据对象实际类型，通过 vptr-&gt;vtable 确定调用地址</strong>。</li>
 </ul>
 </li>
-<li>子类使用 override 显式重写</li>
+<li><strong>子类使用 override 显式重写</strong></li>
 <li>通过<strong>基类</strong>指针或引用调用</li>
 </ul>
 </li>
@@ -320,7 +320,7 @@
 <p>虚函数的实现依赖于虚函数表（vtable）机制。</p>
 <ul>
 <li>当一个类中包含一个虚函数时，编译器会为该类创建一个虚函数表（Virtual Table）。这个表存储着该类的虚函数指针，这些指针指向实际实现该虚函数（most derived function）的代码地址。虚函数表实际类似一个虚函数指针数组。</li>
-<li>每个对象实例（object）都隐含一个指向该类的虚函数表的指针（类成员），这个指针在对象创建时被初始化，通常是作为对象的第一个成员变量。注意仅当该类中有虚函数或继承了虚函数时，才会生成这个 <code>_vptr</code>。</li>
+<li>每个对象实例都隐含一个指向该类的虚函数表的指针（类成员），<strong>这个指针在对象创建时被初始化</strong>，通常是作为对象的第一个成员变量。注意仅当该类中有虚函数或继承了虚函数时，才会生成这个 <code>_vptr</code>。</li>
 <li>当调用一个虚函数时，编译器会<strong>通过对象的虚函数指针查找到该对象所属的类的虚函数表</strong>，并<strong>根据函数的索引值（通常是函数在表中的位置，编译时就能确定）来找到对应的虚函数地址</strong>。然后将控制转移到该地址，实际执行该函数的代码。</li>
 <li>对于派生类，其虚函数表通常是在基类的虚函数表的基础上扩展而来的。在派生类中，如果重写了基类的虚函数，那么该函数在派生类的虚函数表中的地址会被更新为指向派生类中实际实现该函数的代码地址。</li>
 </ul>
@@ -402,14 +402,14 @@
 <ul>
 <li>普通虚函数未被派生类重写，如果基类指针调用虚函数的话就直接调用基类中的实现。</li>
 <li>纯虚函数（= 0）表示类是抽象的，必须在派生类中重写，否则派生类也成为抽象类，不能实例化。<br>
-如果你试图实例化未重写纯虚函数的类，会在编译时报“无法实例化抽象类”的错误。</li>
+如果试图实例化未重写纯虚函数的类，会在编译时报“无法实例化抽象类”的错误。</li>
 </ul>
 </li>
 </ul>
 <h3 id="6-纯虚函数">(6) 纯虚函数</h3>
 <ul>
 <li>令普通的虚函数=0，从而得到特殊的虚函数，它没有实现，只声明接口，目的是强制派生类必须重写它。</li>
-<li>一个类中 只要有一个纯虚函数，那么这个类就成为了一个 抽象类（abstract class）。
+<li>一个类中 只要有一个纯虚函数，那么这个类就成为了一个抽象类（abstract class）。
 <ul>
 <li><strong>抽象类不能实例化对象</strong></li>
 <li>通常用于定义接口或基础模板行为</li>
@@ -420,7 +420,7 @@
 <ul>
 <li>抽象出一个接口（函数签名）</li>
 <li>不能在该类中实现逻辑（除非你显式写定义，定义后仍不能实例化，但可以在派生类里调用）</li>
-<li>必须在派生类中实现，否则派生类也变成抽象类，不能被实例化</li>
+<li><strong>必须在派生类中实现，否则派生类也变成抽象类，不能被实例化</strong></li>
 </ul>
 </li>
 </ul>
@@ -430,7 +430,7 @@
 <li>内联函数（inline 函数在编译时被展开，虚函数在运行时才能动态的绑定）</li>
 <li>静态成员函数</li>
 <li>友元函数（因为 C++不支持友元函数的继承）</li>
-<li>lamda 函数</li>
+<li>lambda 函数</li>
 </ul>
 <h3 id="8-重载重写隐藏的区别">(8) 重载/重写/隐藏的区别</h3>
 <ul>
@@ -549,7 +549,7 @@
 <li>虚继承下 vtable 的特殊布局
 <ul>
 <li>虚基类的子对象可能不在派生类开头</li>
-<li>编译器会生成一个特殊的 “虚基偏移表”（virtual base offset table，通常被实现为一个<strong>偏移量数组</strong>），这个表存储在每个含有虚继承的类的虚表（vtable）中，它是编译器在编译含有虚继承的类（如上例中的 B/C）时为该类生成的。注意这里没有单独存在的“虚基表对象”，而是在类的 vtable 中预留了指向虚基类偏移的槽位表中每个条目对应一个虚基类，条目的值是<strong>从派生类对象的起始位置到虚基类子对象起始位置的字节偏移量</strong>。实际的偏移值是由最底层的派生类（如 D）决定的。VBOT 在<strong>运行时</strong>用于动态调整指针，以便访问虚基类的成员。当指向派生类的指针被转换为指向虚基类的指针时，编译器使用 VBOT 来计算基类子对象的正确地址，确保指针指向内存中的正确位置。如果一个类使用了虚继承，则编译期在构造其对象时会自动插入一个隐藏成员虚基表指针（vbptr），在构造函数中令指针指向类的虚基偏移表。注意区别“表”是绑定类的，“指针”是绑定对象实例的。</li>
+<li>编译器会生成一个特殊的 “虚基偏移表”（virtual base offset table，通常被实现为一个<strong>偏移量数组</strong>），<strong>这个表存储在每个含有虚继承的类的虚表（vtable）中</strong>，它是编译器在编译含有虚继承的类（如上例中的 B/C）时为该类生成的。注意这里没有单独存在的“虚基表对象”，而是在类的 vtable 中预留了指向虚基类偏移的槽位表中每个条目对应一个虚基类，条目的值是<strong>从派生类对象的起始位置到虚基类子对象起始位置的字节偏移量</strong>。实际的偏移值是由最底层的派生类（如 D）决定的。VBOT 在<strong>运行时</strong>用于动态调整指针，以便访问虚基类的成员。当指向派生类的指针被转换为指向虚基类的指针时，编译器使用 VBOT 来计算基类子对象的正确地址，确保指针指向内存中的正确位置。如果一个类使用了虚继承，则编译期在构造其对象时会自动插入一个隐藏成员虚基表指针（vbptr），在构造函数中令指针指向类的虚基偏移表。注意区别“表”是绑定类的，“指针”是绑定对象实例的。</li>
 <li>内存结构示意：<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[D object]</span><br>├── <span class="hljs-selector-tag">B</span> subobject<br>│   └── vptr_B -&gt; vtable_B<br>│              -&gt; <span class="hljs-attribute">offset</span> <span class="hljs-selector-tag">to</span> <span class="hljs-selector-tag">A</span><br>├── C subobject<br>│   └── vptr_C -&gt; vtable_C<br>│              -&gt; <span class="hljs-attribute">offset</span> <span class="hljs-selector-tag">to</span> <span class="hljs-selector-tag">A</span><br>├── shared <span class="hljs-selector-tag">A</span> subobject<br>│   └── vptr_A -&gt; vtable_A<br></code></pre></td></tr></table></figure>
 </li>
 <li><strong>不同于非虚继承，虚继承不能用固定指针偏移，必须运行时查表确定偏移</strong>。这是因为虚基类的内存位置在派生类中是“不固定”的。虚继承支持多路径继承、深度继承、多个派生类共享同一个虚基类，所以编译器不能在某个类定义时就固定虚基类的地址，只能等到最底层派生类生成对象时再确定。<br>
@@ -997,12 +997,12 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <li>主要用于实现，从而提高程序的性能
 <ul>
 <li><strong>移动语义</strong></li>
-<li><strong>避免不必要的拷贝</strong>.<code>std::move</code>用于<strong>将左值强制转换为右值引用</strong>，从而触发移动语义而非拷贝。
+<li><strong>避免不必要的拷贝</strong>。<code>std::move</code>用于<strong>将左值强制转换为右值引用</strong>，从而触发移动语义而非拷贝。注意<code>std::move</code>本身并不“移动”任何东西，它只是一个类型转换器（cast），它将其参数无条件地转换为<strong>右值引用</strong>。
 <ul>
 <li><code>newString = std::move(origString) &lt;-&gt; newString = std::static_cast&lt;std::string&amp;&amp;&gt;(origString)</code></li>
 </ul>
 </li>
-<li><strong>完美转发</strong>. 将函数参数精确地传递给另一个函数，无论它是左值还是右值。通过结合<code>std::forward</code>和模板，能够编写泛型函数，避免不必要的拷贝。</li>
+<li><strong>完美转发</strong>。将函数参数精确地传递给另一个函数，无论它是左值还是右值。通过结合<code>std::forward</code>和模板，能够编写泛型函数，避免不必要的拷贝。</li>
 </ul>
 </li>
 </ul>
@@ -1048,16 +1048,16 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <li>
 <p><code>std::move</code>  的底层原理</p>
 <ul>
-<li><code>std::move()</code>  只是<strong>显式地将左值转换为右值</strong>，从而<strong>触发移动构造或移动赋值</strong>，<code>static_cast&lt;T&amp;&amp;&gt;</code>，不会改变对象的生命周期。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::<span class="hljs-function">type&amp;&amp; <span class="hljs-title">move</span><span class="hljs-params">(T&amp;&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">static_cast</span>&lt;<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp;&amp;&gt;(t);<br>&#125;<br></code></pre></td></tr></table></figure>
+<li><code>std::move()</code>  只是<strong>显式地将左值转换为右值引用</strong>，从而<strong>触发移动构造或移动赋值</strong>，<code>static_cast&lt;T&amp;&amp;&gt;</code>，不会改变对象的生命周期。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::<span class="hljs-function">type&amp;&amp; <span class="hljs-title">move</span><span class="hljs-params">(T&amp;&amp; t)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">static_cast</span>&lt;<span class="hljs-keyword">typename</span> std::remove_reference&lt;T&gt;::type&amp;&amp;&gt;(t);<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
-<li><code>std::move(a)</code>  只是告诉编译器把对象变成右值（“我允许你偷走这个对象的资源”），但不会修改对象本身。实际移动操作是移动构造函数或移动赋值运算符完成的。</li>
+<li><code>std::move(a)</code>  只是告诉编译器把对象变成右值引用（“我允许你偷走这个对象的资源”），但不会修改对象本身。<strong>实际移动操作是移动构造函数或移动赋值运算符完成的</strong>。</li>
 <li>用完 std::move 的对象还可以用，但状态不再可靠（比如数据被置空），只能销毁或重新赋值。</li>
 </ul>
 </li>
 <li>
 <p><code>std::move</code>的作用</p>
 <ul>
-<li>将左值转换为右值，以触发移动语义</li>
+<li>将左值转换为右值引用，以触发移动语义</li>
 <li>不会真正“移动”数据，只是改变对象的属性</li>
 <li><strong>用于触发移动构造和移动赋值，避免深拷贝，提高性能</strong>。</li>
 </ul>
@@ -1067,7 +1067,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 </li>
 </ul>
 <h3 id="3-引用折叠">(3) 引用折叠</h3>
-<p><code>std::forward&lt;T&gt;(arg)</code>  通过  <em>引用折叠</em>（Reference Collapsing）和  <em>类型推导</em>  来决定参数是否应该保留右值特性</p>
+<p><code>std::forward&lt;T&gt;(arg)</code> （位于<code>&lt;utility&gt;</code>头文件）通过  <em>引用折叠</em>（Reference Collapsing）和  <em>类型推导</em>  来决定参数是否应该保留右值特性。</p>
 <p>例如，<strong>通过引用折叠，T&amp;&amp; 自动变成合适的左值引用或右值引用</strong>。根据引用折叠规则，只有 T 是非引用类型时，T&amp;&amp; 才真正是右值引用。</p>
 <ul>
 <li>
@@ -1083,8 +1083,21 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 <h3 id="4-完美转发-使用场景">(4) 完美转发 (使用场景)</h3>
 <ul>
 <li>
-<p>完美转发 是指在泛型模板函数中，以参数的原始形式（左值或右值）传递给目标函数，从而避免不必要的拷贝或移动操作。<br>
-如下例，在<code>forwarder</code>函数中，参数<code>T&amp;&amp; arg</code>是一个<strong>万能引用</strong>，可以同时接受左值和右值。<strong>如果不用 forward，所有右值都会被当成左值，导致额外拷贝或移动</strong>。</p>
+<p><code>std::forward</code>专门用于在<strong>模板函数</strong>中，<strong>将参数以其原始的值类型（左值或右值）传递给另一个函数</strong>，实现“完美转发”，从而避免不必要的拷贝或移动操作。</p>
+</li>
+<li>
+<p><code>std::forward</code>是一个“有条件的 cast”。当传入的原始实参是右值时，保持其右值属性；如果原始实参是左值，它就保持其左值属性。</p>
+</li>
+<li>
+<p>使用场景（非常固定）：</p>
+<ul>
+<li>必须用在一个函数模板中。</li>
+<li>该函数的参数必须是万能引用，即 <code>T&amp;&amp;</code> 或 <code>Args&amp;&amp;...</code> 形式（其中 T 或 Args 是模板参数）。<br>
+0 在调用 std::forward 时，必须显式提供模板参数（例如 <code>std::forward&lt;T&gt;(arg)</code>）。</li>
+</ul>
+</li>
+<li>
+<p>如下例，在<code>forwarder</code>函数中，参数<code>T&amp;&amp; arg</code>是一个<strong>万能引用</strong>，可以同时接受左值和右值。<strong>如果不用 forward，所有右值都会被当成左值，导致额外拷贝或移动</strong>。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span>  <span class="hljs-comment">// for std::forward</span></span><br><br><span class="hljs-comment">// 普通的函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Lvalue reference: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp;&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Rvalue reference: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-comment">// 模板函数，使用完美转发</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">forwarder</span><span class="hljs-params">(T&amp;&amp; arg)</span> </span>&#123;<br>    <span class="hljs-comment">// std::forward 保持 arg 的原始值类别</span><br>    <span class="hljs-built_in">process</span>(std::forward&lt;T&gt;(arg));<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">5</span>;<br><br>    forwarder(a);        <span class="hljs-comment">// 传递左值</span><br>    forwarder(<span class="hljs-number">10</span>);       <span class="hljs-comment">// 传递右值</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 <li>
@@ -1119,7 +1132,7 @@ PS：析构函数没有任何参数，也不能重载（每个类只能有一个
 </ul>
 <h3 id="5-拷贝构造函数和移动构造函数的区别">(5) 拷贝构造函数和移动构造函数的区别？</h3>
 <ul>
-<li>定义方式：拷贝构造 T(const T&amp; other)，移动构造 T(T&amp;&amp; other)</li>
+<li>定义方式：拷贝构造 <strong>T(const T&amp; other)</strong>，移动构造 <strong>T(T&amp;&amp; other)</strong></li>
 <li>参数类型：<strong>拷贝构造接收左值引用（const T&amp;），移动构造接收右值引用（T&amp;&amp;）</strong></li>
 <li>调用时机：拷贝构造用已有对象初始化新对象，移动构造用临时对象 / 将亡值初始化新对象</li>
 <li>行为：拷贝构造是复制所有资源，而移动构造是资源转移（偷取资源，避免复制）</li>
@@ -2155,6 +2168,22 @@ config.cpp</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;<br><span class="hljs-keyword">auto</span> f = [x]() <span class="hljs-keyword">mutable</span> &#123;<br>    x++;         <span class="hljs-comment">// 合法：捕获值可修改副本</span><br>    <span class="hljs-keyword">return</span> x;<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
+</li>
+</ul>
+<h3 id="4-volatile">(4) volatile</h3>
+<ul>
+<li>
+<p>与 const 对立的类型限定符，用该关键字声明的变量表示其随时可能发生变化，与该变量有关的运算<strong>不要进行编译优化</strong>；会<strong>从内存中重新加载内容而不是从寄存器直接拷贝内容</strong>（一般情况下编译器会尽可能地减少对内存的访问，因为访问内存比访问 CPU 寄存器慢得多），保证对特殊地址的稳定访问。</p>
+</li>
+<li>
+<p>注意 volatile <strong>不能保证线程安全</strong>。它只解决了编译器优化的问题，但它没有解决多线程中更复杂的两个问题：</p>
+<ul>
+<li>原子性（Atomicity）： <code>volatile int i = 0; i++;</code> 这行代码不是原子的。它包含三步：读取 i 的值；增加值；写回 i。在两个线程同时执行 i++ 时，它们可能都读取了 0，都计算出 1，然后都写回 1。最终结果是 1，而不是 2。volatile 对此无能为力。没有 volatile 修饰这个操作也不是原子的/线程安全的。同理<code>a = b</code>也不是原子的（尽管应该是原子的），因为由于现在 CPU 架构体系的限制，数据不能直接从内存某处搬运到内存的另外一处，必须借助寄存器中转，因此这条语句对应两条计算机指令，一条把变量 b 的值搬运到某个寄存器中，另一条从该寄存器搬运到变量 a 的内存地址中。</li>
+<li>CPU 内存屏障（Memory Fences）/ 可见性（Visibility）： volatile 解决了编译器重排指令的问题，但它没有解决 CPU 重排指令的问题。在现代多核 CPU 中，每个核心都有自己的缓存（L1, L2 Cache）。一个线程（在 Core 1 上）对一个 volatile 变量的写入，可能只存在于 Core 1 的缓存中，Core 2 上的另一个线程可能在很长一段时间内都看不到这个更新。CPU 也可能为了效率而乱序执行指令。</li>
+</ul>
+</li>
+<li>
+<p>正确的工具：std::atomic。<code>std::atomic&lt;int&gt; value; value = 1</code></p>
 </li>
 </ul>
 <h2 id="27-如何在-main-之前执行一个函数">27. 如何在 main 之前执行一个函数</h2>
