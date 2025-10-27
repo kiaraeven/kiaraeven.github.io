@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. OpenGL 接口封装（项目 RHI） （1）GLBuffer（GLShader.h&#x2F;.cpp）：   封装对象: GL_BUFFER   作用: 最基础的封装，代表了 GPU 上的一块连续内存。它被用作所有类型数据（顶点、索引、统一变量 UBO、着色器存储 SSBO）的容器。   实现: 123456789101112131415161718192021class GLBuffer&amp;#12">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-12T15:55:36.549Z">
-<meta property="article:modified_time" content="2025-09-22T01:31:39.094Z">
+<meta property="article:modified_time" content="2025-10-27T02:04:40.317Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta name="twitter:card" content="summary_large_image">
@@ -781,8 +781,8 @@
 <li>
 <p>IBL 如何处理镜面和非镜面？</p>
 <ul>
-<li>漫反射（非镜面）IBL：用“辐照度立方体贴图”按世界法线 n 取样，得到环境的漫反射入射光，再乘以基底漫反射颜色 diffuseColor。</li>
-<li>镜面反射 IBL：用“环境立方体贴图”按反射向量 reflection 与粗糙度选取 LOD 取样，得到环境高光，再乘以预积分 BRDF LUT（由 NdotV 和粗糙度索引），并按 specularColor 着色。</li>
+<li>漫反射（非镜面）IBL：用“辐照度立方体贴图”<strong>按世界法线 n 采样</strong>，得到环境的漫反射入射光，再乘以基底漫反射颜色 diffuseColor。</li>
+<li>镜面反射 IBL：用“环境立方体贴图”<strong>按反射向量 reflection 与粗糙度选取 LOD 采样</strong>，得到环境高光，再<strong>乘以预积分 BRDF LUT</strong>（由 NdotV 和粗糙度索引），并按 specularColor 着色。</li>
 <li>金属度-粗糙度模型：金属度越高，漫反射越小、镜面颜色越接近基底色；粗糙度越高，使用更低分辨率的 mip（更模糊）。</li>
 </ul>
 </li>
