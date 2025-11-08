@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-10-26T20:06:04.019Z">
+<meta property="article:modified_time" content="2025-11-08T01:51:24.111Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          52k words
+          54k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          433 mins
+          448 mins
         
       </span>
     
@@ -1353,28 +1353,53 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 <h2 id="9-c内存对齐机制">9. c++内存对齐机制</h2>
 <ul>
-<li>内存对齐是指<strong>编译器</strong>在给结构体或变量分配内存时，<strong>按照特定规则将变量放在特定地址上</strong>的过程，通常这个地址是变量大小或平台对齐要求的整数倍。</li>
-<li>例如，下面结构体分配内存时，不是紧凑排布成 5 字节，而是 a 占用第 0 字节，b 会被放到第 4 字节（从第 4 字节开始）对齐地址（地址 % 4 == 0），所以总大小是 8 字节。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>  <span class="hljs-type">char</span> a;   <span class="hljs-comment">// 1 byte</span><br>  <span class="hljs-type">int</span> b;    <span class="hljs-comment">// 4 bytes</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<li>
+<p>内存对齐是指<strong>编译器</strong>在给结构体或变量分配内存时，<strong>使数据在内存中的起始地址是某个值的倍数</strong>，这个倍数通常是变量大小或平台对齐要求的整数倍。</p>
 </li>
-<li>为什么要内存对齐？
+<li>
+<p>比如 4 字节的 int 型，其起始地址应该位于 4 字节的边界上，即起始地址能够被 4 整除，也即“对齐&quot;跟数据在内存中的位置有关。如果一个变量的内存地址正好位于它长度的整数倍，他就被称做自然对齐。比如在 32 位 cpu 下，假设一个整型变量的地址为 0x00000004(为 4 的倍数)，那它就是自然对齐的，而如果其地址为 0x00000002(非 4 的倍数)则是非对齐的。</p>
+</li>
+<li>
+<p>例如，下面结构体分配内存时，不是紧凑排布成 5 字节，而是 a 占用第 0 字节，b 会被放到第 4 字节（从第 4 字节开始）对齐地址（地址 % 4 == 0），所以总大小是 8 字节。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>  <span class="hljs-type">char</span> a;   <span class="hljs-comment">// 1 byte</span><br>  <span class="hljs-type">int</span> b;    <span class="hljs-comment">// 4 bytes</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>为什么要内存对齐？</p>
 <ul>
-<li>硬件访问效率：大部分硬件架构（x86, ARM）要求变量必须对齐访问，否则性能下降甚至抛异常</li>
-<li>避免硬件异常：某些 CPU 不支持非对齐内存访问，比如 <code>int*</code> 不能从奇地址读取</li>
-<li>提高缓存效率：对齐能提高 cache line 命中率</li>
-<li>满足 ABI 要求：编译器/链接器/系统 ABI 规定数据结构布局方式，必须对齐</li>
+<li>避免硬件异常：x86/x64 架构（如 Intel, AMD）的处理方式。这些 CPU 允许未对齐访问，但会带来性能惩罚。然而，许多其他 CPU 架构（特别是 RISC 架构，如 MIPS、SPARC 和一些 ARM 处理器）根本不允许未对齐访问。</li>
+<li>硬件访问效率：大部分硬件架构要求变量必须对齐访问，否则性能下降甚至抛异常。
+<ul>
+<li>CPU 并不会（或者说，不倾向于）一个字节一个字节地从内存读取数据。相反，它会以字长(Word)为单位进行批量读取。<br>
+在 32 位系统 上，CPU 的“字长”通常是 4 字节。它一次性从内存读取 4 字节（地址 0、4、8…）最高效。<br>
+在 64 位系统 上，CPU 的“字长”通常是 8 字节。它一次性从内存读取 8 字节（地址 0、8、16…）最高效。</li>
+<li>假设上面整型变量的地址不是自然对齐，比如为 0x00000002，则 CPU 如果取它的值的话需要访问两次内存，第一次取从 0x00000002-0x00000003 的一个 short,第二次取从 0x00000004-0x00000005 的一个 short 然后组合得到所要的数据，并对两次读出的结果的高低字节进行拼凑才能得到该 32bit 数据。如果变量在 0x00000003 地址上的话则要访问三次内存，第一次为 char，第二次为 short，第三次为 char，然后组合得到整型数据。而如果变量在自然对齐位置上，则只要一次就可以取出数据。一些系统对对齐要求非常严格，比如 sparc 系统，如果取未对齐的数据会发生错误，而在 x86 上就不会出现错误，只是效率下降。</li>
 </ul>
 </li>
-<li>编译器如何处理对齐？
+<li>提高缓存效率：对齐能提高 cache line 命中率。许多计算机体系结构使用缓存行(cacheline)来从内存中加载数据到缓存中。如果数据是对齐的，那么一个缓存行可以装载更多的数据，提高缓存命中率。
+<ul>
+<li>CPU 的计算速度极快，但访问主内存 (RAM) 的速度非常慢（相比之下）。为了弥补这个速度鸿沟，CPU 内部集成了多级高速缓存 (L1, L2, L3)。访问 L1 缓存可能只需要几个时钟周期，而访问 RAM 可能需要几百个周期。程序访问数据具有时间局部性（刚访问过的数据，很可能马上会再次访问）和空间局部性（刚访问过某个内存地址，很可能马上会访问它附近的地址（例如，遍历数组））。</li>
+<li>基于“空间局部性”原理，当 CPU 需要读取内存中某个数据（比如一个 int），而该数据又不在缓存中时（Cache Miss，缓存未命中），CPU 不会只从 RAM 中读取那 4 个字节。相反，CPU 会把那个 int 所在的一整块数据都读出来，这个“一整块数据”就是 Cache Line。在当今的 x86/x64 架构（Intel, AMD）上，一个 Cache Line 的大小通常是 64 字节。</li>
+<li>这就是为什么在 C++ 中顺序访问 std::vector 或数组会非常快，而访问链表 (std::list) 会慢很多的原因。</li>
+</ul>
+</li>
+<li>满足 ABI（Application Binary Interface）要求：编译器/链接器/系统 ABI 规定数据结构布局方式，必须对齐</li>
+</ul>
+</li>
+<li>
+<p>编译器如何处理对齐？</p>
 <ul>
 <li>编译器会自动插入 padding 字节（填充），确保每个成员的地址满足它的对齐需求</li>
 </ul>
 </li>
-<li>如何查看结构体对齐信息？
+<li>
+<p>如何查看结构体对齐信息？</p>
 <ul>
 <li>使用 <strong>sizeof()</strong> 观察结构体大小。如上例中 sizeof(A)的结果是 8。</li>
 </ul>
 </li>
-<li>C++11 起可用 alignas 强制让 S 的实例按 16 字节对齐（常用于 SIMD 优化、AVX）：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">alignas</span>(<span class="hljs-number">16</span>) S &#123;<br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-type">double</span> b;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<li>
+<p>C++11 起可用 alignas 强制让 S 的实例按 16 字节对齐（常用于 SIMD 优化、AVX）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">alignas</span>(<span class="hljs-number">16</span>) S &#123;<br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-type">double</span> b;<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
 <h2 id="10-struct-大小">10. struct 大小</h2>
@@ -1460,7 +1485,7 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 </ul>
 </li>
 <li>
-<p>代码区：存放程序的机器指令，<strong>只读</strong>不允许修改，但可以执行。编译后的二进制文件存放在这里。</p>
+<p>代码区（.text）：存放程序的机器指令，<strong>只读</strong>不允许修改，但可以执行。编译后的二进制文件存放在这里。</p>
 </li>
 </ul>
 <h3 id="1-如何在栈上分配一定的内存会有什么问题">(1) 如何在栈上分配一定的内存？会有什么问题？</h3>
@@ -2224,12 +2249,13 @@ config.cpp</p>
 <li>
 <p>注意 volatile <strong>不能保证线程安全</strong>。它只解决了编译器优化的问题，但它没有解决多线程中更复杂的两个问题：</p>
 <ul>
-<li>原子性（Atomicity）： <code>volatile int i = 0; i++;</code> 这行代码不是原子的。它包含三步：读取 i 的值；增加值；写回 i。在两个线程同时执行 i++ 时，它们可能都读取了 0，都计算出 1，然后都写回 1。最终结果是 1，而不是 2。volatile 对此无能为力。没有 volatile 修饰这个操作也不是原子的/线程安全的。同理<code>a = b</code>也不是原子的（尽管应该是原子的），因为由于现在 CPU 架构体系的限制，数据不能直接从内存某处搬运到内存的另外一处，必须借助寄存器中转，因此这条语句对应两条计算机指令，一条把变量 b 的值搬运到某个寄存器中，另一条从该寄存器搬运到变量 a 的内存地址中。</li>
+<li>原子性（Atomicity）： <code>volatile int i = 0; i++;</code> 这行代码不是原子的。它包含三步：读取 i 的值（将变量 a 对应的内存值搬运到某个寄存器中）；将寄存器中的值增加 1；写回 i（将该寄存器中的值搬回 a 代表的内存中）。在两个线程同时执行 i++ 时，它们可能都读取了 0，都计算出 1，然后都写回 1。最终结果是 1，而不是 2。volatile 对此无能为力。没有 volatile 修饰这个操作也不是原子的/线程安全的。同理<code>a = b</code>也不是原子的因为必须借助寄存器（尽管应该是原子的），因为由于现在 CPU 架构体系的限制，数据不能直接从内存某处搬运到内存的另外一处，必须借助寄存器中转，因此这条语句对应两条计算机指令，一条把变量 b 的值搬运到某个寄存器中，另一条从该寄存器搬运到变量 a 的内存地址中。</li>
 <li>CPU 内存屏障（Memory Fences）/ 可见性（Visibility）： volatile 解决了编译器重排指令的问题，但它没有解决 CPU 重排指令的问题。在现代多核 CPU 中，每个核心都有自己的缓存（L1, L2 Cache）。一个线程（在 Core 1 上）对一个 volatile 变量的写入，可能只存在于 Core 1 的缓存中，Core 2 上的另一个线程可能在很长一段时间内都看不到这个更新。CPU 也可能为了效率而乱序执行指令。</li>
 </ul>
 </li>
 <li>
 <p>正确的工具：std::atomic。<code>std::atomic&lt;int&gt; value; value = 1</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//初始化1</span><br>std::atomic&lt;<span class="hljs-type">int</span>&gt; value;<br>value = <span class="hljs-number">99</span>;<br><br><span class="hljs-comment">//初始化2</span><br><span class="hljs-comment">//下面代码在Linux平台上无法编译通过(指在gcc编译器)</span><br>std::atomic&lt;<span class="hljs-type">int</span>&gt; value = <span class="hljs-number">99</span>;<br><span class="hljs-comment">//出错的原因是这行代码调用的是std::atomic的拷贝构造函数</span><br><span class="hljs-comment">//而根据c++11语言规范，std::atomic的拷贝构造函数使用=delete标记禁止编译器自动生成// g++在这条规则上遵循了C++11语言规范。</span><br></code></pre></td></tr></table></figure>
 </li>
 </ul>
 <h2 id="27-如何在-main-之前执行一个函数">27. 如何在 main 之前执行一个函数</h2>
@@ -3109,6 +3135,136 @@ config.cpp</p>
 <p>因为涉及两个类的定义顺序，通常需要<strong>前向声明（Forward Declaration）</strong>。<br>
 假设 <code>Storage</code> 类存放私有数据 <code>m_value</code>。我们不想让 <code>DataAnalyzer</code> 整个类都成为朋友，只想让它的 <code>AnalyzeData()</code> <strong>这一个函数</strong>成为朋友。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 1. 必须前向声明 DataAnalyzer，因为 Storage 要引用它</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DataAnalyzer</span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Storage</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> m_value;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Storage</span>(<span class="hljs-type">int</span> val) : <span class="hljs-built_in">m_value</span>(val) &#123;&#125;<br><br>    <span class="hljs-comment">// 2. 声明 DataAnalyzer 的成员函数 AnalyzeData 为友元</span><br>    <span class="hljs-comment">//    必须使用完整的作用域限定符</span><br>    <span class="hljs-function"><span class="hljs-keyword">friend</span> <span class="hljs-type">void</span> <span class="hljs-title">DataAnalyzer::AnalyzeData</span><span class="hljs-params">(<span class="hljs-type">const</span> Storage&amp; s)</span></span>;<br>&#125;;<br><br><span class="hljs-comment">// 3. 现在可以完整定义 DataAnalyzer</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DataAnalyzer</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 4. 定义这个友元成员函数</span><br>    <span class="hljs-comment">//    注意：它是一个普通的成员函数，在定义时不需要 &#x27;friend&#x27; 关键字</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AnalyzeData</span><span class="hljs-params">(<span class="hljs-type">const</span> Storage&amp; s)</span> </span>&#123;<br>        <span class="hljs-comment">// 5. 它可以访问 Storage 的私有成员 m_value</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Analyzer: Accessing private data... Value is: &quot;</span> &lt;&lt; s.m_value &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">OtherMethod</span><span class="hljs-params">(<span class="hljs-type">const</span> Storage&amp; s)</span> </span>&#123;<br>        <span class="hljs-comment">// 错误！OtherMethod 不是友元</span><br>        <span class="hljs-comment">// std::cout &lt;&lt; s.m_value; // 编译错误</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-function">Storage <span class="hljs-title">s</span><span class="hljs-params">(<span class="hljs-number">42</span>)</span></span>;<br>    DataAnalyzer da;<br><br>    da.<span class="hljs-built_in">AnalyzeData</span>(s); <span class="hljs-comment">// 输出: Analyzer: Accessing private data... Value is: 42</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="36-数据类型">36. 数据类型</h2>
+<p>C++中，数据类型的大小并不是在所有平台上都完全固定的，C++标准只规定了它们之间的<strong>最小尺寸</strong>和<strong>相对大小</strong>关系。具体大小取决于两个主要因素：</p>
+<ul>
+<li><strong>编译器</strong>（例如 GCC, Clang, MSVC）</li>
+<li><strong>CPU 架构</strong>（例如 32 位系统 或 64 位系统）</li>
+</ul>
+<h3 id="常见数据类型的大小-64-位系统">常见数据类型的大小 (64 位系统)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">数据类型</th>
+<th style="text-align:left">典型大小 (字节)</th>
+<th style="text-align:left">典型范围 (近似)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>char</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">-128 到 127 或 0 到 255</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>bool</code></td>
+<td style="text-align:left">1</td>
+<td style="text-align:left"><code>true</code> 或 <code>false</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>short</code> (或 <code>short int</code>)</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">-32,768 到 32,767</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>int</code></td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">-21 亿 到 21 亿</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>long</code> (或 <code>long int</code>)</td>
+<td style="text-align:left">8 (在 64 位 Linux/macOS) <br> 4 (在 64 位 Windows)</td>
+<td style="text-align:left">范围很大 (64 位) 或 <br> 与 <code>int</code> 相同 (32 位)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>long long</code> (或 <code>long long int</code>)</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">大约 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>±</mo><mn>9</mn><mo>×</mo><msup><mn>10</mn><mn>18</mn></msup></mrow><annotation encoding="application/x-tex">\pm 9 \times 10^{18}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">±</span><span class="mord">9</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">18</span></span></span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>float</code></td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">单精度浮点数</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>double</code></td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">双精度浮点数</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>long double</code></td>
+<td style="text-align:left">16 (常见) 或 8 或 12</td>
+<td style="text-align:left">扩展精度浮点数</td>
+</tr>
+<tr>
+<td style="text-align:left">指针 (例如 <code>int*</code>)</td>
+<td style="text-align:left">8（64 位）或 4（32 位）</td>
+<td style="text-align:left">内存地址</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sizeof-运算符"><strong><code>sizeof</code> 运算符</strong></h3>
+<ul>
+<li>
+<p>sizeof(type) 可以判断数据类型的长度。</p>
+</li>
+<li>
+<p><strong>C++标准的最小尺寸保证</strong></p>
+<ul>
+<li><code>sizeof(char)</code> <strong>永远</strong>等于 1。这是 C++中内存计量的基本单位。</li>
+<li><code>sizeof(short)</code> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> 2 字节</li>
+<li><code>sizeof(int)</code> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> <code>sizeof(short)</code> (通常 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> 4 字节)</li>
+<li><code>sizeof(long)</code> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> <code>sizeof(int)</code> (通常 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> 4 字节)</li>
+<li><code>sizeof(long long)</code> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> <code>sizeof(long)</code> (通常 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo></mrow><annotation encoding="application/x-tex">\ge</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span></span></span></span> 8 字节)</li>
+</ul>
+</li>
+<li>
+<p><strong><code>int</code> 和 <code>long</code> 的陷阱（最常见的混淆点）</strong></p>
+<ul>
+<li>在<strong>32 位系统</strong>上：<code>int</code> 和 <code>long</code> 通常都是 4 字节。</li>
+<li>在<strong>64 位系统</strong>上：
+<ul>
+<li><strong>Windows (64 位)</strong>：<code>int</code> 是 4 字节，<code>long</code> <strong>也是 4 字节</strong>。</li>
+<li><strong>Linux 和 macOS (64 位)</strong>：<code>int</code> 是 4 字节，<code>long</code> 是 <strong>8 字节</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>这就是为什么 <code>long long</code> (保证至少 64 位/8 字节) 在需要明确大整数时更受欢迎的原因。</p>
+</li>
+</ul>
+<h3 id="固定宽度整数-c11-及以后">固定宽度整数 (C++11 及以后)</h3>
+<p>由于上述的不确定性，如果你需要<strong>精确</strong>的位数（例如，在网络编程、文件 I/O 或图形学中），你应该使用 <code>&lt;cstdint&gt;</code> 头文件中的类型：</p>
+<ul>
+<li><code>int8_t</code> (精确 8 位, 有符号)</li>
+<li><code>uint8_t</code> (精确 8 位, 无符号)</li>
+<li><code>int16_t</code>, <code>uint16_t</code></li>
+<li><code>int32_t</code>, <code>uint32_t</code></li>
+<li><code>int64_t</code>, <code>uint64_t</code></li>
+</ul>
+<p>使用 <code>int32_t</code> 可以保证它在任何编译的平台上都是 32 位（4 字节），这比使用 <code>int</code> 或 <code>long</code> 更安全、可移植性更强。</p>
+<h2 id="37-string">37. String</h2>
+<h3 id="1实现-strcpy">（1）实现 strcpy</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">strcpy</span><span class="hljs-params">(<span class="hljs-type">char</span> *dst, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *src)</span></span>&#123; <span class="hljs-comment">//[1]</span><br>  <span class="hljs-built_in">assert</span>(dst != <span class="hljs-literal">NULL</span> &amp;&amp; src != <span class="hljs-literal">NULL</span>); <span class="hljs-comment">//[2]</span><br>  <span class="hljs-type">char</span> *ret = dst; <span class="hljs-comment">//[3]</span><br>  <span class="hljs-keyword">while</span>((*dst++=*src++)!=<span class="hljs-string">&#x27;0&#x27;</span>); <span class="hljs-comment">//[4]</span><br>  <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>[1] const 修饰<br>
+源字符串参数用 const 修饰，防止修改源字符串.</li>
+<li>[2] 空指针检查
+<ul>
+<li><code>char *</code>转换为 <code>bool</code> 是类型隐式转换，这种功能虽然灵活，但更多的是导致出错概率增大和维护成本升高。</li>
+<li>检查指针的有效性时使用 <code>assert(dst!= 0 &amp;&amp; src != 0);</code>会减少程序的可维护性。而使用 NULL 代替 0，如果出现拼写错误，编译器就会检查出来。</li>
+</ul>
+</li>
+<li>[3]返回目标地址:</li>
+<li>[4] &quot;\0’:
+<ul>
+<li>循环写成 <code>while(*dst++=*src++);</code>明显是错误的。</li>
+<li>循环写成 <code>while(*src!='\0') *dst++= *src++</code>会导致循环体结束后，dst 字符串的末尾没有正确地加上&quot;0’。</li>
+<li>为什么要返回 <code>char *</code>? - 返回 dst 的原始值使函数能够支持链式表达式。链式表达式的形式如:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> l=<span class="hljs-built_in">strlen</span>(<span class="hljs-built_in">strcpy</span>(strA,strB))i<br></code></pre></td></tr></table></figure>
+又如:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">char</span> *stra=<span class="hljs-built_in">strcpy</span>(<span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">10</span>],strB)i<br></code></pre></td></tr></table></figure>
+返回 strSrc 的原始值是错误的。因为首先源字符串肯定是已知的，返回它没有意义；其次不能支持形如第二例的表达式；最后把 <code>const char *</code>作为 <code>char *</code>返回，类型不符，编译报错</li>
+</ul>
 </li>
 </ul>
 <h1 id="计算机网络">计算机网络</h1>
