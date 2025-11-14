@@ -49,7 +49,7 @@
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/ibl_grazing_angles.png">
 <meta property="og:image" content="http://example.com/2025/03/29/interview-review/DLSS-GAMES202.png">
 <meta property="article:published_time" content="2025-03-29T19:33:57.181Z">
-<meta property="article:modified_time" content="2025-11-13T00:52:57.972Z">
+<meta property="article:modified_time" content="2025-11-14T00:07:49.999Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -249,7 +249,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          50k words
+          51k words
         
       </span>
     
@@ -260,7 +260,7 @@
         
         
         
-          420 mins
+          422 mins
         
       </span>
     
@@ -876,7 +876,33 @@ Practical Split: Uniform + Log 混合（效果最好）</li>
 <li>c. 渲染阶段选择对应 Shadow Map。即在 Lighting Pass 时，判断当前片元位于哪个 Cascade 区间，从而选择对应的 Shadow Map 做阴影检测。</li>
 </ul>
 </li>
-<li>CSM 本质是硬阴影技术，通常搭配 PCF 或 PCSS 等软化技术使用，实际效果可以是 软阴影</li>
+<li>对于 CSM（Cascade Shadow Maps）中落在两个级联（Cascade）重叠区域的点，通常有两种处理方式：
+<ul>
+<li>A. 硬过渡。
+<ul>
+<li>为了节省纹理采样次数，永远选择级别更低（Index 更小）、分辨率更高的一级。</li>
+<li><strong>缺点</strong>：在两个级联的交界处，阴影清晰度会发生突变，产生一条可见的<strong>接缝（Seam）</strong>。</li>
+</ul>
+</li>
+<li>B. 软过渡（Blending / Fading）（主流做法）
+<ul>
+<li>这是 Unreal Engine、Unity 以及大多数现代 3A 引擎的标准做法，即不“二选一”，而是<strong>两个都采，然后混合</strong>。</li>
+<li><strong>逻辑</strong>：
+<ul>
+<li>在重叠区域内计算一个<strong>混合因子 (Blend Factor)</strong>，通常基于片元到级联边缘的距离。</li>
+<li>同时对 Cascade <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 和 Cascade <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7429em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> 进行采样（PCF 滤波后的结果）。</li>
+<li>进行线性插值（Lerp）。<p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>S</mi><mi>h</mi><mi>a</mi><mi>d</mi><mi>o</mi><mi>w</mi><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi><mi>h</mi><mi>a</mi><mi>d</mi><mi>o</mi><msub><mi>w</mi><mrow><mi>H</mi><mi>i</mi><mi>g</mi><mi>h</mi><mi>R</mi><mi>e</mi><mi>s</mi></mrow></msub><mo>+</mo><mi>α</mi><mo>×</mo><mi>S</mi><mi>h</mi><mi>a</mi><mi>d</mi><mi>o</mi><msub><mi>w</mi><mrow><mi>L</mi><mi>o</mi><mi>w</mi><mi>R</mi><mi>e</mi><mi>s</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Shadow = (1 - \alpha) \times Shadow_{HighRes} + \alpha \times Shadow_{LowRes}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">ha</span><span class="mord mathnormal">d</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">ha</span><span class="mord mathnormal">d</span><span class="mord mathnormal">o</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.08125em;">H</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight" style="margin-right:0.03588em;">g</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight" style="margin-right:0.00773em;">R</span><span class="mord mathnormal mtight">es</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">ha</span><span class="mord mathnormal">d</span><span class="mord mathnormal">o</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.00773em;">wR</span><span class="mord mathnormal mtight">es</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span></span></span></span> 是从 0 到 1 的过渡系数。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>目的</strong>：消除由于分辨率突变导致的“接缝线”。让阴影从清晰平滑地过渡到模糊。</li>
+<li><strong>代价</strong>：在重叠区域，Shader 的开销会增加，因为需要采样两张 Shadow Map。</li>
+</ul>
+</li>
+<li>CSM 本质是硬阴影技术，通常搭配 PCF 或 PCSS 等软化技术使用，实际效果可以是软阴影</li>
 </ul>
 <h3 id="4-虚拟阴影贴图-virtual-shadow-map">(4) 虚拟阴影贴图 (Virtual Shadow Map)</h3>
 <ul>
