@@ -21,15 +21,15 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1. UE 的垃圾回收机制 References  https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;en-us&#x2F;unreal-engine&#x2F;incremental-garbage-collection-in-unreal-engine  2. LUMEN Lumen 是 UE5 的实时全局光照和反射系统，核心设计目标是打破“烘焙光照”与“实时光线追踪”之间的壁垒，在">
+    <meta name="description" content="1. UE 的垃圾回收机制 UE 的 GC 机制是一个基于“标记-清除 (Mark-and-Sweep)”算法、支持增量执行和多线程并行的内存管理系统。它的核心目标是解决传统 GC 在“可达性分析”阶段导致的帧率卡顿 (Hitch) 问题。 标记-清除 (Mark-and-Sweep) UE 不使用 C# 那样的全自动内存管理，而是管理继承自 UObject 的对象。  根集合 (Root Set">
 <meta property="og:type" content="article">
 <meta property="og:title" content="UE Review">
 <meta property="og:url" content="http://example.com/2025/11/12/UE-Review/index.html">
 <meta property="og:site_name" content="Go7">
-<meta property="og:description" content="1. UE 的垃圾回收机制 References  https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;en-us&#x2F;unreal-engine&#x2F;incremental-garbage-collection-in-unreal-engine  2. LUMEN Lumen 是 UE5 的实时全局光照和反射系统，核心设计目标是打破“烘焙光照”与“实时光线追踪”之间的壁垒，在">
+<meta property="og:description" content="1. UE 的垃圾回收机制 UE 的 GC 机制是一个基于“标记-清除 (Mark-and-Sweep)”算法、支持增量执行和多线程并行的内存管理系统。它的核心目标是解决传统 GC 在“可达性分析”阶段导致的帧率卡顿 (Hitch) 问题。 标记-清除 (Mark-and-Sweep) UE 不使用 C# 那样的全自动内存管理，而是管理继承自 UObject 的对象。  根集合 (Root Set">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-11-13T00:50:05.801Z">
-<meta property="article:modified_time" content="2025-11-14T02:27:32.906Z">
+<meta property="article:modified_time" content="2025-11-15T01:25:11.217Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="UE">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.2k words
+          9.5k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          60 mins
+          80 mins
         
       </span>
     
@@ -282,9 +282,63 @@
               <div class="markdown-body">
                 
                 <h1 id="1-ue-的垃圾回收机制">1. UE 的垃圾回收机制</h1>
+<p>UE 的 GC 机制是一个基于“标记-清除 (Mark-and-Sweep)”算法、支持增量执行和多线程并行的内存管理系统。它的核心目标是解决传统 GC 在“可达性分析”阶段导致的帧率卡顿 (Hitch) 问题。</p>
+<h2 id="标记-清除-mark-and-sweep">标记-清除 (Mark-and-Sweep)</h2>
+<p>UE 不使用 C# 那样的全自动内存管理，而是管理继承自 UObject 的对象。</p>
+<ul>
+<li>根集合 (Root Set)：GC 从一组“肯定不能被删”的对象开始，比如 UWorld、注册为 Root 的单例、被 AddToRoot() 标记的对象等。</li>
+<li>可达性分析 (Reachability Analysis)：
+<ul>
+<li>标记 (Mark)：GC 从 Root Set 出发，顺着 UPROPERTY 引用链（引用图）遍历所有对象。凡是能被访问到的对象，都被标记为“可达 (Reachable)”。</li>
+<li>清除 (Sweep)：遍历整个 GUObjectArray（全局对象数组），凡是没有被标记为“可达”的对象，即被视为垃圾（Unreachable），随后被标记为 PendingKill 并最终从内存中移除。</li>
+</ul>
+</li>
+</ul>
+<h2 id="增量可达性分析-incremental-reachability-analysis">增量可达性分析 (Incremental Reachability Analysis)</h2>
+<p>在旧版 UE 中，可达性分析必须在一帧内原子完成。如果场景中有 100 万个对象，遍历这棵引用树可能需要 50ms 甚至更多，这会导致游戏画面瞬间卡死。为了消除卡顿，UE 将原本必须一帧做完的“遍历工作”，切分成无数个小块，分摊到后续的多帧中执行。</p>
+<ul>
+<li>
+<p>A. 时间分片 (Time Slicing)</p>
+<ul>
+<li>工作方式：每一帧，GC 系统只工作一小段时间（默认预算约 2ms，由 gc.IncrementalReachabilityTimeLimit 控制）。</li>
+<li>流程：
+<ul>
+<li>第 1 帧：遍历 Root Set 的前 1000 个引用。时间到了，暂停。</li>
+<li>第 2 帧：从上次暂停的地方继续遍历。</li>
+<li>…直到遍历完整个对象图。</li>
+</ul>
+</li>
+<li>结果：原本 50ms 的一次性卡顿，变成了连续 25 帧每帧 2ms 的微小开销。</li>
+</ul>
+</li>
+<li>
+<p>B. 关键技术：写屏障 (Write Barriers)</p>
+<ul>
+<li>问题：如果 GC 在第 10 帧暂停了，而在第 11 帧的游戏逻辑中，创建了一个新对象 B，并把它赋值给了已经被 GC 扫描过的对象 A（A-&gt;Ptr = B）。由于 A 已经被扫描过了，GC 不会再回头看它。如果不做处理，GC 会认为 B 是“不可达”的（因为它是新的，且没被扫描到），导致新对象 B 被错误删除，引发野指针崩溃。</li>
+<li>解决方案 (UE5 的实现)： UE <strong>通过 TObjectPtr 和底层的 Setter 宏实现了写屏障</strong>。当在增量 GC 期间修改一个 UPROPERTY 引用时（例如 MyActor-&gt;MyComponent = NewComp），引擎会检测到“当前正在进行增量可达性分析”。引擎会强制将这个被引用的新对象（NewComp）手动标记为“可达”，或者将其加入“待重新扫描”的队列中。这也是为什么 UE5 强烈推荐使用 <code>TObjectPtr&lt;T&gt;</code> 替代原生指针 <code>T*</code> 的原因之一：TObjectPtr 内部封装了这种写屏障逻辑，确保增量 GC 的安全性。</li>
+</ul>
+</li>
+</ul>
+<h2 id="清理阶段增量清除-incremental-purge">清理阶段：增量清除 (Incremental Purge)</h2>
+<p>除了分析阶段，删除对象也是有开销的（调用析构函数、释放内存）。UE 同样对这一步进行了增量处理。Incremental Purge 即当 GC 确定了哪些是垃圾后，它不会在一帧内把它们全部 delete。而是利用每帧的空闲时间，分批次地销毁这些对象。这就是为什么在 Profiler 中常看到 IncrementalPurgeGarbage 这个函数，它负责在每帧末尾“打扫战场”。</p>
+<h2 id="性能优化技术簇-clustering">性能优化技术：簇 (Clustering)</h2>
+<p>为了进一步加速 GC，UE 引入了簇 (Clustering) 的概念，主要针对粒子系统或蓝图 Actor。</p>
+<ul>
+<li>原理：一个 Actor 通常包含数十个 Component。在传统 GC 中，引擎需要分别检查 Actor 和它的每一个 Component。</li>
+<li>簇化：UE 将 Actor 和它的所有 Component 打包成一个<strong>Cluster</strong>。GC 只需要检查 Actor（簇头）是否可达。
+<ul>
+<li>如果 Actor 可达，引擎假设它内部的所有 Component 都是可达的（跳过内部遍历）。</li>
+<li>如果 Actor 不可达，整个簇一起被回收。</li>
+</ul>
+</li>
+<li>效果：大幅减少了引用图中的节点数量，显著提升了扫描速度。</li>
+</ul>
 <h2 id="references">References</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/incremental-garbage-collection-in-unreal-engine">https://dev.epicgames.com/documentation/en-us/unreal-engine/incremental-garbage-collection-in-unreal-engine</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24323386056">https://zhuanlan.zhihu.com/p/24323386056</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/620550961">https://zhuanlan.zhihu.com/p/620550961</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/664413495">https://zhuanlan.zhihu.com/p/664413495</a></li>
 </ul>
 <h1 id="2-lumen">2. LUMEN</h1>
 <p>Lumen 是 UE5 的实时全局光照和反射系统，核心设计目标是打破“烘焙光照”与“实时光线追踪”之间的壁垒，在保证次世代画质的前提下，适配从主机到高端 PC 的广泛硬件。Lumen 的运作机制是以“表面缓存”为核心，结合“屏幕空间”与“距离场追踪”的混合管线。</p>
@@ -804,7 +858,69 @@ GPU 里的**固定功能光栅化单元（Fixed-function Rasterizer）**是专�
 <li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/contact-shadows-in-unreal-engine">https://dev.epicgames.com/documentation/en-us/unreal-engine/contact-shadows-in-unreal-engine</a></li>
 <li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine">https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine</a></li>
 </ul>
-<h1 id="8-ue-反射">8. UE 反射</h1>
+<h1 id="8-ue-反射系统">8. UE 反射系统</h1>
+<h2 id="为什么需要反射系统">为什么需要反射系统？</h2>
+<p>在 Java 或 C# 中，反射是语言内置的特性，程序可以在运行时查询“这个类有哪些成员变量？”或者“这个函数叫什么名字？”。但在标准 C++ 中，编译后的代码变成了纯粹的内存地址和汇编指令，类名和变量名等元数据（Metadata）全部丢失了。然而，作为一个游戏引擎，UE 极度依赖这些元数据来实现以下核心功能：</p>
+<ul>
+<li>垃圾回收 (Garbage Collection)：GC 需要知道哪些内存块是指向 UObject 的指针，以便追踪引用。</li>
+<li>序列化 (Serialization)：保存游戏进度或资产时，引擎需要遍历对象的所有属性并将它们写入磁盘。</li>
+<li>蓝图与编辑器集成 (Blueprints &amp; Editor)：编辑器需要知道 C++ 类里有哪些变量可以在面板中修改，有哪些函数可以在蓝图连线中调用。</li>
+<li>网络复制 (Network Replication)：服务器需要知道哪些变量发生了变化，并自动同步给客户端。</li>
+</ul>
+<p>为了实现这些，UE 构建了自己的反射系统，有时也被称为 属性系统 (Property System)。</p>
+<h2 id="核心机制uht-与-宏魔法">核心机制：UHT 与 宏魔法</h2>
+<p>UE 的反射系统由两个主要部分组成：构建工具 (UHT) 和 C++ 宏 (Macros)。</p>
+<ul>
+<li>
+<p>A. Unreal Header Tool (UHT)</p>
+<ul>
+<li>当编译 UE 项目时，并没有直接调用 C++ 编译器。构建流程的第一步是运行 UHT。</li>
+<li>UHT 是一个独立的解析器，它会扫描项目中的 .h 头文件，寻找特殊的宏标记（如 UCLASS(), UPROPERTY(), UFUNCTION()）。</li>
+<li>对于每一个包含这些宏的文件，UHT 会自动生成一个伴随的 .generated.h 和 .gen.cpp 文件。</li>
+<li>这就是为什么必须在头文件末尾包含 <code>#include &quot;MyClass.generated.h</code>。</li>
+</ul>
+</li>
+<li>
+<p>B. 宏的作用</p>
+<ul>
+<li>这些宏在标准 C++ 编译阶段通常被定义为空（或者简单的标记），但在 UHT 阶段，它们是告诉解析器“把这个变量/函数加入反射系统”的指令。</li>
+<li>UCLASS()：告诉引擎这是一个受管理的类，生成 UClass 对象来描述它。</li>
+<li>USTRUCT()：用于轻量级数据结构，生成 UScriptStruct。</li>
+<li>UPROPERTY()：关键！将变量注册到反射系统。如果不加这个宏，变量对 UE 也是存在的，但 GC 看不到它（可能导致悬空指针），蓝图也看不到它。</li>
+<li>UFUNCTION()：将函数注册到反射系统，使其可被蓝图调用或作为 RPC（远程过程调用）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="运行时数据结构">运行时数据结构</h2>
+<p>当 UHT 生成的代码被 C++ 编译器编译并链接后，在引擎启动时，这些代码会执行注册逻辑，构建出一张巨大的类型树。</p>
+<p>这里的核心数据结构是：</p>
+<ul>
+<li>UClass： 这是反射系统的核心。每一个你在 C++ 里写的 MyActor 类，在运行时都有一个对应的 UClass 实例（比如 AMyActor::StaticClass()）。这个 UClass 对象里存储了该类的所有元数据：类名、父类是谁、包含哪些属性、包含哪些函数。</li>
+<li>FProperty (旧称 UProperty)： 这是描述变量的数据结构。如果在 C++ 中写 <code>UPROPERTY() int32 Health;</code>反射系统会生成一个 FIntProperty 对象，记录下：变量名叫 “Health”，类型是 Int，内存偏移量（Offset）是多少。反射系统通过 UHT 计算出的内存偏移量来访问 Health 变量。当你在编辑器里修改 Health 的值时，编辑器并不是直接访问 AMyActor 实例，而是通过 FFloatProperty 找到内存地址并写入数据。
+<ul>
+<li>注意：在 UE4.25 之后，为了通过减少 UObject 开销来优化内存，UProperty 被重构为轻量级的 FProperty。</li>
+</ul>
+</li>
+<li>UFunction： 描述函数的元数据。它包含函数名、参数列表、返回值类型以及函数入口地址。</li>
+</ul>
+<h2 id="示例">示例</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// MyActor.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;CoreMinimal.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;GameFramework/Actor.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MyActor.generated.h&quot;</span> <span class="hljs-comment">// 1. 必须包含生成文件</span></span><br><br><span class="hljs-built_in">UCLASS</span>() <span class="hljs-comment">// 2. 标记类</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">AMyActor</span> : <span class="hljs-keyword">public</span> AActor<br>&#123;<br>    <span class="hljs-built_in">GENERATED_BODY</span>() <span class="hljs-comment">// 3. 注入这一行，用来展开 UHT 生成的样板代码</span><br>    <span class="hljs-comment">// GENERATED_BODY()是一个极其复杂的宏。它在编译时被展开，里面包含了标准的样板代码，比如 StaticClass() 的声明，以及用于通过名称查找属性的 Z_Construct_UClass_... 注册函数。</span><br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 4. 标记属性：VisibleAnywhere 让编辑器可见，BlueprintReadOnly 让蓝图可读</span><br>    <span class="hljs-built_in">UPROPERTY</span>(VisibleAnywhere, BlueprintReadOnly, Category=<span class="hljs-string">&quot;Stats&quot;</span>)<br>    <span class="hljs-type">float</span> Health;<br><br>    <span class="hljs-comment">// 5. 标记函数：BlueprintCallable 允许蓝图调用这个 C++ 函数</span><br>    <span class="hljs-built_in">UFUNCTION</span>(BlueprintCallable, Category=<span class="hljs-string">&quot;Stats&quot;</span>)<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Heal</span><span class="hljs-params">(<span class="hljs-type">float</span> Amount)</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h2 id="优点与劣势">优点与劣势</h2>
+<ul>
+<li>优势：
+<ul>
+<li>高性能动态类型识别：UE 关闭了标准 C++ 的 RTTI（运行时类型识别，如 dynamic_cast），因为它太慢且占用内存。UE 使用自己的 <code>Cast&lt;T&gt;()</code> 系统，基于 UClass 进行快速的指针转换检查，效率极高。</li>
+<li>全自动序列化：因为反射系统知道所有 UPROPERTY 的布局，UE 可以自动将对象保存为二进制或 JSON，无需程序员手动编写 Write(Health); Write(Mana); 这样的代码。</li>
+</ul>
+</li>
+<li>限制：
+<ul>
+<li>必须继承自 UObject：只有 UObject 的子类（或 USTRUCT）才能参与反射系统，原生 C++ 类无法使用。</li>
+<li>头文件依赖：UHT 对头文件的格式非常敏感，修改头文件往往会导致漫长的重新编译。</li>
+<li>模板限制：UCLASS 和 UFUNCTION 对 C++ 模板的支持非常有限，因为 UHT 很难解析复杂的模板元编程。</li>
+</ul>
+</li>
+</ul>
 <h2 id="references">References</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/reflection-system-in-unreal-engine">https://dev.epicgames.com/documentation/en-us/unreal-engine/reflection-system-in-unreal-engine</a></li>
