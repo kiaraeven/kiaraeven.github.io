@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-11-17T03:02:27.815Z">
+<meta property="article:modified_time" content="2025-11-18T06:24:45.146Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          63k words
+          62k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          527 mins
+          517 mins
         
       </span>
     
@@ -4268,78 +4268,10 @@ src &lt;= dst &lt;= src+strlen(src) 即 dst 的起始位置相较于 src 的起�
 <h1 id="设计模式">设计模式</h1>
 <h2 id="1-工厂模式">1. 工厂模式</h2>
 <h2 id="2-单例模式">2. 单例模式</h2>
-<h3 id="1-概念">(1) 概念</h3>
-<ul>
-<li>定义：一个类在程序运行过程中只能存在一个实例，并提供全局访问。常用于资源管理类（如日志、数据库连接池、配置管理器等）。它通过将构造函数私有化，并提供一个公共的静态方法来获取唯一实例。</li>
-<li>懒汉模式 vs. 饿汉模式
-<table>
-<thead>
-<tr>
-<th>对比项</th>
-<th>懒汉模式（Lazy）</th>
-<th>饿汉模式（Eager）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>实例创建时机</td>
-<td><strong>第一次调用 <code>getInstance()</code> 时</strong> 创建</td>
-<td>程序启动时（类加载时）创建</td>
-</tr>
-<tr>
-<td>是否延迟加载</td>
-<td>是（节省资源）</td>
-<td>否（占资源，但初始化快）</td>
-</tr>
-<tr>
-<td>实现难度</td>
-<td>稍高，需要考虑线程安全问题</td>
-<td>简单，但无条件创建实例</td>
-</tr>
-<tr>
-<td>线程安全处理</td>
-<td>需要手动加锁或使用现代 C++ 特性</td>
-<td>靠静态变量初始化，天然线程安全</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<h3 id="2-实现">(2) 实现</h3>
-<ul>
-<li>
-<p>实现时需要：</p>
-<ul>
-<li>将构造函数和析构函数私有化（private）</li>
-<li>定义一个 public 的函数用于获取唯一实例</li>
-<li><strong>手动禁用拷贝构造函数（Singleton(const Singleton&amp;)）和赋值操作符（Singleton&amp; operator=(const Singleton&amp;)）</strong>
-<ul>
-<li>如果没有禁用，则可以在程序运行中获得多个实例，打破了唯一性。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Singleton&amp; a = Singleton::<span class="hljs-built_in">getInstance</span>();<br>Singleton b = a;              <span class="hljs-comment">// 调用拷贝构造，复制一份</span><br>Singleton c;<br>c = Singleton::<span class="hljs-built_in">getInstance</span>(); <span class="hljs-comment">// 调用赋值操作符，复制一份</span><br></code></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>懒汉 + C++11 局部静态变量（线程安全）（Meyers Singleton - 《Effective C++》）<br>
-在 C++11 及以后标准中，局部静态变量（function-local static）的初始化是线程安全的。编译器会确保<strong>只会有一个线程执行初始化代码</strong>，其它线程等待初始化完成后再访问，从而保证了懒汉式单例的线程安全性。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 注意这里是一个返回引用的静态成员函数</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> Singleton&amp; <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-comment">// 仅在第一次函数调用时执行一次初始化</span><br>        <span class="hljs-type">static</span> Singleton instance;  <span class="hljs-comment">// C++11: 线程安全的懒汉初始化</span><br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot; Singleton working!\n&quot;</span>;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// Singleton()&#123;&#125;; 是正确的，只有Singleton()是错的，必须要有定义。</span><br>    <span class="hljs-built_in">Singleton</span>()  &#123; std::cout &lt;&lt; <span class="hljs-string">&quot; Constructor called\n&quot;</span>; &#125;<br>    ~<span class="hljs-built_in">Singleton</span>() &#123; std::cout &lt;&lt; <span class="hljs-string">&quot; Destructor called\n&quot;</span>; &#125;<br><br>    <span class="hljs-built_in">Singleton</span>(<span class="hljs-type">const</span> Singleton&amp; other) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 拷贝构造函数</span><br>    Singleton&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> Singleton&amp; other) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 赋值操作符</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// Singleton::getInstance().doSomething(); // correct</span><br>  Singleton&amp; single = Singleton::<span class="hljs-built_in">getInstance</span>(); <span class="hljs-comment">// correct because it&#x27;s just a alias not calling copy constructor</span><br>  <span class="hljs-comment">// MyManager m1; (没有 &amp;)：这行代码会创建一个名为 m1 的新 MyManager 对象，并调用其默认构造函数。</span><br>  <span class="hljs-comment">// MyManager&amp; m1 (有 &amp;)：这行代码声明了一个名为 m1 的引用。它不会创建新对象。它只是一个“别名”，它必须绑定到一个已经存在的 MyManager 对象上。</span><br>  <span class="hljs-comment">// auto single = Singleton::getInstance(); // wrong because in this case it will call copy constructor (auto -&gt; Singleton)</span><br>  <span class="hljs-comment">// 不能用auto的原因是默认情况下，auto 会“抛弃”初始值中的引用 (&amp;) 和 const 修饰符。</span><br>  <span class="hljs-comment">// 正确的是使用 auto&amp; m1 = MyManager::getInstance();</span><br>  single.<span class="hljs-built_in">doSomething</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
-</li>
-<li>
-<p>饿汉</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 注意这里是一个返回引用的静态成员函数</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> Singleton&amp; <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-built_in">Singleton</span>() &#123; std::cout &lt;&lt; <span class="hljs-string">&quot;Constructor called (Eager)\n&quot;</span>; &#125;<br>    ~<span class="hljs-built_in">Singleton</span>() &#123; std::cout &lt;&lt; <span class="hljs-string">&quot; Destructor called (Eager)\n&quot;</span>; &#125;<br>    <span class="hljs-built_in">Singleton</span>(<span class="hljs-type">const</span> Singleton&amp;) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 拷贝构造函数</span><br>    Singleton&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> Singleton&amp;) = <span class="hljs-keyword">delete</span>; <span class="hljs-comment">// 赋值操作符</span><br>    <span class="hljs-type">static</span> Singleton instance;  <span class="hljs-comment">// 初始化时就创建</span><br>&#125;;<br><br>Singleton Singleton::instance;  <span class="hljs-comment">// 全局初始化</span><br></code></pre></td></tr></table></figure>
-<p>值得注意的是，这里<code>static Singleton instance;</code> 是在类中声明（没有构造发生，不会分配内存），这个声明会出现在包含该头文件的每一个编译单元（.cpp 文件）中。<code>Singleton Singleton::instance;</code> 是定义 + 初始化（调用默认构造函数）。根据 C++的<strong>单一定义规则 (One Definition Rule, ODR)，一个变量在整个程序中只能被定义一次</strong>。因此，这个定义必须放在一个 .cpp 文件中，而不能放在 .h 头文件中（否则会被多重定义）。</p>
-<p>从 C++17 开始，可以在类内直接定义并初始化静态成员变量：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">inline</span> <span class="hljs-type">static</span> Singleton instance&#123;&#125;;  <span class="hljs-comment">// 定义 + 初始化</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-<p><code>inline</code> 告诉编译器和链接器这个变量可以在头文件中定义，即使它被包含多次，也保证最后只链接一个唯一的实例。不用再写类外那行 <code>Singleton Singleton::instance;</code>，也不会再产生“看起来初始化了两次”的疑问。</p>
-<p>另：懒汉模式的实现方式不同，它没有用类的 static 成员变量，而是用了<strong>函数内的 static 局部变量</strong>（生命周期和可见性都在函数内，因此不需要类外定义），两者机制完全不同。</p>
-<p>另 2：饿汉模式是线程安全的，但可能存在初始化顺序问题（static initialization order fiasco）。不用 inline 的情况下，如果 Singleton::instance 在多个翻译单元（.cpp 文件）中都被引用，可能使用还未构造的静态对象，出现未定义行为或崩溃。</p>
-</li>
-</ul>
+<p>See <a href="/2025/11/17/cpp-handwritten/"> Singleton</a></p>
 <h1 id="resources">Resources:</h1>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30556448622">https://zhuanlan.zhihu.com/p/30556448622</a><br>
 <a target="_blank" rel="noopener" href="https://www.nowcoder.com/discuss/353159115046330368">https://www.nowcoder.com/discuss/353159115046330368</a></p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs"><br></code></pre></td></tr></table></figure>
 
                 
               </div>
