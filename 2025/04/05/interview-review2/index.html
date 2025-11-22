@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-11-20T18:21:37.527Z">
+<meta property="article:modified_time" content="2025-11-22T07:27:43.079Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          63k words
+          65k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          526 mins
+          543 mins
         
       </span>
     
@@ -1861,7 +1861,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 <li>双向环形链表</li>
 <li>用 empty() 而非 size() == 0 来判定是否为空。empty()对所有的标准容器都是常数时间操作，而 size()对于 list 耗费的是线性时间。</li>
 <li>std::sort 是 STL 算法的一部分。它排序的容器需要有随机访问迭代器，所以只能支持 vector 和 deque。list 成员函数 mylist.sort() 用于 list 排序，时间复杂度是 <code>O(N*logN)</code>。</li>
-<li>std::list 的元素被插入或删除时，除了被操作的结点及其相邻结点，其他所有结点的迭代器都不会失效。std::vector 插入或删除元素（特别是中间元素）会让所有迭代器、指针和引用都失效，因为要重新分配内存然后复制所有元素。所以在频繁的随机插入/删除的场景使用 list，其他场景使用 vector。</li>
+<li>std::list 的元素被插入或删除时，除了被操作的结点及其相邻结点，其他所有结点的迭代器都不会失效。std::vector 插入或删除元素（特别是中间元素）会让原来的所有迭代器、指针和引用都失效，因为要重新分配内存然后复制所有元素。所以在频繁的随机插入/删除的场景使用 list，其他场景使用 vector。</li>
 <li>list 的元素在内存是非连续存储的，遍历 std::list 时，CPU 缓存的命中率会较低，因为相邻的元素可能位于内存的不同位置。所以，即使理论时间复杂度相同，std::list 的实际运行速度也慢于 std::vector。因为 vector 底层采用数组存储数据，所以它的空间局部性更好，对缓存更友好，所以<strong>遍历 vector 的效率要高于遍历 list</strong>。往往在数据量不是特别巨大的情况下，vector 的线性移动甚至比 list 的指针跳转还要快。</li>
 <li>每个结点除了存储数据本身，还要存储两个指针（前驱和后继），这会带来额外的内存开销。对于存储小型数据类型的 std::list 来说，指针的开销会大于数据本身的开销。</li>
 <li>常用操作
@@ -1913,7 +1913,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 <li>遍历元素
 <ul>
 <li>普通访问 <code>for (const auto&amp; v : l)</code> 或 修改值 <code>for (auto&amp; v : l)</code></li>
-<li>需要迭代器位置<code>for (auto it = l.begin(); it != l.end(); ++it)</code></li>
+<li>需要迭代器位置<code>for (auto it = l.begin(); it != l.end(); ++it)</code> (<code>*it</code>访问对应的元素)</li>
 <li>反向遍历<code>for (auto it = l.rbegin(); it != l.rend(); ++it)</code></li>
 <li>遍历并删除，使用 <code>it = l.erase(it)</code> 技巧，或直接用 <code>remove_if</code></li>
 </ul>
@@ -2273,7 +2273,147 @@ config.cpp</p>
 <li>vector 是顺序内存，支持随机访问，list 不行</li>
 <li>vector 在中间节点进行插入删除会导致内存拷贝，list 不会</li>
 <li>vector 一次性分配好内存，不够时才进行翻倍扩容；list 每次插入新节点都会进行内存申请</li>
-<li>vector 随机访问性能好，插入删除性能差;list 随机访问性能差，插入删除性能好</li>
+<li>vector 随机访问性能好，插入删除性能差；list 随机访问性能差，插入删除性能好</li>
+</ul>
+<h3 id="9-vectorltboolgt">(9) <code>vector&lt;bool&gt;</code></h3>
+<p><code>std::vector&lt;bool&gt;</code> 被广泛认为是一个“臭名昭著”的特化。简单来说，<code>std::vector&lt;bool&gt;</code> 不是一个存储 bool 类型元素的 vector，而是一个节省空间的动态位图 (Bitset)。</p>
+<h4 id="出发点空间优化">出发点：空间优化</h4>
+<p>普通的 <code>bool</code> 变量在 C++ 中通常占用 <strong>1 个字节</strong>（8 位），尽管它只需要 1 位就能表示真假。C++ 标准委员会为了节省内存，对 <code>vector&lt;bool&gt;</code> 进行了<strong>特化</strong>：</p>
+<ul>
+<li>它<strong>不是</strong>像 <code>vector&lt;int&gt;</code> 那样一个元素占一个存储单位。</li>
+<li>它是<strong>按位</strong> 存储的。
+<ul>
+<li><code>vector&lt;bool&gt;</code> 中的每个元素只占用 <strong>1 比特</strong>。</li>
+<li>相比 <code>vector&lt;char&gt;</code> 或 <code>vector&lt;uint8_t&gt;</code>（uint8_t 不是 8 字节，而是 8 位，也就是 1 字节），它节省了 <strong>8 倍</strong> 的内存。</li>
+</ul>
+</li>
+</ul>
+<h4 id="核心机制代理模式-proxy-pattern">核心机制：代理模式 (Proxy Pattern)</h4>
+<p>由于计算机的内存寻址是<strong>按字节</strong>进行的，CPU 无法直接生成一个指向“某个字节中第 3 个比特位”的指针或引用。也就是说，<strong><code>bool&amp;</code>（对 bool 的引用）在底层是不存在的，不能指向单个比特。<strong>为了让 <code>v[i] = true</code> 这种语法能工作，<code>std::vector&lt;bool&gt;::operator[]</code> 返回的</strong>不是 <code>bool&amp;</code></strong>，而是一个<strong>辅助类（代理对象）</strong>，通常叫做 <code>std::vector&lt;bool&gt;::reference</code>。这个代理对象内部包含：</p>
+<ul>
+<li>指向包含该比特的字（Word）或字节的指针。</li>
+<li>该比特在字节中的偏移量（Mask）。</li>
+</ul>
+<p>当对这个代理对象赋值时（<code>v[i] = val</code>），它会执行位运算操作来修改那个比特。</p>
+<p>由于这个“代理对象”的存在，<code>vector&lt;bool&gt;</code> 的行为和普通的 <code>vector</code> 并不一致，这违反了 STL 容器的一致性原则。</p>
+<ul>
+<li>
+<p>陷阱 A：无法获取元素的引用</p>
+<p>在普通 vector 中，可以这样做：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br><span class="hljs-type">int</span>&amp; r = v[<span class="hljs-number">0</span>]; <span class="hljs-comment">// OK</span><br></code></pre></td></tr></table></figure>
+<p>在 <code>vector&lt;bool&gt;</code> 中，这会报错：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">bool</span>&gt; vb = &#123;<span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>&#125;;<br><span class="hljs-comment">// 编译错误！</span><br><span class="hljs-comment">// 无法将 &#x27;std::vector&lt;bool&gt;::reference&#x27; 转换为 &#x27;bool&amp;&#x27;</span><br><span class="hljs-type">bool</span>&amp; r = vb[<span class="hljs-number">0</span>];<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>陷阱 B：<code>auto</code> 类型推导的坑</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">bool</span>&gt; vb = &#123;<span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>&#125;;<br><br><span class="hljs-comment">// x 是 vector&lt;bool&gt;::reference</span><br><span class="hljs-keyword">auto</span> x = vb[<span class="hljs-number">0</span>];<br><span class="hljs-comment">// 如果接着修改 x...</span><br>x = <span class="hljs-literal">false</span>; <span class="hljs-comment">// 这实际上修改了 vb[0]！这可能不是你预期的行为</span><br><br><span class="hljs-comment">// 如果 vb 发生了扩容，x 内部持有的指针就会失效。</span><br></code></pre></td></tr></table></figure>
+<p>如果你想用 <code>auto</code> 获得一个值的拷贝，必须显式转换：<br>
+<code>auto x = static_cast&lt;bool&gt;(vb[0]);</code></p>
+</li>
+</ul>
+<h4 id="陷阱-c并发多线程安全问题">陷阱 C：并发/多线程安全问题</h4>
+<ul>
+<li>普通的 <code>vector&lt;char&gt;</code>，线程 A 修改 <code>v[0]</code>，线程 B 修改 <code>v[1]</code>，这是完全安全的（因为它们在不同的字节上）。</li>
+<li>在 <code>vector&lt;bool&gt;</code> 中，<code>v[0]</code> 和 <code>v[1]</code> 位于<strong>同一个字节</strong>。</li>
+<li>当线程 A 试图写入 <code>v[0]</code> 时，它必须：<code>读取字节 -&gt; 修改位 -&gt; 写回字节</code>。</li>
+<li>如果线程 B 同时在写入 <code>v[1]</code>，就会发生<strong>数据竞争 (Data Race)</strong>。</li>
+<li><strong>结论：</strong> 你无法在多线程环境下安全地并发修改 <code>vector&lt;bool&gt;</code> 的不同元素，除非加锁（这会极大地降低性能）。</li>
+</ul>
+<h4 id="陷阱-d它根本不是一个标准容器">陷阱 D：它根本不是一个标准容器</h4>
+<p>C++ 标准规定，如果要成为一个标准的 STL 容器，必须满足 <code>C::reference</code> 等同于 <code>C::value_type&amp;</code>。显然，<code>vector&lt;bool&gt;::reference</code> 不是 <code>bool&amp;</code>。因此，一些通用的模板代码如果依赖这个假设，在 <code>vector&lt;bool&gt;</code> 上会编译失败。</p>
+<h3 id="替代需要位操作且大小固定">替代：需要位操作，且大小固定</h3>
+<p><code>std::bitset&lt;N&gt;</code> 是 C++ 标准库中用于处理<strong>固定大小</strong>位序列（Bit Sequence）的模板类，位于 <code>&lt;bitset&gt;</code> 头文件中。如果说 <code>std::vector&lt;bool&gt;</code> 是为了节省空间的动态数组，那么 <code>std::bitset</code> 就是为了<strong>极致性能</strong>和<strong>位运算便利性</strong>而生的“静态数组”。</p>
+<h4 id="核心特点">核心特点</h4>
+<ul>
+<li><strong>编译期固定大小</strong>：
+<ul>
+<li>模板参数 <code>N</code> 必须是一个<strong>编译期常量</strong>（如 <code>constexpr</code> 或字面量）。你不能在运行时决定 <code>bitset</code> 的大小。例如：<code>std::bitset&lt;32&gt;</code> 或 <code>std::bitset&lt;1024&gt;</code>。</li>
+</ul>
+</li>
+<li><strong>栈上分配 (通常)</strong>：
+<ul>
+<li>因为它大小固定，不涉及动态内存分配（除非 N 极大导致栈溢出），所有数据直接存储在对象内部。这意味着<strong>没有堆分配开销</strong>，也没有指针跳转，速度极快。</li>
+</ul>
+</li>
+<li><strong>极致的位压缩</strong>：
+<ul>
+<li>和 <code>vector&lt;bool&gt;</code> 一样，它每个元素只占 <strong>1 bit</strong>。</li>
+<li><code>sizeof(std::bitset&lt;64&gt;)</code> 通常是 8 字节（正好一个 <code>uint64_t</code>）。</li>
+</ul>
+</li>
+<li><strong>像整数一样运算</strong>：
+<ul>
+<li>支持所有的位运算符（<code>&amp;</code>, <code>|</code>, <code>^</code>, <code>~</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>）。这使得它非常适合做掩码（Mask）或集合运算。</li>
+</ul>
+</li>
+</ul>
+<h4 id="基本用法">基本用法</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;bitset&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 1. 构造</span><br>    std::bitset&lt;8&gt; b1;             <span class="hljs-comment">// 默认构造: 00000000</span><br>    <span class="hljs-function">std::bitset&lt;8&gt; <span class="hljs-title">b2</span><span class="hljs-params">(<span class="hljs-number">12</span>)</span></span>;         <span class="hljs-comment">// 从整数构造: 00001100 (12的二进制)</span><br>    <span class="hljs-function">std::bitset&lt;8&gt; <span class="hljs-title">b3</span><span class="hljs-params">(<span class="hljs-string">&quot;1010&quot;</span>)</span></span>;     <span class="hljs-comment">// 从字符串构造: 00001010</span><br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;b2: &quot;</span> &lt;&lt; b2 &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>; <span class="hljs-comment">// 输出时，高位在左，低位在右</span><br><br>    <span class="hljs-comment">// 2. 访问与修改</span><br>    <span class="hljs-comment">// 索引 0 表示最低位 (Least Significant Bit, 右边第1个)</span><br>    b1[<span class="hljs-number">0</span>] = <span class="hljs-number">1</span>;      <span class="hljs-comment">// 00000001</span><br>    b<span class="hljs-number">1.</span><span class="hljs-built_in">set</span>(<span class="hljs-number">2</span>);      <span class="hljs-comment">// 将第2位设为1 -&gt; 00000101</span><br>    b<span class="hljs-number">1.</span><span class="hljs-built_in">reset</span>(<span class="hljs-number">0</span>);    <span class="hljs-comment">// 将第0位设为0 -&gt; 00000100</span><br>    b<span class="hljs-number">1.f</span>lip();      <span class="hljs-comment">// 全部翻转 (取反) -&gt; 11111011</span><br><br>    <span class="hljs-comment">// 3. 整体位运算 (这是 bitset 最强的地方)</span><br>    <span class="hljs-comment">// 可以直接对整个 bitset 进行与、或、异或</span><br>    std::bitset&lt;8&gt; result = b2 | b3; <span class="hljs-comment">// 00001100 | 00001010 = 00001110</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;OR result: &quot;</span> &lt;&lt; result &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br><br>    <span class="hljs-comment">// 4. 查询状态</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Count (1的数量): &quot;</span> &lt;&lt; result.<span class="hljs-built_in">count</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Any (是否有1): &quot;</span> &lt;&lt; result.<span class="hljs-built_in">any</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;None (是否全0): &quot;</span> &lt;&lt; result.<span class="hljs-built_in">none</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;All (是否全1): &quot;</span> &lt;&lt; result.<span class="hljs-built_in">all</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>; <span class="hljs-comment">// C++11</span><br><br>    <span class="hljs-comment">// 5. 转换</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> num = b<span class="hljs-number">2.</span><span class="hljs-built_in">to_ulong</span>(); <span class="hljs-comment">// 转回整数: 12</span><br>    std::string s = b<span class="hljs-number">2.</span><span class="hljs-built_in">to_string</span>();    <span class="hljs-comment">// 转回字符串: &quot;00001100&quot;</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="stdbitset-vs-stdvectorltboolgt"><code>std::bitset</code> vs <code>std::vector&lt;bool&gt;</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left"><code>std::bitset&lt;N&gt;</code></th>
+<th style="text-align:left"><code>std::vector&lt;bool&gt;</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>大小</strong></td>
+<td style="text-align:left"><strong>固定</strong> (编译期决定)</td>
+<td style="text-align:left"><strong>动态</strong> (运行时可变)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>存储位置</strong></td>
+<td style="text-align:left">通常在<strong>栈</strong>上 (无指针开销)</td>
+<td style="text-align:left"><strong>堆</strong>上 (有指针指向堆内存)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>性能</strong></td>
+<td style="text-align:left"><strong>极快</strong> (且支持整体位运算)</td>
+<td style="text-align:left">较快 (但访问有代理开销)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>位运算支持</strong></td>
+<td style="text-align:left">支持 <code>&amp;</code>, <code>|</code>, <code>^</code>, <code>&lt;&lt;</code> 等</td>
+<td style="text-align:left">不直接支持整体位运算</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>主要用途</strong></td>
+<td style="text-align:left">标志位、掩码、Bloom Filter、固定集合</td>
+<td style="text-align:left">仅仅为了省空间的布尔数组</td>
+</tr>
+</tbody>
+</table>
+<h4 id="常见应用场景">常见应用场景</h4>
+<ul>
+<li>
+<p>A. 权限控制 / 标志位 (Flags)</p>
+<p>代替传统的宏定义 <code>INT_FLAG = 0x01</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::bitset&lt;4&gt; permissions;<br><span class="hljs-comment">// 假设位定义: 0:Read, 1:Write, 2:Exec, 3:Admin</span><br>permissions.<span class="hljs-built_in">set</span>(<span class="hljs-number">0</span>); <span class="hljs-comment">// 赋予读权限</span><br>permissions.<span class="hljs-built_in">set</span>(<span class="hljs-number">1</span>); <span class="hljs-comment">// 赋予写权限</span><br><br><span class="hljs-keyword">if</span> (permissions[<span class="hljs-number">2</span>]) &#123; <span class="hljs-comment">/* 检查执行权限 */</span> &#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>B. 集合运算 (Set Operations)</p>
+<p>如果元素的值域比较小且固定，<code>bitset</code> 是最高效的集合实现。</p>
+<ul>
+<li><strong>交集</strong>：<code>b1 &amp; b2</code></li>
+<li><strong>并集</strong>：<code>b1 | b2</code></li>
+<li><strong>补集</strong>：<code>~b1</code></li>
+<li><strong>差集</strong>：<code>b1 &amp; (~b2)</code></li>
+</ul>
+</li>
+<li>
+<p>C. 大整数的模拟</p>
+<p>如果需要处理比 <code>uint64_t</code> 还大的“二进制串”（例如 1024 位的哈希值），<code>bitset&lt;1024&gt;</code> 是一个很好的容器，因为它支持移位操作。</p>
+</li>
+</ul>
+<h4 id="注意事项">注意事项</h4>
+<ul>
+<li><strong>索引顺序</strong>：<code>bitset</code> 的索引行为类似于数字的二进制表示。<code>b[0]</code> 是<strong>最低位</strong>（最右边），<code>b[N-1]</code> 是<strong>最高位</strong>（最左边）。这与数组的直觉（索引 0 在最左边）有时是反的，打印出来时尤其要注意。</li>
+<li><strong>大小限制</strong>：<code>N</code> 不能太大导致栈溢出。如果需要非常巨大的位图（比如几十 MB），还是应该用 <code>vector&lt;bool&gt;</code> 或者 <code>boost::dynamic_bitset</code>。</li>
+<li>如果知道位序列有多长，并且长度不会变，<strong>首选 <code>std::bitset</code></strong>。它比 <code>vector&lt;bool&gt;</code> 更快、更轻、功能更强。</li>
+<li>如果需要位操作，且大小动态变化，使用 <strong><code>boost::dynamic_bitset</code></strong>。它提供了类似 <code>vector&lt;bool&gt;</code> 的空间优化，但接口设计得更像位图。</li>
 </ul>
 <h2 id="24-多线程锁">24. 多线程/锁</h2>
 <p>见 <a href="/2024/12/29/multi-threads/"> CPP 多线程通信/锁/死锁 相关</a></p>
