@@ -29,7 +29,7 @@
 <meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-04-05T21:07:22.060Z">
-<meta property="article:modified_time" content="2025-11-22T07:34:33.927Z">
+<meta property="article:modified_time" content="2025-11-29T07:09:46.935Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          65k words
+          70k words
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          543 mins
+          588 mins
         
       </span>
     
@@ -1642,6 +1642,54 @@ PS: noexcept 是用于声明一个函数不会抛出异常的关键字，用来�
 <p>输出所有内存分配和未释放位置</p>
 </li>
 </ul>
+<h3 id="4-代码段和只读数据段的区别">(4) 代码段和只读数据段的区别</h3>
+<p>这两个段在物理内存中虽然通常都是“只读”的，但在<strong>CPU 执行机制</strong>和<strong>操作系统权限管理</strong>上有着严格的界限。</p>
+<h4 id="代码段-text-segment">代码段 (<code>.text</code> Segment)</h4>
+<ul>
+<li><strong>内容</strong>：存放 CPU 的<strong>机器指令</strong>，即编译器翻译后的二进制操作码。</li>
+<li><strong>目的</strong>：供 CPU 的 <strong>取指单元 (Instruction Fetch Unit)</strong> 读取，然后解码并执行。</li>
+<li><strong>内存页权限</strong>：<strong>R-X (Read + Execute)</strong>。必须拥有“执行”权限，否则 CPU 无法运行这里的代码。</li>
+</ul>
+<h4 id="只读数据段-rodata-segment">只读数据段 (<code>.rodata</code> Segment)</h4>
+<ul>
+<li><strong>内容</strong>：存放程序运行期间不可修改的<strong>常量数据</strong>。例如字符串字面量、<code>const</code> 全局变量、<code>switch</code> 语句的跳转表。</li>
+<li><strong>目的</strong>：供 CPU 的 <strong>加载/存储单元 (Load/Store Unit)</strong> 读取，作为运算的操作数。</li>
+<li><strong>内存页权限</strong>：<strong>R-- (Read Only)</strong>。通常<strong>没有</strong>“执行”权限（NX/DEP 保护），以防止数据被误当成指令执行。</li>
+</ul>
+<h4 id="为什么不能把虚表放在代码段">为什么不能把虚表放在代码段？</h4>
+<p>虚表本质上是一个<strong>函数指针数组</strong>。虽然它存储的是代码的地址，但它本身是被程序<strong>读取</strong>和<strong>查询</strong>的内容，属于<strong>数据</strong>，而非指令。</p>
+<p>如果强行将虚表放在代码段 (<code>.text</code>)，会引发以下三个层面的严重工程问题：</p>
+<ul>
+<li>
+<p>安全性问题：违反数据执行保护 (DEP/NX)</p>
+<p>现代操作系统遵循一个安全原则：<strong>数据不应具有执行权限</strong>（W^X 原则的一部分）。</p>
+<ul>
+<li><strong>风险</strong>：代码段必须拥有“执行”权限。如果将虚表（数据）放在代码段，意味着这块数据也拥有了执行权限。</li>
+<li><strong>攻击向量</strong>：攻击者可以利用缓冲区溢出等漏洞，跳转到虚表所在的地址。虽然虚表里存的是地址，但在 CPU 看来，这些二进制位可能恰好构成了恶意的机器指令（Gadget）。这为 <strong>ROP (面向返回编程)</strong> 攻击提供了可利用的素材。</li>
+<li><strong>正确做法</strong>：将虚表放在只读数据段，并标记为“不可执行 (No-Execute)”，从硬件层面杜绝其被当作代码运行的可能。</li>
+</ul>
+</li>
+<li>
+<p>性能问题：CPU 缓存架构 (哈佛架构)</p>
+<p>现代 CPU 的一级缓存（L1 Cache）通常采用<strong>哈佛架构</strong>，将<strong>指令缓存 (I-Cache)</strong> 和 <strong>数据缓存 (D-Cache)</strong> 物理分离。</p>
+<ul>
+<li><strong>指令流</strong>：CPU 从 <code>.text</code> 段预取指令，放入 <strong>I-Cache</strong>。</li>
+<li><strong>数据流</strong>：CPU 执行虚函数调用指令（如 <code>mov rax, [ptr]</code>）时，是在请求数据，这会去访问 <strong>D-Cache</strong>。</li>
+<li><strong>冲突</strong>：如果虚表混在代码段中，CPU 的预取机制可能会将其误认为是指令加载到 I-Cache 中。但当程序真正需要读取虚表进行函数跳转时，CPU 又必须通过数据总线去访问它（期望在 D-Cache 中）。</li>
+<li><strong>后果</strong>：这种混杂会导致缓存利用率下降，增加缓存未命中（Cache Miss）的概率，从而降低 CPU 流水线的执行效率。</li>
+</ul>
+</li>
+<li>
+<p>内存效率问题：破坏写时复制 (Copy-on-Write)</p>
+<p>这是动态链接库（Shared Libraries）中的关键问题。</p>
+<ul>
+<li><strong>共享机制</strong>：操作系统为了节省内存，会让运行同一个程序的多个进程<strong>共享</strong>同一份物理内存中的代码段 (<code>.text</code>)，因为代码段通常是只读且不变的。</li>
+<li><strong>重定位</strong>：<strong>程序启动时，动态链接器往往需要修改虚表中的指针值（填入函数在当前内存中的真实地址）</strong>。</li>
+<li><strong>后果</strong>：如果虚表位于代码段，链接器修改虚表时，就是试图<strong>修改代码段</strong>。这会触发操作系统的 <strong>写时复制 (CoW)</strong> 机制。</li>
+<li><strong>代价</strong>：操作系统被迫为每个进程单独拷贝一份代码段的物理内存副本。原本可以跨进程共享的内存，变成了每个进程私有的，这极大地浪费了物理内存。</li>
+</ul>
+</li>
+</ul>
 <h2 id="13-如何构造一个只能在堆上创建对象的类如何构造一个只能在栈上创建对象的类">13. 如何构造一个只能在堆上创建对象的类？如何构造一个只能在栈上创建对象的类？</h2>
 <ul>
 <li>
@@ -1830,11 +1878,105 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 </li>
 </ul>
 <h2 id="17-是否了解函数的调用约定">17. 是否了解函数的调用约定？</h2>
+<h3 id="1-函数调用开销">(1) 函数调用开销</h3>
+<p>函数调用开销的大小取决于<strong>上下文</strong>（是普通函数、虚函数还是系统调用）以及<strong>硬件架构</strong>。在现代 CPU 上，**普通函数调用的开销极小（纳秒级），但在高频循环中不可忽视。**可以把函数调用开销分为三个层级来剖析：</p>
+<h4 id="物理层面的开销">物理层面的开销</h4>
+<p>当 CPU 执行 <code>call</code> 指令时，它必须完成一系列“规定动作”：</p>
 <ul>
-<li>调用函数与被调用函数之间堆栈的平衡是如何实现的？</li>
-<li>函数调用的堆栈平衡具体如何实现？</li>
-<li>栈帧是调用函数生成还是被调用函数生成？</li>
+<li><strong>保存现场</strong>：把当前的指令地址（返回地址）压入栈。</li>
+<li><strong>跳转</strong>：更新指令寄存器 (IP/PC) 指向新函数的地址。</li>
+<li><strong>参数传递</strong>：
+<ul>
+<li><strong>寄存器传递</strong>（快）：在 x64 架构下，前 6 个参数通常通过寄存器传递。</li>
+<li><strong>栈传递</strong>（慢）：如果参数太多，多余的参数需要压栈（涉及内存写操作）。</li>
 </ul>
+</li>
+<li><strong>保存寄存器</strong>：如果被调用的函数需要使用某些特定的寄存器，它必须先保存这些寄存器原有的值，返回前再恢复（Callee-saved registers）。</li>
+<li><strong>建立栈帧 (Stack Frame)</strong>：
+<ul>
+<li>栈帧是程序运行时栈（Call Stack）中的一个逻辑片段。简单来说，它是某一次函数调用所需要的“全部上下文环境”和“私有工作空间”。每当调用一个函数，操作系统就会在栈内存中给这个函数划出一块地盘叫栈帧。当<strong>函数执行结束，这块地盘就会被收回</strong>。</li>
+<li>移动栈指针 (SP/BP)。</li>
+<li>如果函数有局部变量，要在栈上分配空间。</li>
+</ul>
+</li>
+<li><strong>恢复现场</strong>：函数结束时，弹出栈帧，弹出返回地址，跳回原处。</li>
+</ul>
+<p>PS：</p>
+<ul>
+<li>Caller 负责在跳转之前
+<ul>
+<li>传参：把参数压入栈中（x86）或者放入特定的寄存器（x64）。</li>
+<li>压入返回地址：执行 call 指令时，CPU 会自动<strong>把即函数执行完回来的地址压入栈顶</strong>。<br>
+此时，栈帧还未真正形成，只是有了数据基础。</li>
+</ul>
+</li>
+<li>当指令跳转到被调用函数的第一行代码时（Function Prologue），栈帧才正式被创建。<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs perl"><span class="hljs-keyword">push</span> rbp      ; <span class="hljs-regexp">//</span> 保存调用者(Caller)的栈帧指针(Register base pointer, RBP)（指向栈底）(这是为了能在结束时还原)<br>mov  rbp, rsp ; <span class="hljs-regexp">//</span> 将当前的栈顶(Register stack pointer, RSP)变成新函数的栈帧指针，这时栈帧创建了<br><span class="hljs-function"><span class="hljs-keyword">sub</span>  <span class="hljs-title">rsp</span>, 48  </span>; // 移动栈顶指针，为空出的局部变量分配空间<br></code></pre></td></tr></table></figure>
+</li>
+<li>调用者 (Caller)负责参数、返回地址；被调用者 (Callee)负责保存旧基址、设置新基址、分配局部变量空间。</li>
+</ul>
+<h4 id="量化级别">量化级别</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">函数类型</th>
+<th style="text-align:left">典型开销 (CPU 周期)</th>
+<th style="text-align:left">时间估算 (假设 3GHz 主频)</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>内联函数 (Inline)</strong></td>
+<td style="text-align:left"><strong>0 周期</strong></td>
+<td style="text-align:left"><strong>0 ns</strong></td>
+<td style="text-align:left">编译器直接将代码展开，完全没有调用开销。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>普通函数 (Direct Call)</strong></td>
+<td style="text-align:left"><strong>~1 - 3 周期</strong></td>
+<td style="text-align:left"><strong>&lt; 1 ns</strong></td>
+<td style="text-align:left">如果参数少且用寄存器传递，开销极低，几乎可以忽略不计。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>虚函数 (Virtual Call)</strong></td>
+<td style="text-align:left"><strong>~3 - 10 周期</strong></td>
+<td style="text-align:left"><strong>1 - 3 ns</strong></td>
+<td style="text-align:left">需要查虚表 (vtable)，属于“间接跳转”。如果虚表不在缓存中，开销会暴增。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>系统调用 (System Call)</strong></td>
+<td style="text-align:left"><strong>&gt; 100 周期</strong></td>
+<td style="text-align:left"><strong>&gt; 200 ns</strong></td>
+<td style="text-align:left">如 <code>read()</code>, <code>write()</code>。涉及用户态到内核态的切换，开销巨大。</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>对于高频使用的函数，避免在紧凑循环中调用<strong>虚函数</strong>，因为虚函数很难被内联，且容易导致分支预测失败。</p>
+</li>
+<li>
+<p><strong>对于系统调用</strong>尽量做<strong>批处理</strong>。比如不要写 1000 次 <code>write</code> 每次写 1 个字节，而是攒够 1000 字节调用 1 次 <code>write</code>。</p>
+</li>
+</ul>
+<h4 id="隐形的开销">“隐形”的开销</h4>
+<ul>
+<li>
+<p><strong>打断流水线 (Pipeline Flush)</strong>：<br>
+CPU 喜欢顺序执行指令。虽然现代 CPU 有分支预测（Branch Prediction），但函数调用本质上是跳转。如果预测失败，CPU 流水线会被清空，导致数十个周期的浪费。</p>
+</li>
+<li>
+<p><strong>指令缓存未命中 (Instruction Cache Miss)</strong>：<br>
+如果调用的函数代码在内存的一个很远的地方，它可能不在 CPU 的 L1 指令缓存中。CPU 必须去 L2/L3 甚至主存去取代码，这会导致<strong>几十到几百纳秒</strong>的延迟。</p>
+</li>
+<li>
+<p><strong>编译器优化阻碍</strong>：<br>
+如果编译器无法看到函数内部的实现（例如函数在另一个 <code>.cpp</code> 文件中且未开启 LTO 链接时优化），编译器就无法进行<strong>指令重排</strong>、<strong>常量折叠</strong>等激进优化。</p>
+</li>
+</ul>
+<h3 id="2-调用函数与被调用函数之间堆栈的平衡是如何实现的">(2) 调用函数与被调用函数之间堆栈的平衡是如何实现的？</h3>
+<p>所谓“堆栈平衡”，核心任务只有一个：函数调用结束后，栈顶指针（ESP/RSP）必须回到调用前的状态。如果栈不平衡，当调用者（Caller）继续执行后续指令时，或者尝试从栈中恢复数据时，就会读到错误的内存地址，导致程序崩溃。堆栈平衡的实现完全依赖于调用约定（Calling Convention）。简单来说，就是规定了：“谁负责清理压入栈的参数？是调用者还是被调用者？”</p>
+<p>在 64 位系统（x64）中，前 6 个参数通过寄存器传递，不再需要压栈，因此“参数平衡”的问题在现代编程中变得不那么显眼了，但其底层原理依然遵循 Caller/Callee 的责任划分。</p>
 <h2 id="18-new-和-malloc-的区别-delete-和-free-有什么区别">18. new 和 malloc 的区别 / delete 和 free 有什么区别</h2>
 <ul>
 <li>
@@ -1856,7 +1998,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 </li>
 </ul>
 <h2 id="19-stl-杂项">19. stl 杂项</h2>
-<h3 id="stdlist">std::list</h3>
+<h3 id="1-stdlist">(1) std::list</h3>
 <ul>
 <li>双向环形链表</li>
 <li>用 empty() 而非 size() == 0 来判定是否为空。empty()对所有的标准容器都是常数时间操作，而 size()对于 list 耗费的是线性时间。</li>
@@ -1919,7 +2061,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 </ul>
 </li>
 </ul>
-<h3 id="stdpair">std::pair</h3>
+<h3 id="2-stdpair">(2) std::pair</h3>
 <ul>
 <li>pair 在底层被定义为一个 struct，其所有成员默认是 public，两个成员分别是 first 和 second</li>
 <li>std::map 的元素是 pair，<code>pair&lt;const key_type，mapped_type&gt;</code></li>
@@ -1931,7 +2073,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 <li>insert 对<strong>不包含重复关键字</strong>的容器，插入成功返回<code>pair&lt;iterator，bool&gt;</code>迭代器指向给定关键字元素，bool 指出插入是否成功。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vector&lt;pair&lt;<span class="hljs-type">char</span>,<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">result</span>(val.<span class="hljs-built_in">begin</span>(),val.<span class="hljs-built_in">end</span>());<br><span class="hljs-built_in">sort</span>(result.<span class="hljs-built_in">begin</span>(), result.<span class="hljs-built_in">end</span>(), [](<span class="hljs-keyword">auto</span> &amp;a, <span class="hljs-keyword">auto</span> &amp;b)&#123; <span class="hljs-keyword">return</span> a.second &gt; b.second;&#125;);<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="stddeque">std::deque</h3>
+<h3 id="3-stddeque">(3) std::deque</h3>
 <ul>
 <li>分块的内存，相比 vector 稍慢的随机访问</li>
 <li>底层结构：deque 的内存不是连续的，而是<strong>分段连续</strong>的。通常由<strong>一个中控器</strong>（一个<strong>指针数组 map</strong>，同时维护其当前长度）和<strong>多个内存块</strong>（buffers）组成。<strong>中控器里的每个指针指向一个实际存储数据的内存块</strong>。一旦有必要，deque 在其头端或尾端增加新的空间。</li>
@@ -1946,12 +2088,12 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 <li>deque 拥有 start 与 finish 迭代器，分别由 deque:begin()与 deque:end()返回。start 指向第一个 buffer 的第一个元素，finish 指向最后一个 buffer 的最后一个元素的下一个位置。</li>
 <li>std::stack 和 std::queue 是容器适配器 (Container Adapters)。它们本身不管理任何数据，而是像一个“接口转换器”，包装了一个底层容器（默认就是 std::deque），并对外提供受限的、特定的接口（如后进先出或先进先出）。适配器是一种设计模式，它的作用是“适配”一个类的接口，使其看起来像用户所期望的另一个接口。std::priority_queue 是一个基于底层容器的优先队列实现，默认使用 std::vector。</li>
 </ul>
-<h3 id="stdpriority_queue">std::priority_queue</h3>
+<h3 id="4-stdpriority_queue">(4) std::priority_queue</h3>
 <ul>
 <li>std::priority_queue 是在头文件 <code>&lt;queue&gt;</code> 中定义的一个容器适配器类。它提供了一个我们通常期望的优先队列应有的所有功能，是一棵完全二叉树。内部包含一个容器（默认是 std::vector）来存储数据，并自动调用 <code>&lt;algorithm&gt;</code> 中的 heap 相关函数（make_heap, pop_heap, push_heap）来维护堆的性质。</li>
 <li>std::priority_queue 不维护迭代器。</li>
 </ul>
-<h3 id="stdmap-and-stdunordered_map">std::map and std::unordered_map</h3>
+<h3 id="5-stdmap-and-stdunordered_map">(5) std::map and std::unordered_map</h3>
 <table>
 <thead>
 <tr>
@@ -2011,13 +2153,89 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 </ul>
 </li>
 </ul>
-<h3 id="迭代器">迭代器</h3>
+<h3 id="6-迭代器">(6) 迭代器</h3>
 <ul>
-<li>迭代器为不同类型的容器提供了统一的访问接口， 隐藏了底层容器的具体实现细节， 允许开发者使用一致的语法来操作不同类型的容器。</li>
+<li>迭代器为不同类型的容器提供了统一的访问接口，隐藏了底层容器的具体实现细节，允许开发者使用一致的语法来操作不同类型的容器。</li>
 <li>对于序列容器 vector，deque 来说，使用 erase 后，后边的每个元素的迭代器都会失效，后边每个元素都往前移动一位，erase 返回下一个有效的迭代器。</li>
 <li>对于关联容器 map，set 来说，使用了 erase 后，当前元素的迭代器失效，但是其结构是红黑树，删除当前元素，不会影响下一个元素的迭代器，所以在调用 erase 之前，记录下一个元素的迭代器即可。</li>
 <li>对于 list 来说，它使用了不连续分配的内存，并且它的 erase 方法也会返回下一个有效的迭代器，因此上面两种方法都可以使用。</li>
 </ul>
+<h3 id="7-stdfind-vs-containerfind">(7) std::find vs. container.find()</h3>
+<p>核心区别在于 <strong>算法复杂度（性能）</strong> 和 <strong>利用底层数据结构的能力</strong>。只要容器提供了自己的 <code>find()</code> 成员函数，就永远优先使用成员函数；只有当容器没有成员函数时（如 <code>vector</code>），才使用 <code>std::find</code>。</p>
+<h4 id="stdfind"><code>std::find</code></h4>
+<p>它是定义在 <code>&lt;algorithm&gt;</code> 头文件中的通用模板函数。</p>
+<ul>
+<li><strong>适用范围</strong>：所有支持迭代器的容器（<code>vector</code>, <code>list</code>, <code>deque</code>, <code>array</code>, <code>map</code>, <code>set</code> 等）。</li>
+<li><strong>工作原理</strong>：<strong>线性查找 (Linear Scan)</strong>。它从 <code>begin</code> 开始，一个个遍历元素，用 <code>==</code> 进行比较，直到找到目标或到达 <code>end</code>。</li>
+<li><strong>时间复杂度</strong>：<strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>。</li>
+<li><strong>缺点</strong>：它是“盲目”的。即使容器内部是有序的（如 <code>map</code>），<code>std::find</code> 也不知道，依然会从头挨个找。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;<span class="hljs-type">int</span>&gt; v = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br><span class="hljs-comment">// vector 没有成员 find，必须用 std::find</span><br><span class="hljs-keyword">auto</span> it = std::<span class="hljs-built_in">find</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">3</span>); <span class="hljs-comment">// O(N)</span><br></code></pre></td></tr></table></figure>
+<h4 id="容器自带的-find-成员函数">容器自带的 <code>.find()</code> (成员函数)</h4>
+<p>只有 <strong>关联式容器</strong>（Associative Containers）才提供这个成员函数，它们提供成员函数的原因是：<strong>它们有特殊的底层结构，可以查找得更快</strong>。这里的关联式容器是 STL 中与 序列式容器 (Sequence Containers, 如 vector, list) 相对的一大类容器。</p>
+<p>包括：</p>
+<ul>
+<li><strong>有序容器</strong>：<code>set</code>, <code>map</code>, <code>multiset</code>, <code>multimap</code>
+<ul>
+<li><strong>底层结构</strong>：红黑树。</li>
+<li><strong>工作原理</strong>：利用树的结构进行二分查找（比较 Key 的大小，决定向左走还是向右走）。</li>
+<li><strong>时间复杂度</strong>：<strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong>。</li>
+<li><strong>对比</strong>：在 100 万个元素中查找，<code>std::find</code> 平均要比较 50 万次，而 <code>set::find</code> 只需要比较约 20 次（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><msub><mi>g</mi><mn>2</mn></msub><mn>1000000</mn></mrow><annotation encoding="application/x-tex">log_21000000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">o</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">1000000</span></span></span></span>）。</li>
+</ul>
+</li>
+<li><strong>无序容器</strong>：<code>unordered_set</code>, <code>unordered_map</code> 等
+<ul>
+<li><strong>底层结构</strong>：哈希表。</li>
+<li><strong>工作原理</strong>：计算 Key 的哈希值，直接定位到桶 (Bucket)。</li>
+<li><strong>时间复杂度</strong>：<strong>平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></strong> (常数级)。</li>
+<li><strong>对比</strong>：无论数据量多大，它几乎都是瞬间找到。</li>
+</ul>
+</li>
+<li>特殊情况：<code>std::string</code><br>
+<code>std::string</code> 也是一个容器，它也有自己的 <code>find()</code>，但它的行为比较特殊：
+<ul>
+<li><strong>返回值</strong>：它不返回迭代器，而是返回 <strong>下标索引 (<code>size_t</code>)</strong>。如果没找到，返回 <code>std::string::npos</code>。</li>
+<li><strong>复杂度</strong>：通常是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo>×</mo><mi>M</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N \times M)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mclose">)</span></span></span></span> 或优化后的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span>（取决于子串长度）。它比 <code>std::find</code> 强在可以查找<strong>子串</strong>（返回子串的起始下标），而 <code>std::find</code> 只能查找<strong>单个字符</strong>。</li>
+</ul>
+</li>
+</ul>
+<h4 id="总结">总结</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">容器类型</th>
+<th style="text-align:left">推荐使用的 Find</th>
+<th style="text-align:left">时间复杂度</th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>vector</code>, <code>list</code>, <code>deque</code></strong></td>
+<td style="text-align:left"><strong><code>std::find</code></strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">没有成员 <code>find</code>，没得选。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>set</code>, <code>map</code>, <code>multiset</code></strong></td>
+<td style="text-align:left"><strong>成员 <code>.find()</code></strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left"><strong>千万别用</strong> <code>std::find</code>，否则性能极其低下。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>unordered_set/map</code></strong></td>
+<td style="text-align:left"><strong>成员 <code>.find()</code></strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">利用哈希特性。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>string</code></strong></td>
+<td style="text-align:left"><strong>成员 <code>.find()</code></strong></td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+<td style="text-align:left">如果找子串用成员函数；找单个字符两者皆可。</td>
+</tr>
+</tbody>
+</table>
 <h2 id="20-指针和引用的区别">20. 指针和引用的区别</h2>
 <ul>
 <li>指针是一个变量，只不过这个变量存储的是一个地址，指向内存的一个存储单元，即指针是一个实体；而引用跟原来的变量实质上是一个东西，只不过是原变量的一个别名而已。</li>
@@ -2080,7 +2298,7 @@ PS：工厂模式就是把创建对象的复杂逻辑封装起来。</p>
 <h3 id="1-extern">(1) extern</h3>
 <ul>
 <li>
-<p>用于声明一个变量或函数是在其他文件中定义的，告知编译器“这个符号的定义在别处”，当前只作声明，不要在当前文件重新分配内存或生成代码。</p>
+<p>用于<strong>声明一个变量或函数是在其他文件中定义的</strong>，告知编译器“这个符号的定义在别处”，当前只作声明，不要在当前文件重新分配内存或生成代码。</p>
 <ul>
 <li>用于跨源文件共享变量/函数</li>
 <li>避免重复定义（multiple definition）错误</li>
@@ -2125,10 +2343,10 @@ config.cpp</p>
 <ul>
 <li>
 <p>由前述可知，extern 修饰某个函数/变量，可以表明该函数/变量的定义在其他文件中，从而避免重复定义。<br>
-假设有 test.h, test.cpp, and main.cpp 三个文件。test.h 中定义（实现）一个 func1，test.cpp 和 main.cpp 中都 include 了 test.h，并使用 func1。此时编译 main.cpp 会出现错误。由前可知，此错误可以用 extern 或 inline 解决，在 test.cpp 中用 extern 声明外部函数 func1。而新特性下的 inline 已经不在表明是否内联，是否内联现在完全由编译器决定。新特性下的 inline 允许函数在多个文件中定义，编译时合并为一份，避免多重定义错误。每个文件中出现的定义都被认为是“同一个函数的多次定义”，链接器不会报错。这样用法主要用于函数，也可用于变量（C++17 起）。在上述例子中，可以在头文件里用 inline 修饰 func1。值得注意的是，<strong>不同文件里的多个定义应该完全一样，因为如果定义不同不同编译器可能随机使用某个定义</strong>。</p>
+假设有 test.h, test.cpp, and main.cpp 三个文件。test.h 中定义（实现）一个 func1，test.cpp 和 main.cpp 中都 include 了 test.h，并使用 func1。此时编译 main.cpp 会出现错误。由前可知，此错误可以用 extern 或 inline 解决，在 test.cpp 中用 extern 声明外部函数 func1。而新特性下的 inline 已经不在表明是否内联，是否内联现在完全由编译器决定。<strong>新特性下的 inline 允许函数在多个文件中定义，编译时合并为一份，避免多重定义错误</strong>。每个文件中出现的定义都被认为是“同一个函数的多次定义”，链接器不会报错。这样用法主要用于函数，也可用于变量（C++17 起）。在上述例子中，可以在头文件里用 inline 修饰 func1。值得注意的是，<strong>不同文件里的多个定义应该完全一样，因为如果定义不同不同编译器可能随机使用某个定义</strong>。</p>
 </li>
 <li>
-<p>Vague Linkage（模糊链接） 是一种 C++ 规则，它允许模板和内联函数在多个 .cpp 文件中被重复定义，链接器在链接时会“智能地”将这些重复的定义合并成一个，而不是像对待普通函数那样报错。前提是所有这些重复的定义必须完全一致（遵守 ODR (One Definition Rule)），否则会导致未定义行为。</p>
+<p>Vague Linkage（模糊链接） 是一种 C++ 规则，它允许<strong>模板和内联函数</strong>在多个 .cpp 文件中被重复定义，链接器在链接时会“智能地”将这些重复的定义合并成一个，而不是像对待普通函数那样报错。前提是所有这些重复的定义必须完全一致（遵守 ODR (One Definition Rule)），否则会导致未定义行为。</p>
 </li>
 <li>
 <p>extern 和 inline 的对比：</p>
@@ -2138,11 +2356,139 @@ config.cpp</p>
 <li>使用场景：extern 用于声明全局变量（跨多个文件共享一个全局变量）/ 外部接口；inline 定义 header-only 工具函数 / 模板函数</li>
 </ul>
 </li>
+</ul>
+<h3 id="4-static">(4) static</h3>
+<ul>
 <li>
-<p>用 static 修饰函数也可以解决重复定义问题，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有内部链接，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。<strong>即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号</strong>。但是不推荐<strong>在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本</strong>。因此，static 函数的典型用途是：定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline 则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
+<p>用 static 修饰函数也可以<strong>解决重复定义问题</strong>，但其原理和使用场景与 extern 和 inline 完全不同。用 static 修饰函数的本质是表明该函数具有<strong>内部链接</strong>，即该函数<strong>只在当前翻译单元（.cpp 文件）中可见</strong>，不会导出到外部。<strong>即使多个 .cpp 文件中有相同名字的 static 函数，它们在编译期也不会冲突，因为它们在链接器眼中是不同的、局部的符号</strong>。但是不推荐<strong>在头文件中用 static 修饰函数，因为这样会在每个.cpp 都生成一个副本</strong>。因此，static 函数的典型用途是：<strong>定义仅供当前 .cpp 文件内部使用的辅助函数；避免函数被导出给其他模块使用</strong>（隐藏实现细节）；提升封装性、限制可见性。总结就是 static 修饰函数可以解决重定义，但无法共享函数定义；inline 则告诉链接器多个翻译单元中出现相同函数定义是可以的，链接时只保留一个函数定义。</p>
+<ul>
+<li>
+<p>静态变量和全局变量的区别：作用域（Scope）、生命周期（Lifetime）和 链接属性（Linkage）。</p>
+<ul>
+<li>
+<p>全局变量 vs. 静态全局变量（在函数外加 <code>static</code>）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left">普通全局变量</th>
+<th style="text-align:left">静态全局变量 (<code>static</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>关键字</strong></td>
+<td style="text-align:left">无</td>
+<td style="text-align:left"><code>static</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>存储位置</strong></td>
+<td style="text-align:left">全局/静态存储区 (Data/BSS 段)</td>
+<td style="text-align:left">全局/静态存储区 (Data/BSS 段)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>生命周期</strong></td>
+<td style="text-align:left">程序运行期间一直存在</td>
+<td style="text-align:left">程序运行期间一直存在</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>初始化</strong></td>
+<td style="text-align:left">默认初始化为 0</td>
+<td style="text-align:left">默认初始化为 0</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>作用域 (关键区别)</strong></td>
+<td style="text-align:left"><strong>整个程序</strong> (跨文件可见)</td>
+<td style="text-align:left"><strong>仅当前文件</strong> (文件作用域)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>链接属性</strong></td>
+<td style="text-align:left"><strong>外部链接</strong> (External Linkage)</td>
+<td style="text-align:left"><strong>内部链接</strong> (Internal Linkage)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>普通全局变量</strong>：</p>
+<ul>
+<li>它具有<strong>外部链接属性</strong>。</li>
+<li>这意味着：如果你在 <code>A.cpp</code> 中定义了 <code>int g_var = 10;</code>，你可以在 <code>B.cpp</code> 中通过 <code>extern int g_var;</code> 来访问并修改它。</li>
+<li><strong>缺点</strong>：容易导致命名冲突（命名空间污染）。如果两个文件都定义了同名的全局变量，链接时会报错（重定义）。</li>
+</ul>
+</li>
+<li>
+<p><strong>静态全局变量</strong>：</p>
+<ul>
+<li>它具有<strong>内部链接属性</strong>。</li>
+<li>这意味着：<code>static int s_var = 10;</code> 只能在定义它的那个 <code>.cpp</code> 文件内部被访问。其他文件完全看不到它，即使<strong>同名也不会冲突</strong>。</li>
+<li><strong>优点</strong>：实现了<strong>封装</strong>，隐藏了实现细节。</li>
+</ul>
 </li>
 </ul>
-<h3 id="4-内联函数-和-宏define的区别">(4) 内联函数 和 宏（#define）的区别</h3>
+</li>
+<li>
+<p>普通局部变量 vs. 静态局部变量（在函数内加 <code>static</code>）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left">普通局部变量</th>
+<th style="text-align:left">静态局部变量 (<code>static</code> Local)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>定义位置</strong></td>
+<td style="text-align:left">函数内部</td>
+<td style="text-align:left">函数内部</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>存储位置</strong></td>
+<td style="text-align:left"><strong>栈 (Stack)</strong></td>
+<td style="text-align:left"><strong>全局/静态存储区 (Data/BSS 段)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>生命周期</strong></td>
+<td style="text-align:left"><strong>函数调用期间</strong></td>
+<td style="text-align:left"><strong>整个程序运行期间</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>作用域</strong></td>
+<td style="text-align:left">函数内部</td>
+<td style="text-align:left">函数内部</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>初始化</strong></td>
+<td style="text-align:left">每次调用函数时重新初始化</td>
+<td style="text-align:left"><strong>仅在第一次调用时初始化一次</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>值保持</strong></td>
+<td style="text-align:left">函数结束即销毁，值丢失</td>
+<td style="text-align:left"><strong>函数结束不销毁，保留上次的值</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>静态局部变量</strong>：
+<ul>
+<li>虽然它的作用域被限制在函数内（外面看不见），但它的命比函数长。</li>
+<li>它就像是函数的一个“私有记忆”，下次再调用这个函数时，它还记得上次的值。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>static</code> 加在<strong>全局</strong>变量前，是为了<strong>限制作用域</strong>（别让外人看）。</p>
+</li>
+<li>
+<p><code>static</code> 加在<strong>局部</strong>变量前，是为了<strong>延长生命周期</strong>（别死得太早）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-内联函数-和-宏define的区别">(5) 内联函数 和 宏（#define）的区别</h3>
 <p>内联函数是语义完整、类型安全的函数，由编译器在编译阶段决定是否内联；而宏是<strong>预处理器文本替换</strong>，不进行类型检查，容易引发副作用和调试困难。除非必要，现代 C++ 推荐使用 inline 函数代替函数类宏。</p>
 <h2 id="23-vector">23. vector</h2>
 <h3 id="1-vector-底层实现">(1) vector 底层实现</h3>
@@ -3882,13 +4228,137 @@ src &lt;= dst &lt;= src+strlen(src) 即 dst 的起始位置相较于 src 的起�
 </ul>
 </li>
 </ul>
-<h3 id="4实现-string">（4）实现 string</h3>
+<h3 id="4copy-on-write-cow-写时拷贝">（4）Copy On Write (CoW) 写时拷贝</h3>
+<p>简单来说：当想要复制一个庞大的数据时，系统并不真正立即复制一份数据，而是让新旧两个对象<strong>共享</strong>同一份数据。只有当其中一方试图修改（Write）这份数据时，系统才会被迫真正去拷贝一份副本给修改者。如果从来没有发生过修改，那么这此复制操作就永远省下来了。</p>
+<p>在 C++ 的历史上，<code>std::string</code> 曾经是 CoW 技术的经典应用场景。在 C++98/03 时代，很多 C++ 标准库实现（比如 GCC 的 <code>libstdc++</code>）对 <code>std::string</code> 采用了 CoW 策略。这样的好处是<code>std::string s2 = s1;</code> 非常快，几乎不耗时，因为只是增加了一个引用计数。</p>
+<p>到了 C++11 时代，C++11 标准实际上<strong>禁止</strong>了 <code>std::string</code> 使用 CoW 实现。现在的主流实现（GCC, Clang, MSVC）都改用了 <strong>SSO (Small String Optimization)</strong> 策略。这主要是因为：</p>
+<ul>
+<li><strong>多线程开销大</strong>：为了实现 CoW，共享数据的引用计数必须是<strong>原子操作</strong>（Atomic）。在多线程环境下，频繁的原子增减操作会导致严重的锁竞争，反而降低了性能。</li>
+<li><strong>复杂度与迭代器失效</strong>：CoW 会导致很多诡异的行为。比如只是通过 <code>[]</code> 读取一个字符，编译器可能无法区分是要“读”还是要“写”（<code>operator[]</code> 返回引用），为了保险起见，可能不得不提前触发复制。</li>
+</ul>
+<p>所以，现在的 C++ <code>std::string</code> 和 <code>std::vector</code> 都是<strong>深拷贝</strong>，即 <code>s2 = s1</code> 会立即分配内存并复制数据。</p>
+<p>虽然 C++ 标准库放弃了 CoW，但操作系统（如 Linux）在进程管理中极其依赖 CoW。当在 Linux 下调用 <strong><code>fork()</code></strong> 创建一个子进程时：</p>
+<ul>
+<li>理论上，子进程应该拥有父进程所有内存的副本。</li>
+<li><strong>实际上</strong>，操作系统<strong>不会</strong>复制物理内存。它只是把父进程的“页表”复制给子进程，并将所有内存页标记为 <strong>Read-Only (只读)</strong>。</li>
+<li>父子进程共享同一份物理 RAM。</li>
+<li>只有当子进程（或父进程）尝试<strong>修改</strong>某个变量时，CPU 触发“页保护异常”，操作系统捕获这个异常，将那一页内存<strong>复制</strong>一份给修改者，然后将权限改为可写。</li>
+</ul>
+<h3 id="5实现-string">（5）实现 string</h3>
 <p>已知 String 的原型如下，据此编写下面四个函数。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">String</span> &#123;<br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">String</span>();<br>  <span class="hljs-built_in">String</span>(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *str = <span class="hljs-literal">nullptr</span>);<br>  ~<span class="hljs-built_in">String</span>();<br>  <span class="hljs-built_in">String</span>(<span class="hljs-type">const</span> String &amp;other);<br>  String&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> String &amp;other);<br>  <span class="hljs-built_in">String</span>(<span class="hljs-type">const</span> String &amp;&amp;other) <span class="hljs-keyword">noexcept</span>;<br>  String&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> String &amp;&amp;other) <span class="hljs-keyword">noexcept</span>;<br>  String <span class="hljs-keyword">operator</span>+(<span class="hljs-type">const</span> String &amp;other) <span class="hljs-type">const</span>;<br>  <span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>==(<span class="hljs-type">const</span> String&amp; other) <span class="hljs-type">const</span>;<br>  <span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>!=(<span class="hljs-type">const</span> String&amp; other) <span class="hljs-type">const</span>;<br>  <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index);<br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index) <span class="hljs-type">const</span>;<br>  <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">length</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br>  <span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">char</span>* <span class="hljs-title">c_str</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span>;<br><br>  <span class="hljs-comment">// 友元函数 (用于 std::cout &lt;&lt; s1)</span><br>  <span class="hljs-keyword">friend</span> std::ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(std::ostream&amp; os, <span class="hljs-type">const</span> String&amp; str); <span class="hljs-comment">// 友元函数既可以类内声明类内定义（函数体小）也可以类内声明类外定义。记得在类外声明友元函数（如果需要在类外调用）。</span><br><span class="hljs-keyword">private</span>:<br>  <span class="hljs-type">char</span> *m_data;<br>  <span class="hljs-type">size_t</span> m_size; <span class="hljs-comment">// 字符串的长度 (不包括末尾的 &#x27;\0&#x27;)</span><br>  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(String &amp;other)</span></span>;<br>&#125;; <span class="hljs-comment">// 类的声明是完整的语句所以需要加分号。C++中，所有以花括号 &#123;&#125; 结束的声明（class、struct、union、enum）后面都必须加分号 ;。友元函数在类外定义时不需要加 MyClass::（作用域解析），因为友元函数不是类的成员函数，它只是一个被授予访问私有成员权限的普通函数。</span><br></code></pre></td></tr></table></figure>
 <p>实现如下。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstring&gt;</span>   <span class="hljs-comment">// 用于 strlen, strcpy, strcmp, strcat</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span> <span class="hljs-comment">// 用于 std::swap</span></span><br><br><span class="hljs-comment">// 构造函数</span><br><span class="hljs-comment">// 默认构造函数 (创建空字符串)</span><br>String::<span class="hljs-built_in">String</span>() : <span class="hljs-built_in">m_size</span>(<span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-comment">// 分配1个字节用于存放空终止符 &#x27;\0&#x27;</span><br>    m_data = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">1</span>];<br>    m_data[<span class="hljs-number">0</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>&#125;<br><span class="hljs-comment">// 从C风格字符串构造</span><br>String::<span class="hljs-built_in">String</span>(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *c_str) &#123;<br>  <span class="hljs-keyword">if</span>(c_str == <span class="hljs-literal">nullptr</span>) &#123;<br>    m_size = <span class="hljs-number">0</span>;<br>    m_data = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">1</span>];<br>    *m_data=<span class="hljs-string">&#x27;\0&#x27;</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    m_size = <span class="hljs-built_in">strlen</span>(c_str);<br>    m_data = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[m_size + <span class="hljs-number">1</span>]; <span class="hljs-comment">// 长度 + 1 个字节给 &#x27;\0&#x27;</span><br>    <span class="hljs-built_in">strcpy</span>(m_data, c_str);<br>  &#125;<br>&#125;<br><br><span class="hljs-comment">//析构函数</span><br>String::~<span class="hljs-built_in">String</span>() &#123;<br>  <span class="hljs-keyword">delete</span>[] m_data; <span class="hljs-comment">// m_data = new char[m_size + 1]; &lt;-- 使用了 new[] 所以要用delete[]</span><br>&#125;<br><br><span class="hljs-comment">//拷贝构造函数</span><br>String::<span class="hljs-built_in">String</span>(<span class="hljs-type">const</span> String &amp;other) &#123;<br>  <span class="hljs-comment">// 因为在拷贝构造函数被调用时，“自己”(this) 还是一个正在被创建的、全新的对象，它不可能与一个“已经存在的”other 对象是同一个。</span><br>  m_size = other.m_size;<br>  m_data = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[m_size + l]; <span class="hljs-comment">// 注意这里开辟了新空间而不是直接像移动构造那样转移所有权</span><br>  <span class="hljs-built_in">strcpy</span>(m_data, other.m_data);<br>&#125;<br><br><span class="hljs-comment">//拷贝赋值函数</span><br>String&amp; String::operate=(<span class="hljs-type">const</span> String &amp;other) &#123;<br>  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span> == &amp;other)<br>    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>; <span class="hljs-comment">// 检查自赋值</span><br>  <span class="hljs-comment">// delete []m data; // 释放原有的内存资源</span><br>  <span class="hljs-comment">// int length = strlen(other.m_data);</span><br>  <span class="hljs-comment">// m_data = new char[length + l]; // 对m_data加NULL判断strcpy(m_data, other.m_data);</span><br>  <span class="hljs-comment">// return *this; // 返回本对象的引用</span><br><br>  <span class="hljs-comment">// Copy-and-Swap ，保证异常安全</span><br>  <span class="hljs-function">String <span class="hljs-title">temp</span><span class="hljs-params">(other)</span></span>; <span class="hljs-comment">// 使用拷贝构造函数创建一个临时副本</span><br>  <span class="hljs-built_in">swap</span>(temp);           <span class="hljs-comment">// 与临时副本交换内部数据</span><br>  <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>  <span class="hljs-comment">// 临时副本 temp 在此处被析构，从而释放了旧内存</span><br>&#125;<br><br><span class="hljs-comment">// 移动构造函数</span><br><span class="hljs-comment">// 当从一个临时对象(rvalue)构造时调用, 例如 s1 = std::move(s2) 或来自函数返回</span><br>String::<span class="hljs-built_in">String</span>(String&amp;&amp; other) <span class="hljs-keyword">noexcept</span><br> : <span class="hljs-built_in">m_data</span>(other.m_data), <span class="hljs-built_in">m_size</span>(other.m_size)<br>&#123;<br>    other.m_data = <span class="hljs-literal">nullptr</span>;<br>    other.m_size = <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">// 移动赋值运算符</span><br><span class="hljs-comment">// 当从一个临时对象赋值时调用</span><br>String&amp; String::<span class="hljs-keyword">operator</span>=(String&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == &amp;other) &#123;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">delete</span>[] m_data; <span class="hljs-comment">// 不同于移动构造（this还没被创建），这里需要删掉原本的m_data</span><br>    m_data = other.m_data;<br>    m_size = other.m_size;<br>    other.m_data = <span class="hljs-literal">nullptr</span>;<br>    other.m_size = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">String::swap</span><span class="hljs-params">(String&amp; other)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    std::<span class="hljs-built_in">swap</span>(m_data, other.m_data);<br>    std::<span class="hljs-built_in">swap</span>(m_size, other.m_size);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">String::length</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> m_size; &#125;<br><br><span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">char</span>* <span class="hljs-title">String::c_str</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> m_data; &#125; <span class="hljs-comment">// 用于与C函数(如printf)交互</span><br><br><span class="hljs-comment">// 拼接 (s1 + s2)</span><br><span class="hljs-comment">// 这里把加号重载放在成员函数其实不合适，因为这样的话当前指针只能作为左操作数，但实际上类似+/==/!=这些操作需要对称性，实际写成非成员函数更好。又因为需要访问private成员，所以可以写成友元函数。</span><br><span class="hljs-comment">// 算术运算符（如 +, -, *, /）和 关系运算符（如 ==, &lt;, !=）：通常建议实现为非成员函数。</span><br><span class="hljs-comment">// 复合赋值运算符（如 +=, -=, *=, /=）：必须实现为类成员函数。</span><br>String String::<span class="hljs-keyword">operator</span>+(<span class="hljs-type">const</span> String&amp; other) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-type">size_t</span> new_size = m_size + other.m_size;<br>    <span class="hljs-type">char</span>* new_buffer = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[new_size + <span class="hljs-number">1</span>];<br><br>    std::<span class="hljs-built_in">strcpy</span>(new_buffer, m_data); <span class="hljs-comment">// 复制第一个字符串</span><br>    std::<span class="hljs-built_in">strcat</span>(new_buffer, other.m_data); <span class="hljs-comment">// 拼接第二个字符串</span><br>    <span class="hljs-function">String <span class="hljs-title">result</span><span class="hljs-params">(new_buffer)</span></span>; <span class="hljs-comment">// 调用构造函数从新 buffer 创建一个 String</span><br>    <span class="hljs-keyword">delete</span>[] new_buffer; <span class="hljs-comment">// 释放临时 buffer</span><br><br>    <span class="hljs-keyword">return</span> result; <span class="hljs-comment">// 返回结果 (编译器会使用 RVO/NRVO 或移动构造, 避免再次复制)</span><br>&#125;<br><br><span class="hljs-comment">// 比较</span><br><span class="hljs-type">bool</span> String::<span class="hljs-keyword">operator</span>==(<span class="hljs-type">const</span> String&amp; other) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-comment">// 如果两个字符串相等，strcmp 返回0；如果str1 &lt; str2，strcmp返回负数；如果str1 &gt; str2，strcmp返回正数</span><br>    <span class="hljs-comment">// strncmp(str1, str2, n)	比较前n个字符</span><br>    <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">strcmp</span>(m_data, other.m_data) == <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">bool</span> String::<span class="hljs-keyword">operator</span>!=(<span class="hljs-type">const</span> String&amp; other) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-keyword">return</span> !(*<span class="hljs-keyword">this</span> == other);<br>&#125;<br><br><span class="hljs-comment">// 元素访问 (未做边界检查)</span><br><span class="hljs-type">char</span>&amp; String::<span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index) &#123;<br>    <span class="hljs-keyword">return</span> m_data[index];<br>&#125;<br><br><span class="hljs-comment">// const 版本 (用于 const String 对象)</span><br><span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; String::<span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> index) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-keyword">return</span> m_data[index];<br>&#125;<br><br><span class="hljs-comment">// -----------------------------------------------------------------------------</span><br><span class="hljs-comment">// 友元函数的实现</span><br><span class="hljs-comment">// -----------------------------------------------------------------------------</span><br>std::ostream&amp; <span class="hljs-keyword">operator</span>&lt;&lt;(std::ostream&amp; os, <span class="hljs-type">const</span> String&amp; str) &#123;<br>    <span class="hljs-comment">// String 是 os 的友元, 所以可以访问私有成员 m_data</span><br>    os &lt;&lt; str.m_data;<br>    <span class="hljs-keyword">return</span> os;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>演示代码如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// -----------------------------------------------------------------------------</span><br><span class="hljs-comment">// 演示 (main 函数)</span><br><span class="hljs-comment">// -----------------------------------------------------------------------------</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;1. 构造函数:\n&quot;</span>;<br>    <span class="hljs-function">String <span class="hljs-title">s1</span><span class="hljs-params">(<span class="hljs-string">&quot;Hello&quot;</span>)</span></span>;<br>    <span class="hljs-function">String <span class="hljs-title">s2</span><span class="hljs-params">(<span class="hljs-string">&quot;World&quot;</span>)</span></span>;<br>    String s_empty;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s1: &quot;</span> &lt;&lt; s1 &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s2: &quot;</span> &lt;&lt; s2 &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s_empty: &#x27;&quot;</span> &lt;&lt; s_empty &lt;&lt; <span class="hljs-string">&quot;&#x27;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;2. 拷贝构造:\n&quot;</span>;<br>    String s3 = s1; <span class="hljs-comment">// 调用拷贝构造</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s3 (s1的拷贝): &quot;</span> &lt;&lt; s3 &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    s3[<span class="hljs-number">0</span>] = <span class="hljs-string">&#x27;h&#x27;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;修改 s3 后, s3: &quot;</span> &lt;&lt; s3 &lt;&lt; <span class="hljs-string">&quot; (s1 应该不变: &quot;</span> &lt;&lt; s1 &lt;&lt; <span class="hljs-string">&quot;)\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;3. 拷贝赋值:\n&quot;</span>;<br>    String s4;<br>    s4 = s2; <span class="hljs-comment">// 调用拷贝赋值</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s4 (s2的拷贝): &quot;</span> &lt;&lt; s4 &lt;&lt; <span class="hljs-string">&quot;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;4. 拼接 (operator+):\n&quot;</span>;<br>    String s5 = s1 + <span class="hljs-string">&quot; &quot;</span> + s2 + <span class="hljs-string">&quot;!&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s5: &quot;</span> &lt;&lt; s5 &lt;&lt; <span class="hljs-string">&quot;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;5. 比较 (operator==):\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s1 == s3? &quot;</span> &lt;&lt; (s1 == s3) &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s2 == s4? &quot;</span> &lt;&lt; (s2 == s4) &lt;&lt; <span class="hljs-string">&quot;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;6. 移动构造 (Move):\n&quot;</span>;<br>    <span class="hljs-comment">// createString(&quot;Temporary&quot;) 返回一个临时对象 (rvalue)</span><br>    <span class="hljs-comment">// s6 通过移动构造函数&quot;窃取&quot;该临时对象的内容</span><br>    String s6 = <span class="hljs-built_in">createString</span>(<span class="hljs-string">&quot;Temporary&quot;</span>);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s6 (移动而来): &quot;</span> &lt;&lt; s6 &lt;&lt; <span class="hljs-string">&quot;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;7. 移动赋值 (Move):\n&quot;</span>;<br>    s_empty = <span class="hljs-built_in">createString</span>(<span class="hljs-string">&quot;Another one&quot;</span>);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s_empty (移动而来): &quot;</span> &lt;&lt; s_empty &lt;&lt; <span class="hljs-string">&quot;\n\n&quot;</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;8. 访问器:\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;s5 的长度: &quot;</span> &lt;&lt; s<span class="hljs-number">5.l</span>ength() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;s5 的 C-String: %s\n\n&quot;</span>, s<span class="hljs-number">5.</span><span class="hljs-built_in">c_str</span>());<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;程序结束, 析构函数将被自动调用。\n&quot;</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="38-跳表">38. 跳表</h2>
+<p>跳表 (Skip List) 是一种<strong>概率型数据结构</strong>，能达到和平衡二叉搜索树（如红黑树或 AVL 树）相同的 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></strong> 平均时间复杂度，但实现方式更加简单。</p>
+<h3 id="1-多层链表结构">(1) 多层链表结构</h3>
+<p>跳表由一系列<strong>有序的单向链表</strong>组成：</p>
+<ul>
+<li><strong>底层 (Level 0)</strong>：包含<strong>所有</strong>元素，是一个完整的有序链表。</li>
+<li><strong>高层 (Level 1, 2, …)</strong>：每一层都是下一层链表的<strong>子集</strong>。</li>
+</ul>
+<h3 id="2-概率性平衡">(2) 概率性平衡</h3>
+<p>新插入的节点会被提升到更高层的概率通常是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\frac{1}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span> 或 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">\frac{1}{4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">4</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>。这种随机化保证了跳表在统计学意义上是平衡的，即树的高度（层数）维持在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span> 的级别。</p>
+<h3 id="3-查找过程">(3) 查找过程</h3>
+<ul>
+<li><strong>从最高层开始</strong>：查找总是从最高的索引层开始。</li>
+<li><strong>快速向右</strong>：在当前层，沿着链表一直向右移动，直到下一个节点的 Key <strong>大于</strong>要查找的目标值。</li>
+<li><strong>向下一层</strong>：一旦超过目标，立即<strong>下降一层</strong>。</li>
+<li><strong>重复</strong>：在新的一层继续向右查找，重复步骤 2 和 3，直到到达底层链表。</li>
+<li><strong>确定结果</strong>：在底层链表 (<code>Level 0</code>)，你将找到目标元素或确定其不存在。</li>
+</ul>
+<p>通过这种“先在高速公路上飞奔，然后在快车道上减速，最后在地面道路精确查找”的方式，大大减少了访问节点的总次数。</p>
+<h3 id="4-构建过程">(4) 构建过程</h3>
+<p>本质上就是<strong>在一个有序链表中插入元素</strong>的过程，但多了一个<strong>抛硬币决定层数</strong>的随机环节。构建过程可以拆解为三个核心步骤：<strong>节点设计</strong>、<strong>随机层数生成</strong>、<strong>插入与链接</strong>。</p>
+<h4 id="节点设计">节点设计</h4>
+<p>跳表的节点和普通链表不同。普通节点只有一个 <code>next</code> 指针，而跳表节点就像一座楼房，有好多层，每一层都有一个指向右边的指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Node</span> &#123;<br>    <span class="hljs-type">int</span> key;<br>    <span class="hljs-type">int</span> value;<br><br>    <span class="hljs-comment">// forward[i] 表示该节点在第 i 层的下一个节点是谁</span><br>    <span class="hljs-comment">// 这是一个指针数组（或者 vector）</span><br>    std::vector&lt;Node*&gt; forward;<br><br>    <span class="hljs-built_in">Node</span>(<span class="hljs-type">int</span> k, <span class="hljs-type">int</span> v, <span class="hljs-type">int</span> level)<br>        : <span class="hljs-built_in">key</span>(k), <span class="hljs-built_in">value</span>(v), forward(level, <span class="hljs-literal">nullptr</span>) &#123;&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h4 id="随机层数生成">随机层数生成</h4>
+<p>每当我们要插入一个新节点时，我们不通过复杂的计算来决定它该有多高，而是<strong>完全靠运气</strong>。</p>
+<p>算法逻辑如下：</p>
+<ul>
+<li>所有节点默认至少有 <strong>1 层</strong>（第 0 层，基础链表）。</li>
+<li>抛一枚硬币（或生成随机数）：
+<ul>
+<li>如果是<strong>正面</strong>（概率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>，通常是 1/2 或 1/4），这个节点就<strong>长高一层</strong>。</li>
+<li>继续抛，直到出现<strong>反面</strong>，或者达到了系统的<strong>最大层数限制</strong>（MaxLevel，比如 32 层）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>代码演示：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">randomLevel</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> level = <span class="hljs-number">1</span>;<br>    <span class="hljs-comment">// 假设 p = 0.5 (RAND_MAX 是 C++ 随机数上限)</span><br>    <span class="hljs-keyword">while</span> ((std::<span class="hljs-built_in">rand</span>() % <span class="hljs-number">2</span>) == <span class="hljs-number">1</span> &amp;&amp; level &lt; MAX_LEVEL) &#123;<br>        level++;<br>    &#125;<br>    <span class="hljs-keyword">return</span> level;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>结果</strong>：50% 的节点有 2 层，25% 的节点有 3 层，12.5% 的节点有 4 层……这自然形成了一个金字塔结构。</p>
+<h4 id="插入与链接">插入与链接</h4>
+<p>假设要插入一个 key 为 <code>target</code> 的新节点。</p>
+<ul>
+<li>
+<p>寻找插入位置并记录“前驱” (Locate &amp; Record)<br>
+从最高层开始往下找，直到找到每一层中小于 <code>target</code> 的<strong>最后一个节点</strong>。这些节点就是新节点的<strong>前驱 (Predecessors)</strong>。我们需要把它们记录在一个 <code>update</code> 数组中。<code>update[i]</code>代表第 i 层中小于 <code>target</code> 的<strong>最后一个节点</strong>。新节点插入后，需要<strong>把这些前驱节点的 <code>next</code> 指针指向新节点</strong>。</p>
+<p>假设链表是 <code>Head -&gt; 3 -&gt; 9</code>，我们要插入 <code>7</code>。</p>
+<ul>
+<li><strong>Level 2</strong>: Head -&gt; 9。Head 是 9 的前驱吗？不，Head(相当于负无穷) &lt; 7 &lt; 9。记录 <code>update[2] = Head</code>。</li>
+<li><strong>Level 1</strong>: Head -&gt; 3 -&gt; 9。找到 3。3 &lt; 7 &lt; 9。记录 <code>update[1] = 3</code>。</li>
+<li><strong>Level 0</strong>: Head -&gt; 3 -&gt; 9。找到 3。3 &lt; 7 &lt; 9。记录 <code>update[0] = 3</code>。</li>
+</ul>
+</li>
+<li>
+<p>第二步：生成层数</p>
+<p>调用 <code>randomLevel()</code>。假设运气不错，新节点 <code>7</code> 随机到了 <strong>2 层</strong>。</p>
+</li>
+<li>
+<p>第三步：建立链接</p>
+<p>现在有了 <code>update</code> 数组（记录了每一层的前一站），也有了新节点 <code>NewNode</code>。在每一层执行标准的链表插入操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; newNodeLevel; ++i) &#123;<br>    <span class="hljs-comment">// 1. 新节点的 next 指向前驱原本的 next</span><br>    NewNode-&gt;forward[i] = update[i]-&gt;forward[i];<br><br>    <span class="hljs-comment">// 2. 前驱的 next 指向新节点</span><br>    update[i]-&gt;forward[i] = NewNode;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="5-性能与优势">(5) 性能与优势</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">操作</th>
+<th style="text-align:left">平均时间复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">查找 (Search)</td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left">插入 (Insert)</td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left">删除 (Delete)</td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td style="text-align:left">空间复杂度</td>
+<td style="text-align:left"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>优势：
+<ul>
+<li><strong>实现简单</strong>：相对于红黑树需要复杂的旋转、变色等逻辑来维护平衡，跳表的实现要简单得多，只需处理链表指针和随机数即可。</li>
+<li><strong>并发友好</strong>：由于其结构（节点是局部的），跳表在并发环境下更容易进行**无锁（lock-free）<strong>或</strong>细粒度锁（fine-grained locking）**设计，因此在很多高性能并发场景中被广泛使用。</li>
+</ul>
+</li>
+<li>劣势：
+<ul>
+<li><strong>空间略大</strong>：需要额外的指针来维护索引层，空间开销略大于平衡树。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-实际应用">(6) 实际应用</h3>
+<p>跳表在工业界应用非常广泛，尤其是在需要<strong>高性能并发控制</strong>的场景：</p>
+<ul>
+<li><strong>数据库</strong>：例如 Redis 的 <strong>有序集合 (ZSET)</strong> 底层实现就采用了跳表。</li>
+<li><strong>并发库</strong>：用于实现高并发的 Map 或 Set 结构。</li>
+</ul>
 <h1 id="计算机网络">计算机网络</h1>
 <h2 id="1-osi-七层协议模型">1. OSI 七层协议模型</h2>
 <p>国际标准化组织（ISO）提出的网络通信模型，用来描述网络系统中通信的分层结构，使得不同厂商设备或系统之间可以实现互联互通。</p>

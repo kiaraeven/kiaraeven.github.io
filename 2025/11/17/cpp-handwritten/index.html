@@ -29,7 +29,7 @@
 <meta property="og:description" content="1. Singleton (1) 概念  定义：一个类在程序运行过程中只能存在一个实例，并提供全局访问。常用于资源管理类（如日志、数据库连接池、配置管理器等）。它通过将构造函数私有化，并提供一个公共的静态方法来获取唯一实例。 懒汉模式 vs. 饿汉模式    对比项 懒汉模式（Lazy） 饿汉模式（Eager）     实例创建时机 第一次调用 getInstance() 时 创建 程序启动时（类">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-11-18T03:47:16.008Z">
-<meta property="article:modified_time" content="2025-11-23T09:11:11.343Z">
+<meta property="article:modified_time" content="2025-11-27T05:42:07.150Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="cpp">
 <meta property="article:tag" content="interview">
@@ -566,7 +566,7 @@ src &lt;= dst &lt;= src+strlen(src) 即 dst 的起始位置相较于 src 的起�
 <li>MyList 类中只包含一个 <code>ListNodeHeader _header</code> 成员。</li>
 <li><code>_head</code>放在栈上而非堆上。
 <ul>
-<li>试想在程序里定义了一个 <code>std::list&lt;int&gt; myList</code>;，暂时还没往里放数据，甚至可能永远不放。如果哨兵用 new，意味着每次创建一个空链表，都要发生一次堆内存分配。堆分配是昂贵的（涉及到系统调用、内存分配器锁等）。如果你在栈上创建 1000 个空 list，就要 new 1000 次。如果哨兵在栈上（作为成员变量），<code>_header</code> 是 MyList 对象内存的一部分。当创建 MyList 时，_header 的内存已经自动分配好了。</li>
+<li>试想在程序里定义了一个 <code>std::list&lt;int&gt; myList</code>;，暂时还没往里放数据，甚至可能永远不放。如果哨兵用 new，意味着每次创建一个空链表，都要发生一次堆内存分配。堆分配是昂贵的（涉及到系统调用、内存分配器锁等）。如果在栈上创建 1000 个空 list，就要 new 1000 次。如果哨兵在栈上（作为成员变量），<code>_header</code> 是 MyList 对象内存的一部分。当创建 MyList 时，_header 的内存已经自动分配好了。</li>
 <li>放在栈上使得 size()/begin()/end()等函数更快。</li>
 <li>insert 进去的节点是 new 出来的。std::list 有一个重要承诺：移动链表 (Move) 或接合链表 (Splice) 不会让指向“数据节点”的迭代器失效。这要求数据节点在内存中的地址必须永远不变。只有堆内存 (new) 才能保证这一点。即使你把链表对象从这个函数移到那个函数，堆上的节点依然不变。</li>
 </ul>
