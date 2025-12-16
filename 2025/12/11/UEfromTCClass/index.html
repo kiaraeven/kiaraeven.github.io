@@ -28,12 +28,15 @@
 <meta property="og:site_name" content="Go7">
 <meta property="og:description" content="0. 源码编译及打包  https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;downloading-source-code-in-unreal-engine https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;packaging-your-project#pack">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/12/11/UEfromTCClass/protocol-stack.png">
+<meta property="og:image" content="http://example.com/2025/12/11/UEfromTCClass/format.png">
 <meta property="article:published_time" content="2025-12-12T02:16:00.870Z">
-<meta property="article:modified_time" content="2025-12-14T08:16:58.781Z">
+<meta property="article:modified_time" content="2025-12-16T05:13:56.020Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="UE">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/12/11/UEfromTCClass/protocol-stack.png">
   
   
   
@@ -228,7 +231,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4k words
+          7.3k words
         
       </span>
     
@@ -239,7 +242,7 @@
         
         
         
-          34 mins
+          61 mins
         
       </span>
     
@@ -585,6 +588,7 @@ M347 1759 V0 H263 V1759 v1200 v1759 h84z"/></svg></span></span></span><span clas
 <li>反外挂问题严峻（服务器端只能校验没有逻辑）</li>
 <li>网络延时敏感度高不同步问题较难定位和解决</li>
 <li>单局规模受限</li>
+<li>技术门槛高</li>
 </ul>
 </li>
 </ul>
@@ -617,9 +621,320 @@ M347 1759 V0 H263 V1759 v1200 v1759 h84z"/></svg></span></span></span><span clas
 <ul>
 <li>冲突问题与解决
 <ul>
-<li>事件冲突：单点仲裁</li>
+<li>事件冲突：单点仲裁（单点服务器进行仲裁，由于一定有先来后到所以可以避免冲突）；将状态相关的逻辑（关键/权威逻辑）放在服务器执行</li>
 </ul>
 </li>
+<li>仲裁问题与解决
+<ul>
+<li>回溯判定：指令有延迟，所以需要回溯到事件发生时的状态进行判定。为了能够准确仲裁，需要获得当客户端发起仲裁时（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">t_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>），服务器的时间（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">t_0 + \theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span>），这里需要 network time protocol（ntp）算法</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>状态同步优化
+<ul>
+<li>客户端插值：实现客户端平滑地进行状态变换。例如位置坐标的插值，假设服务器每隔 4 帧才向客户端发送一次新坐标（pp：数据包周期），则客户端不直接使用服务器发送的结果，而是进行插值使用插值后的结果从而获得平滑的移动（ip：插值周期）。ip 越小延迟越小，但 ip &lt; pp 会导致卡顿，所以理想的是 ip = pp。插值优化会带来固定延迟，因此需要客户端预测。</li>
+<li>客户端预测：例如航位推测（Dead Reckoning）。这个推测基于假设实体继续在做当前正在做的事情，利用现在物体位置/速度/加速度/角速度/等尽可能多的参数，推定未来位置方向的航海技术。这种预测容易受到误差累积的影响，通过即时状态更新、插值、二阶状态调整等优化。</li>
+<li>视觉掩饰：前摇用来掩饰本地输入到生效期间的网络延迟，提供各接受方等待缓冲时间（例如挥刀前摇，前摇动画结束后延迟结束收到服务器的判定结果确定是否生效）；后摇提供确定性，提高预测精度（给服务器仲裁提供时间）。</li>
+<li>同步范围与相关性：权威服务器上存储了几乎全部状态，如果直接不加裁剪的传递给客户端，一方面会让网络吃不消，另一方面也会影响性能。解决方法是对整个游戏世界进行静态的区域划分（空间均匀划分、基于 POI 不均匀划分），或者基于视锥、距离、可见性等划分。</li>
+<li>同步频率与优先级：同步频率与相关性和优先级正相关，事件同步的优先级高于状态同步，通过休眠状态主动控制频率</li>
+<li>断线重连：由于服务器时刻保存着关键状态或所有状态，所以直接把相关状态同步至客户端即可，其中与事件触发相关的逻辑特殊处理（时间不可能重复发生）。</li>
+<li>安全与反作弊：
+<ul>
+<li>安全问题:
+<ul>
+<li>协议破解/攻击</li>
+<li>敏感数据滥用</li>
+</ul>
+</li>
+<li>解决办法:
+<ul>
+<li>延迟敏感的状态：则本地维护状态，服务器后校验</li>
+<li>延迟不敏感的状态：则服务器维护状态服务器限制不必要的数据同步，防止敏感数据滥用</li>
+<li>设置天花板阈值，防止协议破解</li>
+<li>用户行为分析，识别作弊</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>状态同步实现案例：UE-Replication
+<ul>
+<li>原理：遍历每个 Actor，遍历每个 Actor 的每个 Property，对比这些状态是否已经发生变化，把发生变化的状态放进一个 changelist 并最终把这个 changelist 放进一个 buffer 里进行同步。收集所有 RPC 信息（RPC 是在 UE 里表示事件的形式），把 RPC 也放入同步的 buffer 中，最后把 buffer 发送出去。</li>
+<li>优化：ReplicationGraph
+<ul>
+<li>利用层级/网格状的静态区域来管理 Actors</li>
+<li>区分管理不同同步频率的 Actor</li>
+<li>复用上一次 A0I 同步之后积累的信息</li>
+<li>通过对休眠/唤醒的检测，灵活区别 Actors 的同步与否</li>
+</ul>
+</li>
+<li>ReplicationGraphnode
+<ul>
+<li>按空间划分：UReplicationGraphNode_Gridspatialization2D，UReplicationGraphNode_GridCell</li>
+<li>按同步频率划分：UReplicationGraphNode_ActorListFrequencyBuckets</li>
+<li>按同步对象划分：UReplicationGraphNode_ActorList，UReplicationGraphNode_AlwaysRelevant_ForConnection</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优缺点
+<ul>
+<li>优势
+<ul>
+<li>客户端计算量小</li>
+<li>网络敏感度低</li>
+<li>技术门槛低</li>
+</ul>
+</li>
+<li>劣势
+<ul>
+<li>流量消耗大因为要同步大量状态</li>
+<li>达到复杂逻辑一致性的难度很高</li>
+<li>后期维护成本高</li>
+<li>很难通用化（UE4Replication 改善了这一点）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>应用：射击（如 FPS）、赛车、RPG、三消休闲等</li>
+</ul>
+<h2 id="帧同步和状态同步的通用优化技术">帧同步和状态同步的通用优化技术</h2>
+<h3 id="1-协议优化">(1) 协议优化</h3>
+<p>在弱网络（移动网络）下，TCP 的延时较高。TCP 有 4 个机制来保证其可靠性：重传机制（丢包超时重传）、滑动窗口（优化重传）、流量控制（优化滑动窗口）、拥塞控制（配合流量控制）。其中影响 TCP 弱网络性能的关键就是古老的重传机制，超时重传时间 RTO 太长会导致网络延迟大，太短导致网络负载高。在游戏中，多次超时重传导致 RTO 呈指数级增加，故传统 RTO 计算策略不适应弱网络。于是使用 UDP 并对其封装实现可靠 UDP（RUDP）。</p>
+<p>RUDP 不同实现机制：</p>
+<ul>
+<li>
+<p>RUDP-ARQ：RUDP (Reliable UDP) 这种可靠传输协议中，利用**ARQ (Automatic Repeat-reQuest，自动重传请求)**防止数据丢失，让原本不可靠的 UDP 变得可靠。RUDP 为了比 TCP 更快，通常不会照搬 TCP 的重传策略，而是会选择更适合实时场景的 ARQ 模式。主要有以下几种：</p>
+<ul>
+<li>
+<p>停等式 ARQ (Stop-and-Wait)</p>
+<ul>
+<li><strong>原理</strong>：发一个包，停下来等对方说“收到了”（ACK），然后再发下一个。</li>
+<li><strong>特点</strong>：逻辑最简单，但效率极低，带宽利用率差。</li>
+<li><strong>RUDP 应用</strong>：几乎不用于现代高性能 RUDP，仅用于极其简单的物联网或教学场景。</li>
+</ul>
+</li>
+<li>
+<p>回退 N 帧 ARQ (Go-Back-N)</p>
+<ul>
+<li><strong>原理</strong>：发送方可以连续发多个包（滑动窗口）。如果中间第 5 号包丢了，接收方会丢弃 5 号之后的所有包（6, 7, 8…），要求发送方从 5 号开始<strong>全部重传</strong>。</li>
+<li><strong>特点</strong>：浪费带宽，因为 6, 7, 8 明明已经到了却要重发。</li>
+<li><strong>RUDP 应用</strong>：较少使用，因为抗丢包性能不如 Selective Repeat。</li>
+</ul>
+</li>
+<li>
+<p>选择性重传 ARQ (Selective Repeat / Selective ACK)</p>
+<ul>
+<li><strong>原理</strong>：<strong>现代 RUDP（如 KCP, QUIC）最常用</strong>的机制。发送方连续发包。如果第 5 号包丢了，接收方收到了 6, 7, 8。接收方会告诉发送方：“6, 7, 8 我收到了，但 5 没收到”。发送方<strong>只重传第 5 号包</strong>。</li>
+<li><strong>特点</strong>：效率最高，带宽浪费最少，但对内存和 CPU 的排序逻辑要求稍高。</li>
+</ul>
+</li>
+<li>
+<p>RUDP-ARQ 与 TCP 对比</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>TCP 的 ARQ</th>
+<th>RUDP 的 ARQ (优化版)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>重传时机</strong></td>
+<td><strong>RTO (超时重传时间) 较保守</strong>，通常会翻倍增长，导致一旦丢包，卡顿感明显。</td>
+<td><strong>RTO 极短</strong>，或者使用 <strong>Fast Resend (快速重传)</strong>，发现丢包立刻重传，不傻等超时。</td>
+</tr>
+<tr>
+<td><strong>确认机制</strong></td>
+<td><strong>累计确认 (Cumulative ACK)</strong>，容易导致对后续包状态的判断模糊。</td>
+<td>通常使用 <strong>SACK (Selective ACK)</strong>，精确告知哪些包到了，哪些没到。</td>
+</tr>
+<tr>
+<td><strong>拥塞控制</strong></td>
+<td>丢包会被认为是网络拥堵，导致大幅降低发送速度。</td>
+<td>即使丢包重传，也不一定降低发送速度（可配置），宁愿牺牲带宽也要保低延迟。</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>常见的实现技术包括：</p>
+<ul>
+<li><strong>ACK/NACK 机制</strong>（确认/非确认）</li>
+<li><strong>Sequence Number</strong>（序列号，用于检测丢包和乱序）</li>
+<li><strong>Retransmission Timer</strong>（重传定时器）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>RUDP-FEC：在 RUDP 协议中引入的 <strong>前向纠错 (Forward Error Correction, FEC)</strong> 技术。如果说 ARQ 是“丢了再补发”的<strong>补救</strong>措施，那么 FEC 就是“提前多发一点”的<strong>预防</strong>措施。</p>
+<ul>
+<li>核心原理：用“冗余”换“速度”在传统的 ARQ 机制中，如果数据包 A 丢了，接收方需要告诉发送方“A 没收到”，发送方再重发 A。这至少产生了一个 RTT (往返时延) 的等待，对于实时性要求极高的游戏（如 FPS）或音视频通话，这个延迟可能是致命的。FEC 的做法是发送方在发送数据包 A、B、C 的同时，根据算法额外计算并发送一个<strong>冗余包 P</strong>（Parity Packet）。
+<ul>
+<li><strong>正常情况：</strong> 接收方收到了 A, B, C, P。P 没啥用，被丢弃（浪费了一点带宽）。</li>
+<li><strong>丢包情况：</strong> 接收方收到了 B, C, P，但是 <strong>A 丢了</strong>。</li>
+<li><strong>原地复活：</strong> 接收方不需要通知发送方，而是直接用 B, C, P 通过数学运算（如异或 XOR 或 Reed-Solomon 算法）<strong>反算出 A 的内容</strong>。</li>
+<li><strong>结果：</strong> 丢包发生了，但<strong>延迟为 0</strong>，因为不需要重传。</li>
+</ul>
+</li>
+<li>常见算法实现
+<ul>
+<li><strong>XOR (异或)：</strong> 最简单。比如发 <code>1</code> 和 <code>0</code>，额外发一个 <code>1 (1^0)</code>。如果丢了任何一个，都能用剩下的两个算出来。计算极快，但纠错能力有限。</li>
+<li><strong>Reed-Solomon (RS 码)：</strong> 最常用（如 KCP 协议）。它更强大，可以配置 <code>N:M</code> 比例。例如“发 10 个数据包，带 2 个冗余包”。只要这 12 个包里任意收到 10 个，就能还原出原始数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>RUDP-FEC 与 RUDP-ARQ 的对比</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>ARQ (自动重传)</th>
+<th>FEC (前向纠错)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>处理丢包</strong></td>
+<td><strong>反应式</strong>：丢了才去补。</td>
+<td><strong>主动式</strong>：提前多发，丢了自己算。</td>
+</tr>
+<tr>
+<td><strong>延迟 (Latency)</strong></td>
+<td>最小丢包延迟<strong>高</strong>：约等于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.7</mn><mi>t</mi><mi>o</mi><mn>2.0</mn><mo>×</mo><mi>R</mi><mi>T</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">1.7 to 2.0 \times RTT</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.7</span><span class="mord mathnormal">t</span><span class="mord mathnormal">o</span><span class="mord">2.0</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">RTT</span></span></span></span>。</td>
+<td>最小丢包延迟<strong>低</strong>：一般小于<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.5</mn><mo>×</mo><mi>R</mi><mi>T</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">1.5 \times RTT</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.5</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">RTT</span></span></span></span>。</td>
+</tr>
+<tr>
+<td><strong>带宽消耗</strong></td>
+<td><strong>低</strong>：只有丢包时才重传，平时不浪费。</td>
+<td><strong>高</strong>：无论丢不丢包，都要一直多发 10%~30% 的数据。</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>文件下载、网页浏览、回合制游戏。</td>
+<td>实时语音、视频会议、FPS/MOBA 游戏。</td>
+</tr>
+<tr>
+<td><strong>应用示例</strong></td>
+<td>LWIP, KCP</td>
+<td>FSP(Lockstep), UE4(Replication)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>进一步优化：ARO-FEC</p>
+<ul>
+<li>小丢包（随机丢包）用 FEC 直接恢复，保证 0 延迟；大丢包（网络抖动/断流）超过了 FEC 的恢复能力（比如冗余包也丢了），则回退到使用 ARQ 申请重传。</li>
+<li>实现算法非常简单</li>
+<li>用于小型项目的帧同步实践可以参考开源库：FSPLite（<a target="_blank" rel="noopener" href="https://github.com/slicol/SGF%EF%BC%89">https://github.com/slicol/SGF）</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-udp-分组优化">(2) UDP 分组优化</h3>
+<p>UDP 分组就是将一个 UDP 大包分成几个 UDP 小包进行发送。当 UDP 包大小超过链路层的 MTU 时，将会发生 IP 分片-重组，因为 IP 分片-重组只要有一个包丢了就认为是整个大包丢了，所以会增加丢包概率。</p>
+<h3 id="3-随机丢包优化">(3) 随机丢包优化</h3>
+<p>相关性丢包（数据包要么不丢要么连续丢）可能有多种因素导致，如链路拥塞、路由器负载过高、无线信号衰减、基站/场景切换，故难以优化。而随机丢包（没有任何规律）一般是由二进制信管噪声导致的，可以优化。实际中大部分都是这种随机丢包。对于随机丢包可以采用 Gilbert 模型优化：既然连续多次丢包的概率很低，不如把一个包同时发两次，或者把一个包通过两个不同的链路发出去，来降低丢包概率。</p>
+<h2 id="帧同步和状态同步对比">帧同步和状态同步对比</h2>
+<ul>
+<li>公平-确定性
+<ul>
+<li>帧同步：具有强一致性</li>
+<li>状态同步：非本地仲裁数据有延迟或需要修正</li>
+</ul>
+</li>
+<li>公平-安全性
+<ul>
+<li>帧同步
+<ul>
+<li>篡改：输入数据，状态数据</li>
+<li>隐私：拥有所有玩家的状态</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>篡改：输入数据，状态数据（本地）</li>
+<li>隐私:无法获取关键状态数据（远程）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>体验-实时性
+<ul>
+<li>帧同步：预表现、协议优化（RUDP）、丢包优化</li>
+<li>状态同步：预表现、协议优化（RUDP）</li>
+</ul>
+</li>
+<li>开销-流量
+<ul>
+<li>帧同步
+<ul>
+<li>总体同步流量少</li>
+<li>空帧优化</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>总体同步流量大</li>
+<li>AOI 优化</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>开销-计算量
+<ul>
+<li>帧同步：所有客户端都维护全部的计算量</li>
+<li>状态同步：只维护本地计算量</li>
+</ul>
+</li>
+<li>开销-研发成本
+<ul>
+<li>帧同步
+<ul>
+<li>技术门槛高</li>
+<li>同步模块研发成本高项目整体研发成本低</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>技术门槛低</li>
+<li>同步模块研发成本低项目整体研发成本高（前后台都需要开发）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="实践相关">实践相关</h2>
+<h3 id="协议栈设计">协议栈设计</h3>
+<ul>
+<li>
+<p>各层的数据格式可以归纳为：<img src="protocol-stack.png" alt="protocol stack design"></p>
+</li>
+<li>
+<p>假设会话层数据格式如下：<img src="format.png" alt="format"></p>
+</li>
+<li>
+<p>应用层的格式则需根据具体的逻辑来设定。</p>
+</li>
+<li>
+<p>表现层的数据格式通常使用现成的序列化格式，如 json，xml，protobuf。也可以采用自定义序列化格式，如 UStruct，KFD</p>
+</li>
+<li>
+<p>协议加密和文件加密不同。文件一般需要持久化，因此需要较高的加密级别，注重的是加密强度而非性能；而协议加密需要高频进行，故更注意性能。协议加密一般都是用对称加密，如 DES，AES，TEA（XTEA，XXTEA），对于高频小量数据加密，TEA 就够了。参考实现：<a target="_blank" rel="noopener" href="https://git.woa.com/slicoltang/SGEncrypt%E3%80%82">https://git.woa.com/slicoltang/SGEncrypt。</a></p>
+</li>
+<li>
+<p>RPC 是应用层协议接口的一种实现，基本原理就是把协议的发送和接收封装成向函数调用一样方便。</p>
+<ul>
+<li>比如，<code>RPC(“move”,100,200,300)</code><br>
+对比传统的 message 接口:<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">var msg = new MoveMsg;<br>msg.<span class="hljs-attribute">x</span>=100;<br>msg.<span class="hljs-attribute">y</span>=200;<br>msg.<span class="hljs-attribute">z</span>=300;<br><span class="hljs-built_in">..</span>.<br>SendMessage(1, msg),;<br></code></pre></td></tr></table></figure>
+</li>
+<li>可以参考：<a target="_blank" rel="noopener" href="https://github.com/slicol/SGF/tree/master/SGFcore/Network/Core/RPCLite%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83">https://github.com/slicol/SGF/tree/master/SGFcore/Network/Core/RPCLite，也可以参考</a> UE4 的复杂实现</li>
 </ul>
 </li>
 </ul>
