@@ -1,0 +1,1255 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon/browser_tab.svg">
+  <link rel="icon" href="/img/icon/browser_tab.svg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Go7">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0. 源码编译及打包  https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;downloading-source-code-in-unreal-engine https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;packaging-your-project#pack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UE Basics">
+<meta property="og:url" content="http://example.com/2025/12/15/UEfromTCClass/index.html">
+<meta property="og:site_name" content="Go7">
+<meta property="og:description" content="0. 源码编译及打包  https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;downloading-source-code-in-unreal-engine https:&#x2F;&#x2F;dev.epicgames.com&#x2F;documentation&#x2F;zh-cn&#x2F;unreal-engine&#x2F;packaging-your-project#pack">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/12/15/UEfromTCClass/protocol-stack.png">
+<meta property="og:image" content="http://example.com/2025/12/15/UEfromTCClass/format.png">
+<meta property="article:published_time" content="2025-12-16T05:40:44.000Z">
+<meta property="article:modified_time" content="2025-12-16T05:40:44.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="graphics">
+<meta property="article:tag" content="UE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/12/15/UEfromTCClass/protocol-stack.png">
+  
+  
+  
+  <title>UE Basics - Go7</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/KaTeX/0.16.2/katex.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":false,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Go7</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Dive in</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background/swim_from_above_2.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="UE Basics"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-12-15 21:40" pubdate>
+          December 15, 2025 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.3k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          61 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">UE Basics</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1><span id="0-源码编译及打包">0. 源码编译及打包</span></h1>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/zh-cn/unreal-engine/downloading-source-code-in-unreal-engine">https://dev.epicgames.com/documentation/zh-cn/unreal-engine/downloading-source-code-in-unreal-engine</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/zh-cn/unreal-engine/packaging-your-project#packaging-settings">https://dev.epicgames.com/documentation/zh-cn/unreal-engine/packaging-your-project#packaging-settings</a></li>
+</ul>
+<h1><span id="1-ue-中的-ui-实现">1. UE 中的 UI 实现</span></h1>
+<h2><span id="1-slate-ui">(1) Slate UI</span></h2>
+<ul>
+<li>
+<p>UE 底层的 UI 框架，是 UE 中所有 UI 的基础，强大而复杂。</p>
+</li>
+<li>
+<p>Tools - debug - widget reflector (控件反射器)，可以选择任意 UI 控件并查看其层级和源代码（选中后按 ESC 锁定）。</p>
+</li>
+</ul>
+<h2><span id="2-umg-unreal-motion-graphics-控件蓝图">(2) UMG (Unreal Motion Graphics) 控件蓝图</span></h2>
+<ul>
+<li>基于 Slate UI 构建的可视化 UI 工具，和其他蓝图创建方式相同（命名为<code>_UIBP</code>）</li>
+<li>创建 C++ 类继承 UserWidget 绑定 UMG 控件</li>
+<li>创建 HUD 类并在 Game Mode 里设置 HUD 为刚刚创建的 HUD 类以展示 UI</li>
+</ul>
+<h1><span id="2-游戏物理基础">2. 游戏物理基础</span></h1>
+<h2><span id="1-碰撞检测与场景管理">(1) 碰撞检测与场景管理</span></h2>
+<ul>
+<li>碰撞体的选择（球体/圆柱体/mesh）：效率与准确</li>
+<li>碰撞检测算法：带旋转的 box（把 OBB 旋转与坐标轴平行变成 AABB），GJK distance algorithm（不适用于凹形物体，需要把凹形物体分割为多个凸性再使用）</li>
+<li>场景管理：BSP（二叉树基于平面划分，静态）、BVH（基于包围盒划分层级树 Hierarchy，可动态管理）、KDT（静态）、八叉树（动态，大范围查询快小范围查询慢）、均匀网格/稀疏网格（动态，稀疏网格用于物体分布不均匀的情况，小范围查询快大范围查询慢）、</li>
+</ul>
+<h2><span id="2-刚体物理学">(2) 刚体物理学</span></h2>
+<ul>
+<li>假设物体不会发生任何形变</li>
+<li>线性速度（牛顿第二定律）、角速度（力矩）</li>
+<li>（角 Angular）阻尼（drag）</li>
+<li>关节（joint）（fixed/spring/hinge）、布娃娃（ragdoll，模拟受力后自然运动，为骨骼添加碰撞体并用关节连接碰撞体，如受击、跌倒后由动画系统切换为布娃娃系统）</li>
+<li>连续碰撞检测（CCD）解决高速物体移动穿透（在两个物理帧之间的碰撞检测），普通的离散型碰撞检测在高速移动物体上可能会失效
+<ul>
+<li>Sweep-based CCD：将物体在每个物理帧内的运动轨迹视为一段连续的体积并检测该物体是否与其他物体发生碰撞。根据线性运动估算碰撞时间，由于未考虑角运动所以旋转的刚体仍可能出现穿插的问题。</li>
+<li>Speculative CCD：预测物体在下一个物理帧中的位置进行碰撞检测。根据线性和角运动计算出物体移动的包围盒，找出所有接触点再进行解算，但可能导致幽灵碰撞，因为这个方法是基于最近点算法采集所有可能的接触点，所以接触法线精度较低。适用于大部分场景（效率和准确平衡）。</li>
+</ul>
+</li>
+<li>载具系统
+<ul>
+<li>Unity：wheelcollider</li>
+</ul>
+</li>
+</ul>
+<h2><span id="3-破坏系统">(3) 破坏系统</span></h2>
+<ul>
+<li>物体破坏原理
+<ul>
+<li>offline：预先将物体分成多个碎片（模型制作/程序剖分）</li>
+<li>online：计算每个碎块受到的撞击力，更新碎块位置，碎块与场景交互</li>
+</ul>
+</li>
+<li>模型剖分算法：Voronoi 空间划分、BSP 二叉划分</li>
+<li>《战地》：点云、雕刻球、收缩雕刻球、两次雕刻球之间的位置放置碎砖</li>
+</ul>
+<h2><span id="4-柔体仿真">(4) 柔体仿真</span></h2>
+<ul>
+<li>布料（基于骨骼，高效但不支持自碰撞检测/基于网格，对顶点进行物理计算，性能差）、毛发、吊坠</li>
+</ul>
+<h1><span id="3-游戏渲染">3. 游戏渲染</span></h1>
+<h2><span id="gpu">GPU</span></h2>
+<ul>
+<li>
+<p>GPU 架构与管线设计</p>
+<ul>
+<li>多处理核心少调度核心（SIMD）</li>
+<li>GPU 架构
+<ul>
+<li>See 渲染架构比较：IMR、TBR &amp; TBDR <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/390625258">https://zhuanlan.zhihu.com/p/390625258</a></li>
+<li>PC 端：IMR（Immediate Mode Rendering, 直接绘制模式），这种模式适合延迟渲染。</li>
+<li>移动端：TBR（Tile-Based Rendering）绘制模式，这种模式适合前向渲染（带宽消耗小）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>重心坐标的推导：假设 P 为三角形所处平面上一点，AP 为由 A 到 P 的向量。</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>P</mi><mo>=</mo><mi>α</mi><mi>A</mi><mi>B</mi><mo>+</mo><mi>β</mi><mi>A</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">AP = \alpha AB + \beta AC</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span><br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>−</mo><mi>A</mi><mo>=</mo><mi>α</mi><mo stretchy="false">(</mo><mi>B</mi><mo>−</mo><mi>A</mi><mo stretchy="false">)</mo><mo>+</mo><mi>β</mi><mo stretchy="false">(</mo><mi>C</mi><mo>−</mo><mi>A</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P - A = \alpha (B - A) + \beta (C - A)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">A</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span><br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo>−</mo><mi>β</mi><mo stretchy="false">)</mo><mi>A</mi><mo>+</mo><mi>α</mi><mi>B</mi><mo>+</mo><mi>β</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">P = (1-\alpha-\beta) A + \alpha B + \beta C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05278em;">β</span><span class="mclose">)</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">βC</span></span></span></span></p>
+<p>如果某个坐标为负则点在三角形外。</p>
+</li>
+<li>
+<p>投影矩阵的推导</p>
+<ul>
+<li>See <a target="_blank" rel="noopener" href="https://www.songho.ca/opengl/gl_projectionmatrix.html">https://www.songho.ca/opengl/gl_projectionmatrix.html</a></li>
+<li>正交透视：将一个长方体先平移再缩放成(-1,-1,-1)到(1,1,1)范围内的正方体（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>o</mi><mi>r</mi><mi>t</mi><mi>h</mi><mi>o</mi></mrow></msub><mo>=</mo><msub><mi>M</mi><mrow><mi>s</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>e</mi></mrow></msub><mo>×</mo><msub><mi>M</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>n</mi><mi>s</mi><mi>l</mi><mi>a</mi><mi>t</mi><mi>e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">M_{ortho} = M_{scale} \times M_{translate}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">sc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">an</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>o</mi><mi>r</mi><mi>t</mi><mi>h</mi><mi>o</mi></mrow></msub><mo>=</mo><mrow><mo fence="true">[</mo><mtable rowspacing="0.16em" columnalign="center center center center" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>r</mi><mo>−</mo><mi>l</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>t</mi><mo>−</mo><mi>b</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mi>f</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd></mtr></mtable><mo fence="true">]</mo></mrow><mrow><mo fence="true">[</mo><mtable rowspacing="0.16em" columnalign="center center center center" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>r</mi><mo>+</mo><mi>l</mi></mrow><mn>2</mn></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>t</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>n</mi><mo>+</mo><mi>f</mi></mrow><mn>2</mn></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd></mtr></mtable><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">M_{ortho}=
+\begin{bmatrix}
+\frac{2}{r-l} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \frac{2}{t-b} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; \frac{2}{n-f} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; -\frac{r+l}{2} \\
+0 &amp; 1 &amp; 0 &amp; -\frac{t+b}{2} \\
+0 &amp; 0 &amp; 1 &amp; -\frac{n+f}{2} \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:5.0231em;vertical-align:-2.2615em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M403 1759 V84 H666 V0 H319 V1759 v1200 v1759 h347 v-84
+H403z M403 1759 V0 H319 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7615em;"><span style="top:-4.9164em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.668em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.4196em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.0985em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2615em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7615em;"><span style="top:-4.9164em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.668em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">b</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-2.4196em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.0985em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2615em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7615em;"><span style="top:-4.9164em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.668em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.4196em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-1.0985em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2615em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7615em;"><span style="top:-4.9164em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.668em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.4196em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.0985em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2615em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M347 1759 V0 H0 V84 H263 V1759 v1200 v1759 H0 v84 H347z
+M347 1759 V0 H263 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M403 1759 V84 H666 V0 H319 V1759 v1200 v1759 h347 v-84
+H403z M403 1759 V0 H319 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7362em;"><span style="top:-4.8561em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-3.616em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.3238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.1238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2362em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7362em;"><span style="top:-4.8561em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.616em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-2.3238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.1238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2362em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7362em;"><span style="top:-4.8561em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.616em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.3238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-1.1238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2362em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.7362em;"><span style="top:-4.8561em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.616em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight">b</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-2.3238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4461em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-1.1238em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.2362em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M347 1759 V0 H0 V84 H263 V1759 v1200 v1759 H0 v84 H347z
+M347 1759 V0 H263 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span></span></span></span></span></li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mrow><mi>o</mi><mi>r</mi><mi>t</mi><mi>h</mi><mi>o</mi></mrow></msub><mo>=</mo><mrow><mo fence="true">[</mo><mtable rowspacing="0.16em" columnalign="center center center center" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>r</mi><mo>−</mo><mi>l</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>r</mi><mo>+</mo><mi>l</mi></mrow><mrow><mi>r</mi><mo>−</mo><mi>l</mi></mrow></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>t</mi><mo>−</mo><mi>b</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>t</mi><mo>+</mo><mi>b</mi></mrow><mrow><mi>t</mi><mo>−</mo><mi>b</mi></mrow></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mi>f</mi></mrow></mfrac></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mfrac><mrow><mi>r</mi><mo>+</mo><mi>b</mi></mrow><mrow><mi>n</mi><mo>−</mo><mi>f</mi></mrow></mfrac></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd></mtr></mtable><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">M_{ortho}=
+\begin{bmatrix}
+\frac{2}{r-l} &amp; 0 &amp; 0 &amp; -\frac{r+l}{r-l} \\
+0 &amp; \frac{2}{t-b} &amp; 0 &amp; -\frac{t+b}{t-b} \\
+0 &amp; 0 &amp; \frac{2}{n-f} &amp; -\frac{r+b}{n-f} \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">or</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span><span class="mord mathnormal mtight">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:5.1281em;vertical-align:-2.314em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M403 1759 V84 H666 V0 H319 V1759 v1200 v1759 h347 v-84
+H403z M403 1759 V0 H319 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.814em;"><span style="top:-4.9339em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.6505em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.3671em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.046em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.314em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.814em;"><span style="top:-4.9339em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.6505em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">b</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-2.3671em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.046em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.314em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.814em;"><span style="top:-4.9339em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.6505em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-2.3671em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-1.046em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.314em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.814em;"><span style="top:-4.9339em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.6505em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">b</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight">b</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-2.3671em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">+</span><span class="mord mathnormal mtight">b</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-1.046em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.314em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.65em;"><span style="top:-4.65em;"><span class="pstrut" style="height:6.8em;"></span><span style="width:0.667em;height:4.800em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="4.800em" viewbox="0 0 667 4800"><path d="M347 1759 V0 H0 V84 H263 V1759 v1200 v1759 H0 v84 H347z
+M347 1759 V0 H263 V1759 v1200 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15em;"><span></span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>光栅化遍历三角形内部像素有两种方法：逐像素遍历（重心坐标判断是否在三角形内部）、扫描线算法（计算起点终点）。其中扫描线算法是 GPU<br>
+的实现方法。</p>
+</li>
+<li>
+<p>渲染硬件层接口（Render Hardware Interface, RHI）</p>
+<ul>
+<li>跨平台：OpenGL、vulkan</li>
+<li>平台独享：DirectX、metal</li>
+</ul>
+</li>
+</ul>
+<h2><span id="光">光</span></h2>
+<ul>
+<li>点光源使用距离的平方进行衰减，为防止距离非常接近 0 时出现错误，可以在分母上加一个常量防止除以 0。实践中往往需要给点光源限定范围（window），以便于在渲染时进行光源裁剪
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>w</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi></mrow></msub><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo>−</mo><mo stretchy="false">(</mo><mfrac><mi>r</mi><msub><mi>r</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub></mfrac><msup><mo stretchy="false">)</mo><mn>4</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f_{window}(r)= max(0,1-(\frac{r}{r_{max}})^4)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span><span class="mord mathnormal mtight">in</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ma</span><span class="mord mathnormal">x</span><span class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.2592em;vertical-align:-0.4451em;"></span><span class="mopen">(</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6954em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0278em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4451em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">4</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span><br>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>f</mi><mrow><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi></mrow></msub><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>×</mo><msub><mi>f</mi><mrow><mi>w</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi></mrow></msub><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(r) = f_{dist}(r) \times f_{window}(r)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">i</span><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span><span class="mord mathnormal mtight">in</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+<li>聚光灯在距离上的衰减和点光源相同，不同之处在于聚光灯还要考虑方向上的衰减（本影/半影）。</li>
+<li>面光源
+<ul>
+<li>See RectLight.ush in UE4</li>
+<li>Real-Time Polygonal-Light Shading with Linearly Transformed Cosines 2016 SIGGRAPH（<a target="_blank" rel="noopener" href="https://sgvr.kaist.ac.kr/~sungeui/ICG_F18/Students/Real-Time%20Polygonal-Light%20shading%20with%20Linearly%20Transformed%20Cosines.pdf%EF%BC%89">https://sgvr.kaist.ac.kr/~sungeui/ICG_F18/Students/Real-Time Polygonal-Light shading with Linearly Transformed Cosines.pdf）</a></li>
+</ul>
+</li>
+<li>全局光照（考虑多次反射）
+<ul>
+<li>Diffuse
+<ul>
+<li>静态：光照贴图</li>
+<li>动态：光照探针（预计算放置点处的光照信息，通过周围探针数据进行空间四面体插值得到任一点光照信息，存储球谐函数的系数是最常用的存储方式，球谐函数各个方向正交）</li>
+</ul>
+</li>
+<li>Specular
+<ul>
+<li>环境贴图、反射探针</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2><span id="阴影">阴影</span></h2>
+<ul>
+<li>平面阴影：把物体投影到平面上模拟阴影。平面阴影的一个问题是不支持曲面，投射阴影通过另外一种思路解决这个问题。</li>
+<li>投射阴影：通过一张阴影贴图表示阴影，然后将接受阴影的物体在渲染时转换到光源空间，并<strong>采样阴影贴图</strong>，从而实现在曲面上的阴影效果。</li>
+<li>平面阴影和投射阴影实现简单，但在某些情况下不能够产生正确的投影，比如<strong>自阴影以及多个遮挡物体重叠</strong>的情况。</li>
+<li>Shadow Volume：根据光源以及遮挡体生成 shadow volume，然后通过渲染 volume 并且<strong>统计视线进出 volume 的次数</strong>，从而得出渲染点是否处在阴影之中。虽然 Shadow Volume 能够在大部分情况下获得正确的阴影，但其性能消耗随着场景复杂度的提升而变得糟糕。</li>
+<li>shadow map：结合法线/深度变化率偏移解决 shadow acne</li>
+<li>vsm：可以较好地解决 acne 因为局部微小的深度差不会大幅增加遮挡概率，但 vsm 可能导致 light bleeding，尤其是多个遮挡物重叠时</li>
+</ul>
+<h1><span id="4-网络同步">4. 网络同步</span></h1>
+<h2><span id="basics">Basics</span></h2>
+<ul>
+<li>Socket：在会话层和传输层之间通讯的标准接口</li>
+<li>同步的内容。不同的同步内容决定不同的同步方案和网络架构。
+<ul>
+<li>控制流（玩家操作）
+<ul>
+<li>帧同步/转发服务器（操作先发送给服务器，服务器只负责转发）：王者荣耀、魂斗罗</li>
+</ul>
+</li>
+<li>状态流/事件流
+<ul>
+<li>游戏服务器（状态/时间发送给服务器，服务器不只负责转发还处理部分逻辑，处理后的结果再发回客户端的逻辑模块处理）</li>
+</ul>
+</li>
+<li>渲染指令流</li>
+<li>视频流（游戏画面）</li>
+</ul>
+</li>
+</ul>
+<h2><span id="两种主流同步模型">两种主流同步模型</span></h2>
+<h3><span id="帧同步同步控制流">帧同步：同步控制流</span></h3>
+<p>不同客户端把输入不直接传送给各自的逻辑模块，而是都发送给服务器，服务器统一打包成若干数据帧再发送给各个客户端，由于输入是一致的且各个客户端的逻辑处理模块也是一致的，所以可以得到相同的结果，达到同步的作用。注意：</p>
+<ul>
+<li>操作集合在时间轴上的一致性：使用逻辑时间</li>
+<li>逻辑的确定性：
+<ul>
+<li>浮点数的精度问题
+<ul>
+<li>解决：使用整数、降低精度的浮点数、<strong>定点数</strong>（约定小数点在二进制序列中的位置是固定的，不会像浮点数（Floating-Point）那样随着数值的大小漂移）。其中定点数是比较好的解决方式。在硬件层面，定点数本质上就是一个整数。计算机并不知道“小数点”在哪里，小数点的位置是由程序员或编译器预先约定的。使用定点数数学库来实现游戏逻辑层，可以确保在任何机器上跑出的结果是二进制完全一致的。</li>
+<li>如何实现定点数的开方和三角函数：使用泰勒展开，并对展开的每一项查表</li>
+</ul>
+</li>
+<li>经过验证的相关开源工具
+<ul>
+<li>Fate
+<ul>
+<li>物理引擎及数学库</li>
+<li>Rust 版本：<a target="_blank" rel="noopener" href="https://git.woa.com/groups/fate/">https://git.woa.com/groups/fate/</a></li>
+<li>主要提供了一个决定性的基于位置动力学物理引擎还附带提供了一个定点数学库、一套通用的帧同步通信框架</li>
+</ul>
+</li>
+<li>LogTrack
+<ul>
+<li>一致性诊断工具</li>
+<li>C#版本：<a target="_blank" rel="noopener" href="https://git.woa.com/kungfu/LogTrack">https://git.woa.com/kungfu/LogTrack</a></li>
+<li>C++版本：<a target="_blank" rel="noopener" href="https://git.woa.com/slicoltang/LogTrackUnreal">https://git.woa.com/slicoltang/LogTrackUnreal</a></li>
+<li>用来对比 2 个客户端之间逻辑流程一致性的日志工具</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>逻辑层与表现层（渲染相关，必须使用浮点数）分离
+<ul>
+<li>表现层不可修改逻辑层</li>
+<li>逻辑层不可依赖表现层</li>
+</ul>
+</li>
+<li>帧同步没有主角的概念</li>
+<li>谨慎使用多线程（由操作系统调度，诸多不确定）</li>
+</ul>
+</li>
+<li>帧同步优化
+<ul>
+<li><strong>断线重连</strong>
+<ul>
+<li>短单局：直接快速追帧。追帧的意思是服务器需要记录所有转发过的数据帧，当客户端重新连接到服务器时，服务器重新转发从网络断开那一刻起到当前的所有帧数据</li>
+<li>长单局（e.g., &gt;10min）：结合状态同步，将整个核心逻辑模块直接恢复到最近的状态，再从这个状态开始追帧。将整个核心逻辑模块直接恢复到最近的状态这一步，考虑到帧同步对状态一致性的要求非常严格，要保证完全状态同步，需要把整个 Gameplay 的内存都拍成快照（状态以内存形式存在）来进行同步。参考实现：<a target="_blank" rel="noopener" href="https://github.com/slicol/5Gmemory%E3%80%82">https://github.com/slicol/5Gmemory。</a></li>
+</ul>
+</li>
+<li><strong>安全与反作弊</strong>
+<ul>
+<li>安全
+<ul>
+<li>协议加密：DES、AE5、TEA/XTEA/XXTEA</li>
+<li>自有认证：帧同步独立的权限认证</li>
+<li>包防篡改：奇偶校验</li>
+<li>安全数据类型：5DT</li>
+</ul>
+</li>
+<li>反作弊
+<ul>
+<li>实时校验
+<ul>
+<li>战斗中的异常情况进行数值校验</li>
+<li>战斗中实时逻辑校验</li>
+</ul>
+</li>
+<li>结算校验
+<ul>
+<li>对单局结果进行数值校验。如有异常，进行逻辑校验</li>
+</ul>
+</li>
+<li>用户画像
+<ul>
+<li>识别作弊</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>逻辑校验服务器（校验服）架构：若干个校验服，每个校验服上运行若干个不同的校验进程，每个校验进程同时校验多个客户端（多线程）。因为进行校验不需要渲染所以效率很高。来自帧同步服务器的帧数据除了会转发给客户端，还会转发给校验服，校验服通过 router 将数据发送给各自版本的校验进程，再发送给不同校验线程里的核心模块进行校验。当单局结束时，把玩家的单局结果和校验服上的单局结果进行对比。</li>
+</ul>
+</li>
+<li><strong>网络抖动</strong>
+<ul>
+<li>Jitter Buffer：通用解决办法。服务器给客户端下发的帧序列一定是均匀下发的，但由于网络原因，这些帧数据被客户端接收的时候可能会不均匀。如果直接用不均匀的帧序列驱动游戏逻辑，必定会造成抖动。这时候可以用一个 buffer 来缓存这些帧数据，再发送给逻辑模块。但这也会造成一个问题就是会导致手感延迟，具体延迟多少取决于缓存了多少帧（玩家按下“前进”，可能要等几百毫秒角色才动）。这个问题可以通过<strong>预表现</strong>解决。预表现就是客户端先立即展示操作结果，再由服务器验证修正。这里以移动预表现为例（因为移动是几乎每一帧都做的但放技能之类的并不是），预表现就是不要等 Buffer，也不要等服务器回包，玩家按下按键的瞬间，客户端直接让角色先跑起来。当服务器计算和客户端预测的结果有差异时，如果是大误差就认错，听服务器的拉回画面（如撞墙了）；小误差可以将错就错，修改逻辑（为了流畅度牺牲微小的逻辑精度）；如果产生了交互（如释放技能）则必须听服务器的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>实际案例：FPSLite
+<ul>
+<li>一个轻量的帧同步网络模块</li>
+<li>See <a target="_blank" rel="noopener" href="https://github.com/slicol/SGF">https://github.com/slicol/SGF</a></li>
+</ul>
+</li>
+<li>优缺点
+<ul>
+<li>优点
+<ul>
+<li>服务器逻辑简单，负载低整体研发周期短</li>
+<li>表现一致性高同步流量小，带宽成本低</li>
+<li>快速支持观战、录像、回放等功能</li>
+</ul>
+</li>
+<li>缺点
+<ul>
+<li>反外挂问题严峻（服务器端只能校验没有逻辑）</li>
+<li>网络延时敏感度高不同步问题较难定位和解决</li>
+<li>单局规模受限</li>
+<li>技术门槛高</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>应用场景<br>
+单局规模适中、不会中途加入角色、实时性要求较高。比如:
+<ul>
+<li>ACT（Action Game）：火影忍者手游</li>
+<li>FTG（Fighting Game）：拳皇命运</li>
+<li>SPG（Sports Game）：NBA2K Online</li>
+<li>RTS：WarCraft、StarCraft</li>
+<li>MOBA：王者荣耀、LOLM</li>
+</ul>
+</li>
+</ul>
+<h3><span id="状态同步同步状态流事件流">状态同步：同步状态流/事件流</span></h3>
+<p>每个客户端有自己所关注的状态 S1，S2，…。总状态为 S 则 S1，S2，等均为 S 的子集，S1 与 S2 的交集为两个客户端所关注的共同状态。</p>
+<ul>
+<li>基本原理
+<ul>
+<li>（1）客户端 1 将发生变化的共同状态通过仲裁服务器转发给客户端 2，仲裁服务器会对这些状态进行安全性和合理性的校验，以防止外挂作弊。</li>
+<li>（2）一个游戏服务器上面维护共同状态，当这些状态发生变化时，游戏服务器会将共同状态同时发给两个客户端，从而保证两个客户端的共同状态一致。</li>
+<li>（3）一个权威服务器维护游戏所有的逻辑状态，当客户端 1 和客户端 2 有需要时，将其所需要的状态同步过去。</li>
+</ul>
+</li>
+</ul>
+<p>现实中常把方法（1）和（2）结合使用，并且在游戏服务器上不只维护共同状态，也维护玩家的私有状态，以保持玩家状态的持久性和安全性。方式（3）是方式（2）一种极端特例。另外，（1）和（2）与具体玩法强相关，而（3）与具体玩法弱相关（因为（1）/（2）要保存的状态是玩法决定的而（3）是保存所有状态）。</p>
+<ul>
+<li>状态一致性
+<ul>
+<li>冲突问题与解决
+<ul>
+<li>事件冲突：单点仲裁（单点服务器进行仲裁，由于一定有先来后到所以可以避免冲突）；将状态相关的逻辑（关键/权威逻辑）放在服务器执行</li>
+</ul>
+</li>
+<li>仲裁问题与解决
+<ul>
+<li>回溯判定：指令有延迟，所以需要回溯到事件发生时的状态进行判定。为了能够准确仲裁，需要获得当客户端发起仲裁时（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">t_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>），服务器的时间（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">t_0 + \theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span>），这里需要 network time protocol（ntp）算法</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>状态同步优化
+<ul>
+<li>客户端插值：实现客户端平滑地进行状态变换。例如位置坐标的插值，假设服务器每隔 4 帧才向客户端发送一次新坐标（pp：数据包周期），则客户端不直接使用服务器发送的结果，而是进行插值使用插值后的结果从而获得平滑的移动（ip：插值周期）。ip 越小延迟越小，但 ip &lt; pp 会导致卡顿，所以理想的是 ip = pp。插值优化会带来固定延迟，因此需要客户端预测。</li>
+<li>客户端预测：例如航位推测（Dead Reckoning）。这个推测基于假设实体继续在做当前正在做的事情，利用现在物体位置/速度/加速度/角速度/等尽可能多的参数，推定未来位置方向的航海技术。这种预测容易受到误差累积的影响，通过即时状态更新、插值、二阶状态调整等优化。</li>
+<li>视觉掩饰：前摇用来掩饰本地输入到生效期间的网络延迟，提供各接受方等待缓冲时间（例如挥刀前摇，前摇动画结束后延迟结束收到服务器的判定结果确定是否生效）；后摇提供确定性，提高预测精度（给服务器仲裁提供时间）。</li>
+<li>同步范围与相关性：权威服务器上存储了几乎全部状态，如果直接不加裁剪的传递给客户端，一方面会让网络吃不消，另一方面也会影响性能。解决方法是对整个游戏世界进行静态的区域划分（空间均匀划分、基于 POI 不均匀划分），或者基于视锥、距离、可见性等划分。</li>
+<li>同步频率与优先级：同步频率与相关性和优先级正相关，事件同步的优先级高于状态同步，通过休眠状态主动控制频率</li>
+<li>断线重连：由于服务器时刻保存着关键状态或所有状态，所以直接把相关状态同步至客户端即可，其中与事件触发相关的逻辑特殊处理（时间不可能重复发生）。</li>
+<li>安全与反作弊：
+<ul>
+<li>安全问题:
+<ul>
+<li>协议破解/攻击</li>
+<li>敏感数据滥用</li>
+</ul>
+</li>
+<li>解决办法:
+<ul>
+<li>延迟敏感的状态：则本地维护状态，服务器后校验</li>
+<li>延迟不敏感的状态：则服务器维护状态服务器限制不必要的数据同步，防止敏感数据滥用</li>
+<li>设置天花板阈值，防止协议破解</li>
+<li>用户行为分析，识别作弊</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>状态同步实现案例：UE-Replication
+<ul>
+<li>原理：遍历每个 Actor，遍历每个 Actor 的每个 Property，对比这些状态是否已经发生变化，把发生变化的状态放进一个 changelist 并最终把这个 changelist 放进一个 buffer 里进行同步。收集所有 RPC 信息（RPC 是在 UE 里表示事件的形式），把 RPC 也放入同步的 buffer 中，最后把 buffer 发送出去。</li>
+<li>优化：ReplicationGraph
+<ul>
+<li>利用层级/网格状的静态区域来管理 Actors</li>
+<li>区分管理不同同步频率的 Actor</li>
+<li>复用上一次 A0I 同步之后积累的信息</li>
+<li>通过对休眠/唤醒的检测，灵活区别 Actors 的同步与否</li>
+</ul>
+</li>
+<li>ReplicationGraphnode
+<ul>
+<li>按空间划分：UReplicationGraphNode_Gridspatialization2D，UReplicationGraphNode_GridCell</li>
+<li>按同步频率划分：UReplicationGraphNode_ActorListFrequencyBuckets</li>
+<li>按同步对象划分：UReplicationGraphNode_ActorList，UReplicationGraphNode_AlwaysRelevant_ForConnection</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优缺点
+<ul>
+<li>优势
+<ul>
+<li>客户端计算量小</li>
+<li>网络敏感度低</li>
+<li>技术门槛低</li>
+</ul>
+</li>
+<li>劣势
+<ul>
+<li>流量消耗大因为要同步大量状态</li>
+<li>达到复杂逻辑一致性的难度很高</li>
+<li>后期维护成本高</li>
+<li>很难通用化（UE4Replication 改善了这一点）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>应用：射击（如 FPS）、赛车、RPG、三消休闲等</li>
+</ul>
+<h2><span id="帧同步和状态同步的通用优化技术">帧同步和状态同步的通用优化技术</span></h2>
+<h3><span id="1-协议优化">(1) 协议优化</span></h3>
+<p>在弱网络（移动网络）下，TCP 的延时较高。TCP 有 4 个机制来保证其可靠性：重传机制（丢包超时重传）、滑动窗口（优化重传）、流量控制（优化滑动窗口）、拥塞控制（配合流量控制）。其中影响 TCP 弱网络性能的关键就是古老的重传机制，超时重传时间 RTO 太长会导致网络延迟大，太短导致网络负载高。在游戏中，多次超时重传导致 RTO 呈指数级增加，故传统 RTO 计算策略不适应弱网络。于是使用 UDP 并对其封装实现可靠 UDP（RUDP）。</p>
+<p>RUDP 不同实现机制：</p>
+<ul>
+<li>
+<p>RUDP-ARQ：RUDP (Reliable UDP) 这种可靠传输协议中，利用**ARQ (Automatic Repeat-reQuest，自动重传请求)**防止数据丢失，让原本不可靠的 UDP 变得可靠。RUDP 为了比 TCP 更快，通常不会照搬 TCP 的重传策略，而是会选择更适合实时场景的 ARQ 模式。主要有以下几种：</p>
+<ul>
+<li>
+<p>停等式 ARQ (Stop-and-Wait)</p>
+<ul>
+<li><strong>原理</strong>：发一个包，停下来等对方说“收到了”（ACK），然后再发下一个。</li>
+<li><strong>特点</strong>：逻辑最简单，但效率极低，带宽利用率差。</li>
+<li><strong>RUDP 应用</strong>：几乎不用于现代高性能 RUDP，仅用于极其简单的物联网或教学场景。</li>
+</ul>
+</li>
+<li>
+<p>回退 N 帧 ARQ (Go-Back-N)</p>
+<ul>
+<li><strong>原理</strong>：发送方可以连续发多个包（滑动窗口）。如果中间第 5 号包丢了，接收方会丢弃 5 号之后的所有包（6, 7, 8…），要求发送方从 5 号开始<strong>全部重传</strong>。</li>
+<li><strong>特点</strong>：浪费带宽，因为 6, 7, 8 明明已经到了却要重发。</li>
+<li><strong>RUDP 应用</strong>：较少使用，因为抗丢包性能不如 Selective Repeat。</li>
+</ul>
+</li>
+<li>
+<p>选择性重传 ARQ (Selective Repeat / Selective ACK)</p>
+<ul>
+<li><strong>原理</strong>：<strong>现代 RUDP（如 KCP, QUIC）最常用</strong>的机制。发送方连续发包。如果第 5 号包丢了，接收方收到了 6, 7, 8。接收方会告诉发送方：“6, 7, 8 我收到了，但 5 没收到”。发送方<strong>只重传第 5 号包</strong>。</li>
+<li><strong>特点</strong>：效率最高，带宽浪费最少，但对内存和 CPU 的排序逻辑要求稍高。</li>
+</ul>
+</li>
+<li>
+<p>RUDP-ARQ 与 TCP 对比</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>TCP 的 ARQ</th>
+<th>RUDP 的 ARQ (优化版)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>重传时机</strong></td>
+<td><strong>RTO (超时重传时间) 较保守</strong>，通常会翻倍增长，导致一旦丢包，卡顿感明显。</td>
+<td><strong>RTO 极短</strong>，或者使用 <strong>Fast Resend (快速重传)</strong>，发现丢包立刻重传，不傻等超时。</td>
+</tr>
+<tr>
+<td><strong>确认机制</strong></td>
+<td><strong>累计确认 (Cumulative ACK)</strong>，容易导致对后续包状态的判断模糊。</td>
+<td>通常使用 <strong>SACK (Selective ACK)</strong>，精确告知哪些包到了，哪些没到。</td>
+</tr>
+<tr>
+<td><strong>拥塞控制</strong></td>
+<td>丢包会被认为是网络拥堵，导致大幅降低发送速度。</td>
+<td>即使丢包重传，也不一定降低发送速度（可配置），宁愿牺牲带宽也要保低延迟。</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>常见的实现技术包括：</p>
+<ul>
+<li><strong>ACK/NACK 机制</strong>（确认/非确认）</li>
+<li><strong>Sequence Number</strong>（序列号，用于检测丢包和乱序）</li>
+<li><strong>Retransmission Timer</strong>（重传定时器）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>RUDP-FEC：在 RUDP 协议中引入的 <strong>前向纠错 (Forward Error Correction, FEC)</strong> 技术。如果说 ARQ 是“丢了再补发”的<strong>补救</strong>措施，那么 FEC 就是“提前多发一点”的<strong>预防</strong>措施。</p>
+<ul>
+<li>核心原理：用“冗余”换“速度”在传统的 ARQ 机制中，如果数据包 A 丢了，接收方需要告诉发送方“A 没收到”，发送方再重发 A。这至少产生了一个 RTT (往返时延) 的等待，对于实时性要求极高的游戏（如 FPS）或音视频通话，这个延迟可能是致命的。FEC 的做法是发送方在发送数据包 A、B、C 的同时，根据算法额外计算并发送一个<strong>冗余包 P</strong>（Parity Packet）。
+<ul>
+<li><strong>正常情况：</strong> 接收方收到了 A, B, C, P。P 没啥用，被丢弃（浪费了一点带宽）。</li>
+<li><strong>丢包情况：</strong> 接收方收到了 B, C, P，但是 <strong>A 丢了</strong>。</li>
+<li><strong>原地复活：</strong> 接收方不需要通知发送方，而是直接用 B, C, P 通过数学运算（如异或 XOR 或 Reed-Solomon 算法）<strong>反算出 A 的内容</strong>。</li>
+<li><strong>结果：</strong> 丢包发生了，但<strong>延迟为 0</strong>，因为不需要重传。</li>
+</ul>
+</li>
+<li>常见算法实现
+<ul>
+<li><strong>XOR (异或)：</strong> 最简单。比如发 <code>1</code> 和 <code>0</code>，额外发一个 <code>1 (1^0)</code>。如果丢了任何一个，都能用剩下的两个算出来。计算极快，但纠错能力有限。</li>
+<li><strong>Reed-Solomon (RS 码)：</strong> 最常用（如 KCP 协议）。它更强大，可以配置 <code>N:M</code> 比例。例如“发 10 个数据包，带 2 个冗余包”。只要这 12 个包里任意收到 10 个，就能还原出原始数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>RUDP-FEC 与 RUDP-ARQ 的对比</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>ARQ (自动重传)</th>
+<th>FEC (前向纠错)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>处理丢包</strong></td>
+<td><strong>反应式</strong>：丢了才去补。</td>
+<td><strong>主动式</strong>：提前多发，丢了自己算。</td>
+</tr>
+<tr>
+<td><strong>延迟 (Latency)</strong></td>
+<td>最小丢包延迟<strong>高</strong>：约等于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.7</mn><mi>t</mi><mi>o</mi><mn>2.0</mn><mo>×</mo><mi>R</mi><mi>T</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">1.7 to 2.0 \times RTT</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.7</span><span class="mord mathnormal">t</span><span class="mord mathnormal">o</span><span class="mord">2.0</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">RTT</span></span></span></span>。</td>
+<td>最小丢包延迟<strong>低</strong>：一般小于<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.5</mn><mo>×</mo><mi>R</mi><mi>T</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">1.5 \times RTT</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.5</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">RTT</span></span></span></span>。</td>
+</tr>
+<tr>
+<td><strong>带宽消耗</strong></td>
+<td><strong>低</strong>：只有丢包时才重传，平时不浪费。</td>
+<td><strong>高</strong>：无论丢不丢包，都要一直多发 10%~30% 的数据。</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>文件下载、网页浏览、回合制游戏。</td>
+<td>实时语音、视频会议、FPS/MOBA 游戏。</td>
+</tr>
+<tr>
+<td><strong>应用示例</strong></td>
+<td>LWIP, KCP</td>
+<td>FSP(Lockstep), UE4(Replication)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>进一步优化：ARO-FEC</p>
+<ul>
+<li>小丢包（随机丢包）用 FEC 直接恢复，保证 0 延迟；大丢包（网络抖动/断流）超过了 FEC 的恢复能力（比如冗余包也丢了），则回退到使用 ARQ 申请重传。</li>
+<li>实现算法非常简单</li>
+<li>用于小型项目的帧同步实践可以参考开源库：FSPLite（<a target="_blank" rel="noopener" href="https://github.com/slicol/SGF%EF%BC%89">https://github.com/slicol/SGF）</a></li>
+</ul>
+</li>
+</ul>
+<h3><span id="2-udp-分组优化">(2) UDP 分组优化</span></h3>
+<p>UDP 分组就是将一个 UDP 大包分成几个 UDP 小包进行发送。当 UDP 包大小超过链路层的 MTU 时，将会发生 IP 分片-重组，因为 IP 分片-重组只要有一个包丢了就认为是整个大包丢了，所以会增加丢包概率。</p>
+<h3><span id="3-随机丢包优化">(3) 随机丢包优化</span></h3>
+<p>相关性丢包（数据包要么不丢要么连续丢）可能有多种因素导致，如链路拥塞、路由器负载过高、无线信号衰减、基站/场景切换，故难以优化。而随机丢包（没有任何规律）一般是由二进制信管噪声导致的，可以优化。实际中大部分都是这种随机丢包。对于随机丢包可以采用 Gilbert 模型优化：既然连续多次丢包的概率很低，不如把一个包同时发两次，或者把一个包通过两个不同的链路发出去，来降低丢包概率。</p>
+<h2><span id="帧同步和状态同步对比">帧同步和状态同步对比</span></h2>
+<ul>
+<li>公平-确定性
+<ul>
+<li>帧同步：具有强一致性</li>
+<li>状态同步：非本地仲裁数据有延迟或需要修正</li>
+</ul>
+</li>
+<li>公平-安全性
+<ul>
+<li>帧同步
+<ul>
+<li>篡改：输入数据，状态数据</li>
+<li>隐私：拥有所有玩家的状态</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>篡改：输入数据，状态数据（本地）</li>
+<li>隐私:无法获取关键状态数据（远程）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>体验-实时性
+<ul>
+<li>帧同步：预表现、协议优化（RUDP）、丢包优化</li>
+<li>状态同步：预表现、协议优化（RUDP）</li>
+</ul>
+</li>
+<li>开销-流量
+<ul>
+<li>帧同步
+<ul>
+<li>总体同步流量少</li>
+<li>空帧优化</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>总体同步流量大</li>
+<li>AOI 优化</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>开销-计算量
+<ul>
+<li>帧同步：所有客户端都维护全部的计算量</li>
+<li>状态同步：只维护本地计算量</li>
+</ul>
+</li>
+<li>开销-研发成本
+<ul>
+<li>帧同步
+<ul>
+<li>技术门槛高</li>
+<li>同步模块研发成本高项目整体研发成本低</li>
+</ul>
+</li>
+<li>状态同步
+<ul>
+<li>技术门槛低</li>
+<li>同步模块研发成本低项目整体研发成本高（前后台都需要开发）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2><span id="实践相关">实践相关</span></h2>
+<h3><span id="协议栈设计">协议栈设计</span></h3>
+<ul>
+<li>
+<p>各层的数据格式可以归纳为：<img src="protocol-stack.png" alt="protocol stack design"></p>
+</li>
+<li>
+<p>假设会话层数据格式如下：<img src="format.png" alt="format"></p>
+</li>
+<li>
+<p>应用层的格式则需根据具体的逻辑来设定。</p>
+</li>
+<li>
+<p>表现层的数据格式通常使用现成的序列化格式，如 json，xml，protobuf。也可以采用自定义序列化格式，如 UStruct，KFD</p>
+</li>
+<li>
+<p>协议加密和文件加密不同。文件一般需要持久化，因此需要较高的加密级别，注重的是加密强度而非性能；而协议加密需要高频进行，故更注意性能。协议加密一般都是用对称加密，如 DES，AES，TEA（XTEA，XXTEA），对于高频小量数据加密，TEA 就够了。参考实现：<a target="_blank" rel="noopener" href="https://git.woa.com/slicoltang/SGEncrypt%E3%80%82">https://git.woa.com/slicoltang/SGEncrypt。</a></p>
+</li>
+<li>
+<p>RPC 是应用层协议接口的一种实现，基本原理就是把协议的发送和接收封装成向函数调用一样方便。</p>
+<ul>
+<li>比如，<code>RPC(“move”,100,200,300)</code><br>
+对比传统的 message 接口:<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">var msg = new MoveMsg;<br>msg.<span class="hljs-attribute">x</span>=100;<br>msg.<span class="hljs-attribute">y</span>=200;<br>msg.<span class="hljs-attribute">z</span>=300;<br><span class="hljs-built_in">..</span>.<br>SendMessage(1, msg),;<br></code></pre></td></tr></table></figure>
+</li>
+<li>可以参考：<a target="_blank" rel="noopener" href="https://github.com/slicol/SGF/blob/master/SGFCore/Network/Core/RPCLite%EF%BC%8C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83">https://github.com/slicol/SGF/blob/master/SGFCore/Network/Core/RPCLite，也可以参考</a> UE4 的复杂实现</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Learning/" class="category-chain-item">Learning</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Learning/Graphics/" class="category-chain-item">Graphics</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/graphics/" class="print-no-link">#graphics</a>
+      
+        <a href="/tags/UE/" class="print-no-link">#UE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>UE Basics</div>
+      <div>http://example.com/2025/12/15/UEfromTCClass/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Go7</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 15, 2025</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       Go7 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
