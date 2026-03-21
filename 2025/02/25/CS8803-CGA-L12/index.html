@@ -296,16 +296,16 @@
             
               <div class="markdown-body">
                 
-                <h2><span id="depth-test">Depth Test</span></h2>
+                <h2 id="Depth-Test">Depth Test</h2>
 <p>In rasterization-based rendering, we use of a depth buffer to prevent triangles rendering in the front while they’re supposed to be behind other triangles.</p>
-<h3><span id="depth-buffer-z-buffer">Depth Buffer (Z Buffer)</span></h3>
+<h3 id="Depth-Buffer-Z-Buffer">Depth Buffer (Z Buffer)</h3>
 <ul>
 <li>The depth-buffer is a buffer that, just like the color buffer (that stores all the fragment colors: the visual output), stores information <em>per fragment</em> and has the same width and height as the color buffer.</li>
 <li>When depth testing is enabled, OpenGL tests the depth value of a fragment against the content of the depth buffer. OpenGL performs a depth test and if this test passes, the fragment is rendered and the depth buffer is updated with the new depth value.</li>
 <li>If the depth test fails, the fragment is discarded.</li>
 </ul>
 <p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>e</mi><mi>p</mi><mi>t</mi><mi>h</mi><mo>=</mo><mfrac><mrow><mi>z</mi><mo>−</mo><mi>n</mi><mi>e</mi><mi>a</mi><mi>r</mi></mrow><mrow><mi>f</mi><mi>a</mi><mi>r</mi><mo>−</mo><mi>n</mi><mi>e</mi><mi>a</mi><mi>r</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">depth = \frac{z-near}{far-near}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord mathnormal">pt</span><span class="mord mathnormal">h</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2834em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8023em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10764em;">f</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
-<h3><span id="rasterization-with-depth-buffer">Rasterization with depth buffer</span></h3>
+<h3 id="Rasterization-with-depth-buffer">Rasterization with depth buffer</h3>
 <ul>
 <li>Project vertices to 2D image space</li>
 <li>Rasterize triangle: find which pixels should be lit</li>
@@ -313,28 +313,28 @@
 <li>Test visibility (Z-buffer), update frame buffer color</li>
 </ul>
 <p><img src="depth_buffer.png" alt="depth buffer"></p>
-<h3><span id="pseudocode-for-depth-test">Pseudocode for Depth Test</span></h3>
+<h3 id="Pseudocode-for-Depth-Test">Pseudocode for Depth Test</h3>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> each triangle<br>    transform into eye space<br>    (perform projection)<br>    setup <span class="hljs-number">3</span> edge equations<br>    <span class="hljs-keyword">for</span> each pixel x,y<br>        <span class="hljs-keyword">if</span> passes <span class="hljs-built_in">all</span> edge equations<br>            compute z<br>            <span class="hljs-keyword">if</span> z&lt;zbuffer[x,y]<br>                zbuffer[x,y]=z<br>                framebuffer[x,y]=shade()<br></code></pre></td></tr></table></figure>
 <p>We render the triangle’s color into this pixel only when its depth value is smaller than the depth in the current depth buffer</p>
-<h2><span id="alpha-blending">Alpha Blending</span></h2>
+<h2 id="Alpha-Blending">Alpha Blending</h2>
 <ul>
 <li>Blending in OpenGL is known as the technique to render transparent object.</li>
 <li>Transparency is all about objects not having a solid color, but having a combination of colors from the object itself and any other object behind it with varying intensity.</li>
 <li>A colored glass window is a transparent object; the glass has a color of its own, but the resulting color contains the colors of all the objects behind the glass as well.</li>
 </ul>
-<h3><span id="alpha-channel">Alpha Channel</span></h3>
+<h3 id="Alpha-Channel">Alpha Channel</h3>
 <ul>
 <li>The amount of transparency of an object is defined by its color’s alpha value.</li>
 <li>The alpha color value is the 4th component of a color vector</li>
 <li>1.0 indicates completely opaque, 0.0 indicates completely transparent.</li>
 <li>An alpha value of 0.5 tells us the object’s color consist of 50% of its own color and 50% of the colors behind the object.</li>
 </ul>
-<h3><span id="naïve-implementation-discarding-fragments-in-the-shader">Naïve Implementation: Discarding Fragments in the Shader</span></h3>
+<h3 id="Naive-Implementation-Discarding-Fragments-in-the-Shader">Naïve Implementation: Discarding Fragments in the Shader</h3>
 <ul>
 <li>In the <em>fragment shader</em>, we can check the alpha value of each fragment and decide to discard it if its alpha value is below a threshold (those parts with a really small alpha value are supposed to be transparent).</li>
 </ul>
 <p><img src="alpha_blending.png" alt="alpha blending algorithm from learnopengl"></p>
-<h3><span id="advanced-implementation-blending-with-alpha-value">Advanced Implementation: Blending with Alpha Value</span></h3>
+<h3 id="Advanced-Implementation-Blending-with-Alpha-Value">Advanced Implementation: Blending with Alpha Value</h3>
 <ul>
 <li>While discarding fragments is great and all, it doesn’t give us the flexibility to render semi-transparent images; we either render the fragment or completely discard it.</li>
 <li>To render images with different levels of transparency we have to enableblending, we can do <strong>glEnable(GL_BLEND)</strong> (turn on alpha blending in fragment shader in OpenGL).</li>
@@ -350,7 +350,7 @@
 <li>The glBlendFunc(GLenum sfactor, GLenum dfactor) function expects two parameters that set the option for the source and destination factor.</li>
 <li>OpenGL defined quite a few options for us to set of which we’ll list the most common options below.</li>
 </ul>
-<h3><span id="the-order-of-objects-in-the-rendering-sequence-matters">The order of objects in the rendering sequence matters</span></h3>
+<h3 id="The-order-of-objects-in-the-rendering-sequence-matters">The order of objects in the rendering sequence matters</h3>
 <p>As described in the blending function, we need to figure out which object is source and which one is destination. It means that the order of rendering objects matters - different orders result in different effect (maybe incorrect results).</p>
 <ul>
 <li>
@@ -377,16 +377,16 @@
 <p><img src="half_angle_sorting.png" alt="Half-angle axis sorting"></p>
 <p><img src="illustration_halfangle.png" alt="illustration of axis sorting"></p>
 <p>In ray tracing, when going through each ray, we are implicitly visiting objects in a sorted order.</p>
-<h2><span id="forward-pass-of-surface-splat-rendering">Forward Pass of Surface Splat Rendering</span></h2>
+<h2 id="Forward-Pass-of-Surface-Splat-Rendering">Forward Pass of Surface Splat Rendering</h2>
 <p>The forward process is the same as the point-based rendering pipeline as mentioned previously <a href="/2025/02/25/CS8803-CGA-L11/#point-based-rendering-pipeline"> L09-Positional Encoding</a>:<br>
 Shading -&gt; Warping -&gt; Visibility -&gt; Filtering</p>
 <p><img src="forward_algorithm.png" alt="Algorithm"></p>
-<h2><span id="backward-pass-of-surface-splat-rendering">Backward Pass of Surface Splat Rendering</span></h2>
-<h3><span id="gradient-approximation">Gradient Approximation</span></h3>
+<h2 id="Backward-Pass-of-Surface-Splat-Rendering">Backward Pass of Surface Splat Rendering</h2>
+<h3 id="Gradient-Approximation">Gradient Approximation</h3>
 <ul>
 <li>The backward pass refers to the information flow from the rendered image to the scene parameters based on approximating the gradient.</li>
 </ul>
-<h4><span id="if-the-splat-is-not-visible-on-the-pixel">If the splat is not visible on the pixel</span></h4>
+<h4 id="If-the-splat-is-not-visible-on-the-pixel">If the splat is not visible on the pixel</h4>
 <ul>
 <li>
 <p>When the splat is <em>invisible</em>, and it is <em>moving away from the camera</em>, the gradient should always be zero (since it’s impossible to become visible)</p>
@@ -397,14 +397,14 @@ Shading -&gt; Warping -&gt; Visibility -&gt; Filtering</p>
 <p>Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>I</mi></mrow><annotation encoding="application/x-tex">\delta I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">\delta p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal">p</span></span></span></span> represent changes in intensity and position.</p>
 </li>
 </ul>
-<h4><span id="if-the-splat-is-visible-on-the-pixel">If the splat is visible on the pixel</span></h4>
+<h4 id="If-the-splat-is-visible-on-the-pixel">If the splat is visible on the pixel</h4>
 <ul>
 <li>
 <p>When the splat is <em>visible</em>, and it is <em>moving toward the camera or moving away from the camera</em>, the gradient can be approximated by its numerical gradient:</p>
 <p><img src="grad_approx_v.png" alt="gradient approximation"></p>
 </li>
 </ul>
-<h3><span id="gradient-approximation-in-3d">Gradient Approximation in 3D</span></h3>
+<h3 id="Gradient-Approximation-in-3D">Gradient Approximation in 3D</h3>
 <ul>
 <li>The splat is not visible at the pixel and the pixel is not rendered by any other ellipses in front of the splat;</li>
 <li>The splat is not visible at the pixel and the pixel is rendered by other ellipses in front of the splat (the splat is behind other splats);</li>
@@ -412,15 +412,15 @@ Shading -&gt; Warping -&gt; Visibility -&gt; Filtering</p>
 </ul>
 <p>Here, “splat” refers to the projected contribution of a 3D Gaussian (or surfel) onto the 2D image plane during rendering.</p>
 <p><img src="grad_approx_3d.png" alt="Gradient Approximation in 3D"></p>
-<h2><span id="regularization-and-loss">Regularization and Loss</span></h2>
-<h3><span id="why-do-we-need-regularization">Why do we need regularization?</span></h3>
+<h2 id="Regularization-and-Loss">Regularization and Loss</h2>
+<h3 id="Why-do-we-need-regularization">Why do we need regularization?</h3>
 <ul>
 <li>The unstructured nature of point clouds, while enabling extensive topology changes, presents a considerable challenge for optimization.</li>
 <li>Gradient computation is fully <em>parallelized</em>, causing points to move independently of one another.</li>
 <li>Since point movements typically result in minor and sparse changes in the rendered image, the gradients associated with individual points <em>lack the structured behavior observed in mesh-based gradients</em>.</li>
 <li>Without appropriate regularization, the optimization can easily lead to convergence toward <em>local minima</em>.</li>
 </ul>
-<h3><span id="regularization-repulsion-and-projection">Regularization: Repulsion and Projection</span></h3>
+<h3 id="Regularization-Repulsion-and-Projection">Regularization: Repulsion and Projection</h3>
 <ul>
 <li>Need for Regularization:
 <ul>
@@ -438,7 +438,7 @@ Shading -&gt; Warping -&gt; Visibility -&gt; Filtering</p>
 </li>
 </ul>
 <p><img src="example_reg.png" alt="example of regularization terms"></p>
-<h3><span id="loss-function">Loss Function</span></h3>
+<h3 id="Loss-Function">Loss Function</h3>
 <p>The total optimization objective include three terms: the pixel loss, projection loss, and repulsion loss. However, this loss function was not used in Gaussian Splatting. Gaussian Splatting uses a large number of splats to achieve a much simpler loss function.</p>
 <p><img src="loss_func.png" alt="loss function"></p>
 

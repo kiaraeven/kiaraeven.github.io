@@ -294,7 +294,7 @@
               <div class="markdown-body">
                 
                 <p><strong>An image representing infinitely distant lighting from all directions.</strong></p>
-<h1><span id="shading-from-environment-lighting-ibl">Shading from Environment Lighting (IBL)</span></h1>
+<h1>Shading from Environment Lighting (IBL)</h1>
 <p>To use the image to shade a point (without shadow), we need to solve the rendering equation. A General solution to solve this euqation is to use the Monte Carlo integration. It requires a large amount of samples so it can be really slow.</p>
 <p>We notice that, in the rendering function, if the BRDF is glossy, the support is small; if the BRDF is diffuse, the support is large but it’s smooth.</p>
 <p><img src="brdf-support.png" alt="brdf supports"></p>
@@ -308,7 +308,7 @@
 </ul>
 <p>It’s obvious that BRDF (consider it as g(x)) satisfy the accuracy condition in both cases, so we can safely take the lighting term out.</p>
 <p><img src="BRDF-approx.png" alt="approximation"></p>
-<h2><span id="the-split-sum-1st-stage">The Split Sum: 1st stage</span></h2>
+<h2 id="The-Split-Sum-1st-stage">The Split Sum: 1st stage</h2>
 <ul>
 <li>Prefiltering the environment lighting
 <ul>
@@ -318,7 +318,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="the-split-sum-2nd-stage">The Split Sum: 2nd stage</span></h2>
+<h2 id="The-Split-Sum-2nd-stage">The Split Sum: 2nd stage</h2>
 <p>In the first stage, we figure out how to take the lighting term out, but the second term still requires integration. How can we avoid sampling the second term?</p>
 <p><img src="BRDF-approx2.png" alt="approximation"></p>
 <ul>
@@ -332,8 +332,8 @@ Each integral produces one value for each (roughness, incident angle) pair. Ther
 <img src="BRDF_LUT.png" alt="BRDF LUT"></li>
 </ul>
 <p>Finally, we avoid sampling (no sampling no noise!) and it’s very fast. And why we call this method “split-sum”? This is because we convert integrals in to sums.</p>
-<h1><span id="shadow-from-environment-lighting">Shadow from Environment Lighting</span></h1>
-<h2><span id="difficulties-and-solutions">Difficulties and Solutions</span></h2>
+<h1>Shadow from Environment Lighting</h1>
+<h2 id="Difficulties-and-Solutions">Difficulties and Solutions</h2>
 <ul>
 <li>
 <p>As a many-light problem: Cost of SM is linearly to #light</p>
@@ -354,20 +354,20 @@ Each integral produces one value for each (roughness, incident angle) pair. Ther
 </ul>
 </li>
 </ul>
-<h2><span id="background-knowledge">Background Knowledge</span></h2>
-<h3><span id="product-integral">Product integral</span></h3>
+<h2 id="Background-Knowledge">Background Knowledge</h2>
+<h3 id="Product-integral">Product integral</h3>
 <p>Any product integral can be considered as filtering.</p>
 <p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mo>∫</mo><mi mathvariant="normal">Ω</mi></msub><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\int_{\Omega} f(x)g(x) \, dx
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.2719em;vertical-align:-0.9119em;"></span><span class="mop"><span class="mop op-symbol large-op" style="margin-right:0.44445em;position:relative;top:-0.0011em;">∫</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:-0.4336em;"><span style="top:-1.7881em;margin-left:-0.4445em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">Ω</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9119em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">x</span></span></span></span></span></p>
 <p>Low frequency == smooth function/slow changes /etc.<br>
 The frequency of the integral is the lowest of any individual’s.</p>
-<h3><span id="basis-functions-基函数">Basis Functions (基函数)</span></h3>
+<h3 id="Basis-Functions-基函数">Basis Functions (基函数)</h3>
 <p>Basis functions are a set of functions that can represent other functions in general. As shown below, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">B_i(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span> are basis functions and they form <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span>.</p>
 <p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>c</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>B</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(x) = \sum_i c_i \cdot B_i(x)
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3277em;vertical-align:-1.2777em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span></p>
 <p>The Fourier series is a set of basis functions.<br>
 The polynomial series (多项式) can also be a set of basis functions.</p>
-<h2><span id="spherical-harmonics">Spherical Harmonics</span></h2>
+<h2 id="Spherical-Harmonics">Spherical Harmonics</h2>
 <ul>
 <li>A set of 2D (theta and phi) basis functions <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>ω</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">B_i(\omega)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">ω</span><span class="mclose">)</span></span></span></span> defined on the sphere.</li>
 <li>Analogous to Fourier series in 1D.</li>
@@ -409,7 +409,7 @@ The polynomial series (多项式) can also be a set of basis functions.</p>
 </li>
 </ul>
 <p>The above are still only about env light shading.</p>
-<h2><span id="precomputed-radiance-transfer-prt">Precomputed Radiance Transfer (PRT)</span></h2>
+<h2 id="Precomputed-Radiance-Transfer-PRT">Precomputed Radiance Transfer (PRT)</h2>
 <ul>
 <li>Handles shadows and global illuminations</li>
 <li>Introduced by Sloan in SlGGRAPH 2002: Precomputed Radiance Transfer for Real-Time Rendering in Dynamic, Low-Frequency Lighting Environments [Sloan 02]</li>

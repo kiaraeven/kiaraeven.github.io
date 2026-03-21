@@ -280,8 +280,8 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="1-opengl-接口封装项目-rhi">1. OpenGL 接口封装（项目 RHI）</span></h1>
-<h2><span id="1glbufferglshaderhcpp">（1）GLBuffer（GLShader.h/.cpp）：</span></h2>
+                <h1>1. OpenGL 接口封装（项目 RHI）</h1>
+<h2 id="（1）GLBuffer（GLShader-h-cpp）：">（1）GLBuffer（GLShader.h/.cpp）：</h2>
 <ul>
 <li>
 <p>封装对象: GL_BUFFER</p>
@@ -294,7 +294,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">GLBuffer</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">GLBuffer</span>(GLsizeiptr size, <span class="hljs-type">const</span> <span class="hljs-type">void</span>* data, GLbitfield flags);<br>  ~<span class="hljs-built_in">GLBuffer</span>();<br><br>  <span class="hljs-function">GLuint <span class="hljs-title">getHandle</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> handle_; &#125;<br><span class="hljs-keyword">private</span>:<br>  GLuint handle_;<br>&#125;;<br><span class="hljs-comment">// 构造函数: 调用 glCreateBuffers() 创建一个缓冲区句柄，然后调用 glNamedBufferStorage() 为其分配指定大小和用途的、不可变的存储空间。</span><br>GLBuffer::<span class="hljs-built_in">GLBuffer</span>(GLsizeiptr size, <span class="hljs-type">const</span> <span class="hljs-type">void</span>* data, GLbitfield flags)<br>&#123;<br>  <span class="hljs-built_in">glCreateBuffers</span>(<span class="hljs-number">1</span>, &amp;handle_);<br>  <span class="hljs-built_in">glNamedBufferStorage</span>(handle_, size, data, flags);<br>&#125;<br><br>GLBuffer::~<span class="hljs-built_in">GLBuffer</span>()<br>&#123;<br>  <span class="hljs-built_in">glDeleteBuffers</span>(<span class="hljs-number">1</span>, &amp;handle_);<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h2><span id="2gltexture纹理资源管理器gltexturehcpp">（2）GLTexture（纹理资源管理器）（GLTexture.h/.cpp）：</span></h2>
+<h2 id="（2）GLTexture（纹理资源管理器）（GLTexture-h-cpp）：">（2）GLTexture（纹理资源管理器）（GLTexture.h/.cpp）：</h2>
 <ul>
 <li>
 <p>封装对象: GL_TEXTURE</p>
@@ -320,7 +320,7 @@
 </ul>
 <p>PS：项目中的主渲染循环（阴影 pass、主场景 pass、后处理）、天空盒、UI 系统都是使用的绑定纹理，无绑定纹理主要是用于场景数据管理：材质纹理（GLSceneData.cpp 和 GLSceneDataLazy.cpp 中）、PBR 材质贴图（环境光遮蔽、自发光、反照率、金属粗糙度、法线贴图）、<br>
 通过 getTextureHandleBindless() 函数获取无绑定句柄。GLTexture 类：自动生成无绑定句柄并使其常驻，材质系统将传统纹理索引转换为无绑定句柄。</p>
-<h2><span id="3glframebuffer渲染目标切换器glframebufferh">（3）GLFramebuffer（渲染目标切换器）（GLFramebuffer.h）：</span></h2>
+<h2 id="（3）GLFramebuffer（渲染目标切换器）（GLFramebuffer-h）：">（3）GLFramebuffer（渲染目标切换器）（GLFramebuffer.h）：</h2>
 <ul>
 <li>封装对象: GL_FRAMEBUFFER</li>
 <li>作用: 封装一个帧缓冲对象（FBO），用于实现离屏渲染 (Offscreen Rendering)。</li>
@@ -332,7 +332,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="4glshader-和-glprogram着色器管线glshaderhcpp">（4）GLShader 和 GLProgram（着色器管线）（GLShader.h/.cpp）：</span></h2>
+<h2 id="（4）GLShader-和-GLProgram（着色器管线）（GLShader-h-cpp）：">（4）GLShader 和 GLProgram（着色器管线）（GLShader.h/.cpp）：</h2>
 <ul>
 <li>
 <p>封装对象: GL_SHADER 和 GL_PROGRAM</p>
@@ -349,22 +349,22 @@
 </ul>
 </li>
 </ul>
-<h2><span id="核心设计哲学raii-与直接状态访问-dsa">核心设计哲学：RAII 与直接状态访问 (DSA)</span></h2>
-<h3><span id="1-raii">(1) RAII</span></h3>
+<h2 id="核心设计哲学：RAII-与直接状态访问-DSA">核心设计哲学：RAII 与直接状态访问 (DSA)</h2>
+<h3 id="1-RAII">(1) RAII</h3>
 <ul>
 <li>原始的 OpenGL 中需要手动调用 glGen*()来创建对象，然后在不再需要时手动调用 glDelete*()来销毁它，这极易导致资源泄漏。本项目将每一个 OpenGL 对象（如缓冲区、纹理、着色器程序）都封装在一个 C++类中。</li>
 <li>构造函数: 负责调用 glCreate*()或 glGen*()来获取 OpenGL 资源。</li>
 <li>析构函数: 负责调用 glDelete*()来释放 OpenGL 资源。</li>
 <li>优势: 这种方法利用了 C++的栈语义和对象生命周期管理。当一个封装类的对象（例如 GLTexture tex(…)）被创建时，OpenGL 资源会自动被创建；当这个对象离开其作用域时（例如函数返回），它的析构函数会自动被调用，确保 OpenGL 资源被干净利落地释放，从而从根本上消除了资源泄漏的风险。</li>
 </ul>
-<h3><span id="2-直接状态访问-direct-state-access-dsa">(2) 直接状态访问 (Direct State Access - DSA)</span></h3>
+<h3 id="2-直接状态访问-Direct-State-Access-DSA">(2) 直接状态访问 (Direct State Access - DSA)</h3>
 <ul>
 <li>OpenGL 4.5 引入的一套现代 API。在旧的 OpenGL 中，要修改一个对象（比如一个纹理），必须先把它绑定到一个全局的目标上，然后才能调用 glTexParameter*()等函数进行修改。这种“先绑定再编辑”的模式会污染全局状态，代码也不够清晰。本项目中的封装类（如 GLTexture, GLFramebuffer, GLMesh）大量使用了 DSA 函数。如 glTextureStorage2D(), glNamedBufferStorage(), glNamedFramebufferTexture() 这样的函数调用。这些函数的第一个参数都是对象的句柄 (handle)，而不是一个目标。</li>
 <li>优势: DSA 可以直接对一个对象进行操作，而无需先将其绑定到全局状态。这使得代码更清晰、更不容易出错，并且在某些情况下性能更高，因为它减少了驱动程序需要进行的状态检查。</li>
 </ul>
-<h1><span id="2-阴影">2. 阴影</span></h1>
-<h2><span id="1shadow-map-pcf">（1）Shadow Map + PCF</span></h2>
-<h3><span id="核心思想两次渲染两种视角"><strong>核心思想：两次渲染，两种视角</strong></span></h3>
+<h1>2. 阴影</h1>
+<h2 id="（1）Shadow-Map-PCF">（1）Shadow Map + PCF</h2>
+<h3 id="核心思想：两次渲染，两种视角"><strong>核心思想：两次渲染，两种视角</strong></h3>
 <ul>
 <li><strong>第一次渲染</strong>: 从<strong>光源的位置</strong>看场景。“看”到的所有东西，都是被光直接照亮的。把看到的每个物体的深度信息，拍成一张“深度照片”，这张照片就是<strong>阴影贴图 (Shadow Map)</strong>。</li>
 <li><strong>第二次渲染</strong>: 从<strong>摄像机的位置</strong>正常地渲染场景。但在为每个像素上色之前先做一个判断：这个像素在世界中的位置，如果从光源的视角来看，是比之前拍的那张阴影贴图上的点更远/更近？
@@ -374,7 +374,7 @@
 </ul>
 </li>
 </ul>
-<h3><span id="第一步shadow-generation-pass"><strong>第一步：Shadow Generation Pass</strong></span></h3>
+<h3 id="第一步：Shadow-Generation-Pass"><strong>第一步：Shadow Generation Pass</strong></h3>
 <p>从<strong>光源的视角</strong>渲染整个不透明场景。</p>
 <ul>
 <li>
@@ -404,7 +404,7 @@
 </li>
 </ul>
 <p><strong>此阶段结束时，<code>shadowMap</code> FBO 的深度纹理中，就存储了一张从光源视角看去的、完整的场景深度图。</strong></p>
-<h3><span id="第二步shadow-application-pass"><strong>第二步：Shadow Application Pass</strong></span></h3>
+<h3 id="第二步：Shadow-Application-Pass"><strong>第二步：Shadow Application Pass</strong></h3>
 <p>主渲染通道，从<strong>摄像机的视角</strong>正常渲染场景，并利用上一步生成的阴影贴图来计算阴影。</p>
 <ul>
 <li>
@@ -437,14 +437,14 @@
 </ul>
 </li>
 </ul>
-<h2><span id="2遇到哪些问题如何处理采样精度不足指的是精度如果用-float-表达其实已经够了">（2）遇到哪些问题？如何处理？采样精度不足指的是？精度如果用 float 表达其实已经够了</span></h2>
-<h3><span id="shadow-acne"><strong>Shadow Acne</strong></span></h3>
+<h2 id="（2）遇到哪些问题？如何处理？采样精度不足指的是？精度如果用-float-表达其实已经够了">（2）遇到哪些问题？如何处理？采样精度不足指的是？精度如果用 float 表达其实已经够了</h2>
+<h3 id="Shadow-Acne"><strong>Shadow Acne</strong></h3>
 <ul>
 <li><strong>现象</strong>: 物体表面（特别是被光斜着照射的表面）出现不规则的黑色条纹或斑点，看起来像是“暗疮”。</li>
 <li><strong>原因</strong>: 这是由<strong>深度精度</strong>问题引起的。阴影贴图的分辨率是有限的，它存储的深度值是离散的。当片元着色器计算一个片元距离光源的深度时，这个计算结果可能因为浮点数精度误差，比存储在阴影贴图上<strong>几乎相同位置</strong>的深度值要大那么一点点。这导致这个片元在进行深度比较时，错误地判断自己“被自己挡住了”，从而将自己渲染进了阴影中。</li>
 <li><strong>解决方案：深度偏移 (Depth Bias)</strong></li>
 </ul>
-<h3><span id="彼得潘现象-peter-panning"><strong>彼得潘现象 (Peter Panning)</strong></span></h3>
+<h3 id="彼得潘现象-Peter-Panning"><strong>彼得潘现象 (Peter Panning)</strong></h3>
 <ul>
 <li><strong>现象</strong>: “用力过猛”的深度偏移导致的副作用。阴影看起来与投射出它的物体<strong>分离</strong>了。</li>
 <li><strong>原因</strong>: 如果设置的深度偏移量（<code>Depth Bias</code>）过大，会导致阴影的起始位置离物体的根部太远，看起来就像悬浮在空中。</li>
@@ -456,7 +456,7 @@
 </ul>
 </li>
 </ul>
-<h3><span id="边缘锯齿-aliasing"><strong>边缘锯齿 (Aliasing)</strong></span></h3>
+<h3 id="边缘锯齿-Aliasing"><strong>边缘锯齿 (Aliasing)</strong></h3>
 <ul>
 <li><strong>现象</strong>: 阴影的边缘呈现出明显的、块状的锯齿。</li>
 <li><strong>原因</strong>: 阴影贴图本质上是一张纹理，它的分辨率是有限的。一个像素要么完全在阴影内（返回 0.0），要么完全在阴影外（返回 1.0），这种二元的判断导致了硬朗的、带有锯齿的边缘。</li>
@@ -468,7 +468,7 @@
 </ul>
 </li>
 </ul>
-<h3><span id="透视失真-perspective-aliasing"><strong>透视失真 (Perspective Aliasing)</strong></span></h3>
+<h3 id="透视失真-Perspective-Aliasing"><strong>透视失真 (Perspective Aliasing)</strong></h3>
 <ul>
 <li><strong>现象</strong>: 近处的阴影质量极差，充满了巨大的块状锯齿，而远处的阴影看起来却还可以。</li>
 <li><strong>原因</strong>: 这是透视投影和阴影贴图分辨率的根本矛盾。主摄像机使用<strong>透视投影</strong>，近处的物体在屏幕上占据大量像素。而定向光源为了覆盖整个场景使用<strong>正交投影</strong>，为空间中的每个区域都分配了相同的分辨率。
@@ -485,8 +485,8 @@
 </ul>
 </li>
 </ul>
-<h2><span id="3csm">（3）CSM</span></h2>
-<h3><span id="第一阶段cpu-端-while-循环中"><strong>第一阶段：CPU 端 (<code>while</code> 循环中)</strong></span></h3>
+<h2 id="（3）CSM">（3）CSM</h2>
+<h3 id="第一阶段：CPU-端-while-循环中"><strong>第一阶段：CPU 端 (<code>while</code> 循环中)</strong></h3>
 <ul>
 <li>
 <p><strong>纹理数组</strong>: 创建了一个 <code>GLTexture shadowMapTextureArray</code>，其类型为 <code>GL_TEXTURE_2D_ARRAY</code>，尺寸为 2048x2048，层数为 4。</p>
@@ -509,7 +509,7 @@
 </ul>
 </li>
 </ul>
-<h3><span id="第二阶段shadow-pass"><strong>第二阶段：shadow pass</strong></span></h3>
+<h3 id="第二阶段：shadow-pass"><strong>第二阶段：shadow pass</strong></h3>
 <ul>
 <li>在一个 <code>for</code> 循环中，遍历 4 个级联。在每一次循环中：
 <ul>
@@ -519,7 +519,7 @@
 </ul>
 </li>
 </ul>
-<h3><span id="第三阶段gpu-端-main-scene-pass"><strong>第三阶段：GPU 端 Main Scene Pass</strong></span></h3>
+<h3 id="第三阶段：GPU-端-Main-Scene-Pass"><strong>第三阶段：GPU 端 Main Scene Pass</strong></h3>
 <ul>
 <li><strong>C++ 端</strong>:
 <ul>
@@ -534,11 +534,11 @@
 </ul>
 </li>
 </ul>
-<h2><span id="4其他阴影算法">（4）其他阴影算法</span></h2>
+<h2 id="（4）其他阴影算法">（4）其他阴影算法</h2>
 <p>pcss（原理、切比雪夫什么时候精确）</p>
 <p>见 <a href="/2025/11/15/interview-review/"> 面试复习：8. 阴影技术</a></p>
-<h1><span id="3-透明渲染">3. 透明渲染</span></h1>
-<h2><span id="1oit-实现">（1）OIT 实现</span></h2>
+<h1>3. 透明渲染</h1>
+<h2 id="（1）OIT-实现">（1）OIT 实现</h2>
 <p>传统 Alpha 混合的难点在于，GPU 在光栅化时，同一个像素可能会被多个不同远近的透明片元覆盖，而 GPU 并不知道应该先画哪个。</p>
 <p>本项目中 OIT 算法的思路是：不让 GPU 在渲染时直接混合。取而代之的是：</p>
 <ul>
@@ -546,9 +546,9 @@
 <li><strong>第二趟 (Transparent Pass)</strong>：再渲染所有透明物体。但这次，不把它们的颜色画到屏幕上，而是把每个透明片元的<strong>颜色</strong>和<strong>深度</strong>信息放在对应屏幕像素的一个<strong>链表</strong>里。</li>
 <li><strong>第三趟 (Combination Pass)</strong>：最后，渲染一个覆盖全屏的四边形。对于屏幕上的每一个像素，独立地处理它的链表：先把这些片元按<strong>从远到近</strong>的顺序排好，然后再逐个地、正确地将它们混合到第一趟渲染好的背景上。</li>
 </ul>
-<h3><span id="第一阶段渲染不透明物体-opaque-pass"><strong>第一阶段：渲染不透明物体 (Opaque Pass)</strong></span></h3>
+<h3 id="第一阶段：渲染不透明物体-Opaque-Pass"><strong>第一阶段：渲染不透明物体 (Opaque Pass)</strong></h3>
 <p>略</p>
-<h3><span id="第二阶段收集透明片元-transparent-pass"><strong>第二阶段：收集透明片元 (Transparent Pass)</strong></span></h3>
+<h3 id="第二阶段：收集透明片元-Transparent-Pass"><strong>第二阶段：收集透明片元 (Transparent Pass)</strong></h3>
 <ul>
 <li><strong>C++ 端</strong>
 <ul>
@@ -579,7 +579,7 @@
 </li>
 </ul>
 <p><strong>此阶段结束后，GPU 显存中就已经构建起了一个包含所有可见透明片元信息的、复杂的每像素链表数据结构。</strong></p>
-<h3><span id="第三阶段排序与混合-combination-pass"><strong>第三阶段：排序与混合 (Combination Pass)</strong></span></h3>
+<h3 id="第三阶段：排序与混合-Combination-Pass"><strong>第三阶段：排序与混合 (Combination Pass)</strong></h3>
 <ul>
 <li><strong>GPU 端 (<code>OIT_full.frag</code>)：整理并混合</strong><br>
 为屏幕四边形上的每一个像素执行以下操作：
@@ -591,7 +591,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="2常见的-oit-算法比链表式更节省时间的">（2）常见的 OIT 算法？比链表式更节省时间的？</span></h2>
+<h2 id="（2）常见的-OIT-算法？比链表式更节省时间的？">（2）常见的 OIT 算法？比链表式更节省时间的？</h2>
 <p>另参考：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/368065919">https://zhuanlan.zhihu.com/p/368065919</a></p>
 <ul>
 <li>精确 OIT</li>
@@ -653,7 +653,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="3深度剥离意义-流程">（3）深度剥离（意义、流程）</span></h2>
+<h2 id="（3）深度剥离（意义、流程）">（3）深度剥离（意义、流程）</h2>
 <ul>
 <li>传统渲染流程问题：
 <ul>
@@ -705,11 +705,11 @@
 </ul>
 </li>
 </ul>
-<h1><span id="4-pbr">4. PBR</span></h1>
+<h1>4. PBR</h1>
 <p>见<br>
 <a href="/2025/09/17/GAMES202-L1011-PBR/"> GAMES202 PBR</a><br>
 <a href="/2025/09/14/GAMES202-L0405-EnvMapping/"> GAMES202 Environment Mapping</a></p>
-<h2><span id="1pbr-实现">（1）PBR 实现</span></h2>
+<h2 id="（1）PBR-实现">（1）PBR 实现</h2>
 <ul>
 <li>
 <p>pbr 基于物理的相机、材质、环境光分别是什么</p>
@@ -721,7 +721,7 @@
 <p>pbr 中如何区分不同材质？</p>
 </li>
 </ul>
-<h2><span id="2ibl-与-pbr-结合">（2）ibl 与 PBR 结合</span></h2>
+<h2 id="（2）ibl-与-PBR-结合">（2）ibl 与 PBR 结合</h2>
 <ul>
 <li>
 <p>天空盒先被渲染，然后渲染场景中的物体，这样物体就能正确地接收 IBL 光照。</p>
@@ -867,15 +867,15 @@
 </ul>
 </li>
 </ul>
-<h2><span id="3为什么-pbr-中的输入不能是-gamma-校正过的为什么要最后校正">（3）为什么 pbr 中的输入不能是 gamma 校正过的？为什么要最后校正？</span></h2>
+<h2 id="（3）为什么-pbr-中的输入不能是-gamma-校正过的？为什么要最后校正？">（3）为什么 pbr 中的输入不能是 gamma 校正过的？为什么要最后校正？</h2>
 <ul>
 <li>显示器是非线性的：如果直接把线性空间颜色写入显示器，会显得灰蒙蒙的。解决办法是：在存储/显示时，对颜色做一个 gamma 压缩（通常是 1/2.2），保证在显示器上能正确显示。因此，显示/存储用 gamma 空间（sRGB）。计算/物理模拟 必须在线性空间。</li>
 <li>PBR 本质上在做能量守恒的物理计算，这些运算必须是线性代数意义上的加减乘除，才能符合物理。如果把 gamma 校正过的输入（非线性值）拿来算，加法/乘法结果会被严重扭曲。</li>
 </ul>
-<h1><span id="5-纹理">5. 纹理</span></h1>
-<h2><span id="1三维纹理">（1）三维纹理</span></h2>
+<h1>5. 纹理</h1>
+<h2 id="（1）三维纹理">（1）三维纹理</h2>
 <p>本质上是一个立体像素数组（Volume Texture），存储的是三维空间中的体素 (Voxel) 数据。采样坐标是 (u, v, w)，可以理解成在一个立方体里取点采样纹理。</p>
-<h2><span id="2mipmap-原理会增加开销吗">（2）mipmap 原理？会增加开销吗？</span></h2>
+<h2 id="（2）mipmap-原理？会增加开销吗？">（2）mipmap 原理？会增加开销吗？</h2>
 <ul>
 <li>问题背景：
 <ul>
@@ -901,7 +901,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="3mipmap-有哪些缺点如何精准采样">（3）mipmap 有哪些缺点？如何精准采样？</span></h2>
+<h2 id="（3）mipmap-有哪些缺点？如何精准采样？">（3）mipmap 有哪些缺点？如何精准采样？</h2>
 <ul>
 <li>内存开销增加</li>
 <li>Mipmap 在缩小纹理时，会预先做滤波（通常是 box filter / Gaussian-like）。所以远处物体纹理可能看起来 过于模糊，细节丢失。这种模糊在 斜视角 (grazing angle) 下尤其明显。</li>
@@ -926,7 +926,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="410241000-的-rgba8-在显存存储占用的内存">（4）1024*1000 的 rgba8 在显存存储占用的内存</span></h2>
+<h2 id="（4）1024-1000-的-rgba8-在显存存储占用的内存">（4）1024*1000 的 rgba8 在显存存储占用的内存</h2>
 <p>RGBA8 = 8 bits/chan × 4 chans = 4 bytes/像素<br>
 尺寸 1024 × 1000 -&gt; 像素数 1,024,000<br>
 显存占用（不含 mipmap）：<br>
@@ -934,8 +934,8 @@
 MB（十进制）：4.096 MB<br>
 MiB（二进制）：3.90625 MiB<br>
 如果开 mipmap，约为总大小 4/3。</p>
-<h2><span id="5导入一张很大的-png-需要在-cpu-gpu-做哪些操作">（5）导入一张很大的 png 需要在 cpu、gpu 做哪些操作</span></h2>
-<h3><span id="cpu-端"><strong>CPU 端</strong></span></h3>
+<h2 id="（5）导入一张很大的-png-需要在-cpu、gpu-做哪些操作">（5）导入一张很大的 png 需要在 cpu、gpu 做哪些操作</h2>
+<h3 id="CPU-端"><strong>CPU 端</strong></h3>
 <ul>
 <li>
 <p>PNG 是压缩格式（基于 DEFLATE + 滤波），不能直接上传给 GPU。</p>
@@ -958,7 +958,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="gpu-端"><strong>GPU 端</strong></span></h3>
+<h3 id="GPU-端"><strong>GPU 端</strong></h3>
 <ul>
 <li>
 <p><strong>创建纹理对象</strong></p>
@@ -982,15 +982,15 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="大-png-的性能挑战">大 PNG 的性能挑战</span></h3>
+<h3 id="大-PNG-的性能挑战">大 PNG 的性能挑战</h3>
 <ul>
 <li><strong>解码开销</strong>（CPU-bound）：PNG 解码比较慢，因为它是无损压缩，适合存储，不适合直接 runtime。</li>
 <li><strong>上传带宽</strong>（PCIe-bound）：大图要搬很多数据到 GPU，可能卡加载。</li>
 <li><strong>显存占用</strong>：比如 8192×8192 RGBA8 -&gt; 256 MB + mipmap。</li>
 </ul>
-<h2><span id="6对于不透明-png-的导入有什么优化cpu-gpu">（6）对于不透明 png 的导入有什么优化？（cpu、gpu）</span></h2>
+<h2 id="（6）对于不透明-png-的导入有什么优化？（cpu、gpu）">（6）对于不透明 png 的导入有什么优化？（cpu、gpu）</h2>
 <p>很多 PNG 都是 <strong>RGBA8</strong>，但如果 alpha 通道其实没用（完全不透明），会带来冗余。</p>
-<h3><span id="cpu-端优化"><strong>CPU 端优化</strong></span></h3>
+<h3 id="CPU-端优化"><strong>CPU 端优化</strong></h3>
 <ul>
 <li>
 <p><strong>检测 alpha 是否恒为 255</strong></p>
@@ -1011,7 +1011,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="gpu-端优化"><strong>GPU 端优化</strong></span></h3>
+<h3 id="GPU-端优化"><strong>GPU 端优化</strong></h3>
 <ul>
 <li>
 <p><strong>减少显存占用</strong></p>
@@ -1033,14 +1033,14 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="7给一张纹理接下来的流程是怎样的封装了哪些接口">（7）给一张纹理接下来的流程是怎样的？封装了哪些接口？</span></h2>
+<h2 id="（7）给一张纹理接下来的流程是怎样的？封装了哪些接口？">（7）给一张纹理接下来的流程是怎样的？封装了哪些接口？</h2>
 <p>创建纹理时传递的数据格式是什么？</p>
 <p>给一张纹理：GLTexture 加载/创建并生成 bindless 句柄 -&gt; 写入 MaterialDescription 为 MaterialData（句柄替换）-&gt; 上传材质 SSBO 到 GPU -&gt; 绘制时由实例的 matIdx 选择对应 MaterialData -&gt; 片元用 bindless 句柄直接取样 -&gt; PBR 合成输出。</p>
 <p>PS:<br>
 懒加载版本：先用白色 dummyTexture_占位 -&gt; updateMaterials()写入句柄 -&gt; 后台 stbi_load 读原图 -&gt; 主线程调用 uploadLoadedTextures()创建 GLTexture(w,h,img) -&gt; 再 updateMaterials()更新句柄并上传 SSBO</p>
-<h1><span id="6-场景结构">6. 场景结构</span></h1>
-<h2><span id="1序列化与反序列化">（1）序列化与反序列化</span></h2>
-<h3><span id="为什么需要序列化动机">为什么需要序列化？（动机）</span></h3>
+<h1>6. 场景结构</h1>
+<h2 id="（1）序列化与反序列化">（1）序列化与反序列化</h2>
+<h3 id="为什么需要序列化？（动机）">为什么需要序列化？（动机）</h3>
 <p>直接在运行时加载和解析 .obj 等格式虽然可行，但对于大型复杂场景存在明显缺点。</p>
 <ul>
 <li>加载速度：相比于解析复杂的文本或 JSON 格式，直接从<strong>二进制文件</strong>读取预处理好的数据块要快得多。</li>
@@ -1053,13 +1053,13 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="总览">总览</span></h3>
+<h3 id="总览">总览</h3>
 <ul>
 <li>网格 <code>.meshes</code>：几何体数据（Mesh 描述表 + 包围盒 + 索引块 + 顶点块）</li>
 <li>材质 <code>.materials</code>：<code>MaterialDescription</code> 数组 + 纹理文件名字符串表</li>
 <li>场景 <code>.scene</code>：节点变换数组 + 层级表 + 节点到网格/材质映射 + 可选名称块</li>
 </ul>
-<h3><span id="网格-mesh-数据">网格 Mesh 数据</span></h3>
+<h3 id="网格-Mesh-数据">网格 Mesh 数据</h3>
 <p><strong>See src/scene/VtxData(.h/.cpp)</strong></p>
 <ul>
 <li>
@@ -1090,7 +1090,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="材质-materials">材质 Materials</span></h3>
+<h3 id="材质-Materials">材质 Materials</h3>
 <p><strong>See src/scene/Material(.h/.cpp)</strong></p>
 <ul>
 <li>数据内容：<code>MaterialDescription</code> 定长数组 + 纹理文件名字符串表</li>
@@ -1105,7 +1105,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="场景-scene节点层级映射名字">场景 Scene（节点/层级/映射/名字）</span></h3>
+<h3 id="场景-Scene（节点-层级-映射-名字）">场景 Scene（节点/层级/映射/名字）</h3>
 <p><strong>See src/scene/(Scene.h/.cpp)</strong></p>
 <ul>
 <li>数据内容：
@@ -1120,20 +1120,20 @@ MiB（二进制）：3.90625 MiB<br>
 </li>
 <li>映射表格式：先写 uint32 计数（注意是“uint32 个数”，等于键值对数量 ×2），随后写 [k0, v0, k1, v1, …]</li>
 </ul>
-<h3><span id="运行时装载与绑定">运行时装载与绑定</span></h3>
+<h3 id="运行时装载与绑定">运行时装载与绑定</h3>
 <p><strong>See src/core/(GLSceneDataLazy.h/.cpp)</strong></p>
 <ul>
 <li>加载顺序：先 <code>loadMeshData</code> -&gt; 再 <code>loadScene</code> -&gt; 再 <code>loadMaterials</code></li>
 <li>关联：根据场景中的 <code>meshes_</code>、<code>materialForNode_</code> 生成绘制条目 <code>shapes_</code>，并把材质纹理索引替换为 GPU bindless 句柄</li>
 </ul>
-<h3><span id="注意点与局限">注意点与局限</span></h3>
+<h3 id="注意点与局限">注意点与局限</h3>
 <ul>
 <li>二进制直接按本机端序/对齐写入，跨平台兼容性与版本演进需自行管理（目前未存版本号，<code>magicValue</code>未校验）</li>
 <li><code>MaterialDescription</code> 对齐按 16 字节检查，需保持编译器一致的打包策略</li>
 <li><code>saveMap/loadMap</code> 的大小字段是“uint32 数量”而非“键值对数量”</li>
 <li>错误处理多用 <code>assert/exit</code>，生产工具链需补充健壮性与文件校验</li>
 </ul>
-<h2><span id="2场景树结构">（2）场景树结构</span></h2>
+<h2 id="（2）场景树结构">（2）场景树结构</h2>
 <ul>
 <li>场景加载与转换:
 <ul>
@@ -1169,8 +1169,8 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="2渲染场景是怎么组织的有哪些节点">（2）渲染场景是怎么组织的？有哪些节点？</span></h2>
-<h3><span id="场景图组织">场景图组织</span></h3>
+<h2 id="（2）渲染场景是怎么组织的？有哪些节点？">（2）渲染场景是怎么组织的？有哪些节点？</h2>
+<h3 id="场景图组织">场景图组织</h3>
 <p>这部分负责维护节点之间的层级关系和变换。</p>
 <ul>
 <li>
@@ -1202,7 +1202,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="渲染数据组织">渲染数据组织</span></h3>
+<h3 id="渲染数据组织">渲染数据组织</h3>
 <p>这部分负责将场景中的可渲染对象组织成 GPU 可以高效处理的形式。</p>
 <ul>
 <li>
@@ -1245,14 +1245,14 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="总结">总结</span></h3>
+<h3 id="总结">总结</h3>
 <p>总的来说，场景组织分为两个层次：</p>
 <ul>
 <li>逻辑层：一个数据导向的场景图，通过多个平行的数组和哈希表来高效地管理节点的层级、变换和与网格/材质的关联。</li>
 <li>渲染层：一个扁平化的 Shape List，它是从场景图中派生出来的，专门为 GPU 的高效渲染（如间接绘制）而设计。</li>
 </ul>
-<h2><span id="3大型场景中如何避免循环引用不是加-weakptr-这么简单">（3）大型场景中如何避免循环引用？不是加 weakptr 这么简单</span></h2>
-<h1><span id="7-hdr">7. hdr</span></h1>
+<h2 id="（3）大型场景中如何避免循环引用？不是加-weakptr-这么简单">（3）大型场景中如何避免循环引用？不是加 weakptr 这么简单</h2>
+<h1>7. hdr</h1>
 <p>主要解决 LDR 无法直接展示真实世界光照强度的问题。通过以下步骤实现：</p>
 <ul>
 <li><strong>在高动态范围下渲染场景</strong>：首先将场景渲染到一个能存储超出 [0, 1] 范围颜色值的浮点格式纹理中。</li>
@@ -1260,7 +1260,7 @@ MiB（二进制）：3.90625 MiB<br>
 <li><strong>光照适应</strong>：模拟人眼从亮处到暗处或反之的适应过程，平滑地调整曝光。</li>
 <li><strong>色调映射</strong>：最后，将 HDR 图像根据计算出的曝光值和辉光效果，智能地压缩回显示器可以正常显示的 LDR 范围。</li>
 </ul>
-<h3><span id="第-1-趟-场景渲染到-hdr-帧缓冲">第 1 趟: 场景渲染到 HDR 帧缓冲</span></h3>
+<h3 id="第-1-趟-场景渲染到-HDR-帧缓冲">第 1 趟: 场景渲染到 HDR 帧缓冲</h3>
 <ul>
 <li><strong>目标</strong>：生成一张包含完整光照信息、颜色值可能远超 1.0 的 HDR 图像。</li>
 <li><strong>实现</strong>：
@@ -1271,7 +1271,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="第-2-趟-辉光效果生成">第 2 趟: 辉光效果生成</span></h3>
+<h3 id="第-2-趟-辉光效果生成">第 2 趟: 辉光效果生成</h3>
 <p>辉光效果模拟了强光在摄像机镜头中产生的弥散光晕。由两个子步骤完成：</p>
 <ul>
 <li>
@@ -1292,7 +1292,7 @@ MiB（二进制）：3.90625 MiB<br>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">const</span> <span class="hljs-type">vec2</span> gaussFilter[<span class="hljs-number">11</span>] = <span class="hljs-type">vec2</span>[](<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-5.0</span>,  <span class="hljs-number">3.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-4.0</span>,  <span class="hljs-number">6.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-3.0</span>, <span class="hljs-number">10.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-2.0</span>, <span class="hljs-number">15.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-1.0</span>, <span class="hljs-number">20.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">0.0</span>, <span class="hljs-number">25.0</span>/<span class="hljs-number">133.0</span>),  <span class="hljs-comment">// 中心权重最大</span><br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">1.0</span>, <span class="hljs-number">20.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">2.0</span>, <span class="hljs-number">15.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">3.0</span>, <span class="hljs-number">10.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">4.0</span>,  <span class="hljs-number">6.0</span>/<span class="hljs-number">133.0</span>),<br>    <span class="hljs-type">vec2</span>( <span class="hljs-number">5.0</span>,  <span class="hljs-number">3.0</span>/<span class="hljs-number">133.0</span>)<br>);<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec3</span> color = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">float</span> scale = <span class="hljs-number">1.0</span> / <span class="hljs-built_in">textureSize</span>(texSSAO, <span class="hljs-number">0</span>).x; <span class="hljs-comment">// X方向像素大小</span><br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">11</span>; i++)<br>    &#123;<br>        <span class="hljs-comment">// 只在X方向偏移，Y方向保持不变</span><br>        <span class="hljs-type">vec2</span> coord = <span class="hljs-type">vec2</span>(uv.x + gaussFilter[i].x * scale, uv.y);<br>        color += <span class="hljs-built_in">textureLod</span>(texSSAO, coord, <span class="hljs-number">0</span>).rgb * gaussFilter[i].y;<br>    &#125;<br><br>    outColor = <span class="hljs-type">vec4</span>(color, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3><span id="第-3-趟-平均亮度计算与光照适应">第 3 趟: 平均亮度计算与光照适应</span></h3>
+<h3 id="第-3-趟-平均亮度计算与光照适应">第 3 趟: 平均亮度计算与光照适应</h3>
 <p>模拟人眼根据环境亮度自动调整“曝光”的生理现象。</p>
 <ul>
 <li>
@@ -1312,7 +1312,7 @@ MiB（二进制）：3.90625 MiB<br>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">local_size_x</span> = <span class="hljs-number">1</span>, <span class="hljs-keyword">local_size_y</span> = <span class="hljs-number">1</span>, <span class="hljs-keyword">local_size_z</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">in</span>;<br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">readonly</span>  <span class="hljs-type">image2D</span> imgLuminancePrev;  <span class="hljs-comment">// 上一帧亮度</span><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">readonly</span>  <span class="hljs-type">image2D</span> imgLuminanceCurr;  <span class="hljs-comment">// 当前帧亮度</span><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">rgba16f</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">2</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-keyword">writeonly</span> <span class="hljs-type">image2D</span> imgLuminanceAdapted; <span class="hljs-comment">// 输出适应亮度</span><br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">float</span> lumPrev = <span class="hljs-built_in">imageLoad</span>(imgLuminancePrev, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)).x;<br>    <span class="hljs-type">float</span> lumCurr = <span class="hljs-built_in">imageLoad</span>(imgLuminanceCurr, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)).x;<br><br>    <span class="hljs-comment">// 指数平滑算法，模拟人眼适应</span><br>    <span class="hljs-type">float</span> newAdaptation = lumPrev + (lumCurr - lumPrev) * (<span class="hljs-number">1.0</span> - <span class="hljs-built_in">pow</span>(<span class="hljs-number">0.98</span>, <span class="hljs-number">30.0</span> * adaptationSpeed));<br><br>    <span class="hljs-comment">// 输出到1x1像素</span><br>    <span class="hljs-built_in">imageStore</span>(imgLuminanceAdapted, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>), <span class="hljs-type">vec4</span>(<span class="hljs-type">vec3</span>(newAdaptation), <span class="hljs-number">1.0</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3><span id="第-4-趟-最终合成与色调映射">第 4 趟: 最终合成与色调映射</span></h3>
+<h3 id="第-4-趟-最终合成与色调映射">第 4 趟: 最终合成与色调映射</h3>
 <p>最后将所有中间结果合并，并转换成显示器可以输出的最终图像。</p>
 <ul>
 <li><strong>目标</strong>：将 HDR 图像转换为 LDR 图像。</li>
@@ -1375,8 +1375,8 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h1><span id="8-glsl">8. glsl</span></h1>
-<h2><span id="1手写判断一个点在正方形内外">（1）手写判断一个点在正方形内/外</span></h2>
+<h1>8. glsl</h1>
+<h2 id="（1）手写判断一个点在正方形内-外">（1）手写判断一个点在正方形内/外</h2>
 <ul>
 <li>在 GLSL 里，把正方形想成 <strong>轴对齐、中心在原点、边长为 2</strong> 的最简单情况：</li>
 </ul>
@@ -1405,10 +1405,10 @@ MiB（二进制）：3.90625 MiB<br>
 用两条局部基向量 <code>e1</code>, <code>e2</code> 和中心 <code>c</code>：</li>
 </ul>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec2</span> d = P - c;<br><span class="hljs-type">float</span> u = <span class="hljs-built_in">dot</span>(d, e1) / <span class="hljs-built_in">dot</span>(e1, e1);<br><span class="hljs-type">float</span> v = <span class="hljs-built_in">dot</span>(d, e2) / <span class="hljs-built_in">dot</span>(e2, e2);<br><span class="hljs-type">bool</span> inside = (<span class="hljs-built_in">abs</span>(u) &lt;= <span class="hljs-number">1.0</span>) &amp;&amp; (<span class="hljs-built_in">abs</span>(v) &lt;= <span class="hljs-number">1.0</span>);<br></code></pre></td></tr></table></figure>
-<h1><span id="9-剔除技术">9. 剔除技术</span></h1>
-<h2><span id="1视锥体剔除cpugpu">（1）视锥体剔除（cpu/gpu）</span></h2>
+<h1>9. 剔除技术</h1>
+<h2 id="（1）视锥体剔除（cpu-gpu）">（1）视锥体剔除（cpu/gpu）</h2>
 <p>视锥体剔除的目的是确定场景中的哪些部分位于摄像机的可见区域（即视锥体）内，从而避免将视锥体外的不可见物体提交给 GPU 进行渲染，以节省性能。</p>
-<h3><span id="cpu-视锥体剔除的做法">CPU 视锥体剔除的做法</span></h3>
+<h3 id="CPU-视锥体剔除的做法">CPU 视锥体剔除的做法</h3>
 <ul>
 <li>
 <p>提取视锥体信息：</p>
@@ -1478,7 +1478,7 @@ MiB（二进制）：3.90625 MiB<br>
 <p>总结 CPU 做法：剔除逻辑在 CPU 上循环执行，CPU 直接修改一个内存中的绘制命令列表来标记物体的可见性，然后将这个列表上传到 GPU 供其渲染。</p>
 </li>
 </ul>
-<h3><span id="gpu-视锥体剔除的做法">GPU 视锥体剔除的做法</span></h3>
+<h3 id="GPU-视锥体剔除的做法">GPU 视锥体剔除的做法</h3>
 <p>通过一个计算着色器（Compute Shader）来并行处理.</p>
 <ul>
 <li>
@@ -1514,7 +1514,7 @@ MiB（二进制）：3.90625 MiB<br>
 <p>总结 GPU 做法：剔除逻辑被并行化，在 GPU 的计算着色器中执行。它直接在 GPU 显存中修改绘制命令，省去了 CPU 的循环计算和数据上传的开销，但需要在计算和渲染两个阶段之间进行显式的同步。</p>
 </li>
 </ul>
-<h2><span id="2背面剔除back-face-culling">（2）背面剔除（Back-face Culling）</span></h2>
+<h2 id="（2）背面剔除（Back-face-Culling）">（2）背面剔除（Back-face Culling）</h2>
 <p>背面剔除就是在 <strong>光栅化之前</strong> 把<strong>背向摄像机</strong>的三角形直接扔掉，省掉后面的光栅化、深度测试、片元着色等所有开销。</p>
 <ul>
 <li>
@@ -1537,7 +1537,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="3顶点命中率">（3）顶点命中率</span></h2>
+<h2 id="（3）顶点命中率">（3）顶点命中率</h2>
 <ul>
 <li>顶点命中率是用来衡量 顶点着色器执行效率 的一个经验指标。值越高，说明剔除和索引复用做得越好。</li>
 <li>顶点命中率 = 被光栅化后真正进入片元阶段的顶点数 / 顶点着色器实际执行次数</li>
@@ -1563,11 +1563,11 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h1><span id="10-ao-算法">10. AO 算法</span></h1>
-<h2><span id="1-ssao">(1) SSAO</span></h2>
+<h1>10. AO 算法</h1>
+<h2 id="1-SSAO">(1) SSAO</h2>
 <p>项目中的 SSAO 是作为一个多趟后处理效果来实现的。核心思路是不直接在三维空间中计算光线遮挡，而是在渲染完成后的二维屏幕空间中，利用<strong>深度缓冲</strong>的信息来近似计算。</p>
 <p>整个实现流程可以分为以下四个主要步骤：</p>
-<h3><span id="scene-rendering-pass">Scene Rendering Pass</span></h3>
+<h3 id="Scene-Rendering-Pass">Scene Rendering Pass</h3>
 <ul>
 <li>目标：获取后续计算所需的全屏几何信息。</li>
 <li>过程：正常将整个场景渲染到一个离屏的帧缓冲对象 FBO 中。这个 FBO 至少包含两个附件：
@@ -1577,7 +1577,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="ssao-pass">SSAO Pass</span></h3>
+<h3 id="SSAO-Pass">SSAO Pass</h3>
 <ul>
 <li>目标：利用深度图生成一张包含 SSAO 遮蔽值的纹理。</li>
 <li>过程：<br>
@@ -1597,7 +1597,7 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="ssao-blur-pass">SSAO Blur Pass</span></h3>
+<h3 id="SSAO-Blur-Pass">SSAO Blur Pass</h3>
 <ul>
 <li>目标：平滑 SSAO 计算趟产生的噪点，使遮蔽效果更柔和、自然。</li>
 <li>过程：由于随机采样会产生大量噪点，需要对生成的 SSAO 纹理进行模糊处理。项目中采用了一种高效的**可分离高斯模糊（Separable Gaussian Blur）**算法（GS_BlurX.frag 和 GS_BlurY.frag）标准的高斯模糊需要用一个二维的核心（例如 11x11）去对图像进行卷积，这意味着每个像素都需要采样 <code>11 * 11 = 121</code> 次，计算量非常大。而可分离的技巧在于，一个二维高斯模糊可以被拆分成两个独立的一维高斯模糊。这样，每个像素只需要采样 11 + 11 = 22 次，大大降低了计算量，但能达到和二维模糊几乎完全相同的效果。分两步完成：
@@ -1608,12 +1608,12 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="combine-pass">Combine Pass</span></h3>
+<h3 id="Combine-Pass">Combine Pass</h3>
 <ul>
 <li>目标：将计算出的环境光遮蔽效果应用到原始的场景图像上。</li>
 <li>过程：最后一次渲染一个全屏四边形，并运行一个组合着色器（SSAO_combine.frag）。该着色器同时采样原始场景的颜色纹理和经过模糊的 SSAO 纹理。使用 mix 函数，根据 SSAO 纹理中的遮蔽值（ssao）来调整原始颜色（color），公式类似于 <code>color * ssao</code>。遮蔽值越接近 0（表示遮蔽越强），最终颜色就越暗。最终将合成后的图像输出到屏幕上。</li>
 </ul>
-<h2><span id="2-其他-ao-算法">(2) 其他 AO 算法</span></h2>
+<h2 id="2-其他-AO-算法">(2) 其他 AO 算法</h2>
 <p>见 <a href="/2025/10/24/GAMES202-L070809-GI/"> GI - AO</a></p>
 <ul>
 <li>
@@ -1673,8 +1673,8 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h1><span id="11-aa-算法">11. AA 算法</span></h1>
-<h2><span id="1fxaa-fast-approximate-anti-aliasing">（1）FXAA (Fast Approximate Anti-Aliasing)</span></h2>
+<h1>11. AA 算法</h1>
+<h2 id="（1）FXAA-Fast-Approximate-Anti-Aliasing">（1）FXAA (Fast Approximate Anti-Aliasing)</h2>
 <p>See assets/shaders/FXAA.frag</p>
 <p>FXAA 是一种由 NVIDIA 开发的快速近似抗锯齿技术。它是一种后处理抗锯齿方法，不需要额外的几何信息，只基于最终渲染的图像进行抗锯齿处理。项目中 FXAA 在 HDR pipeline 色调映射之后进行，输入的是处理后的 LDR 图像，输出是抗锯齿过的图像。</p>
 <ul>
@@ -1701,7 +1701,7 @@ MiB（二进制）：3.90625 MiB<br>
 </li>
 </ul>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-comment">// --- INPUTS ---</span><br><span class="hljs-comment">// texture</span><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">binding</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> u_colorTexture;<br><span class="hljs-comment">// 屏幕 texel(像素) 的尺寸, 即 vec2(1.0/screenWidth, 1.0/screenHeight)</span><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">vec2</span> u_texelStep;<br><span class="hljs-comment">// 从顶点着色器传入的纹理坐标</span><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> v_texCoord;<br><br><span class="hljs-comment">// --- OUTPUT ---</span><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> fragColor;<br><br><span class="hljs-comment">// --- FXAA 常量 (硬编码的推荐值) ---</span><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> FXAA_LUMA_THRESHOLD = <span class="hljs-number">0.125</span>; <span class="hljs-comment">// 边缘检测的亮度对比度阈值（值越小，检测到的边缘越多）</span><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> FXAA_MUL_REDUCE = <span class="hljs-number">1.0</span> / <span class="hljs-number">8.0</span>;   <span class="hljs-comment">// 用于减少采样步长的乘数（值越大，采样步长越短，质量越高）</span><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> FXAA_MIN_REDUCE = <span class="hljs-number">1.0</span> / <span class="hljs-number">128.0</span>; <span class="hljs-comment">// 最小的采样步长</span><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> FXAA_MAX_SPAN = <span class="hljs-number">8.0</span>;         <span class="hljs-comment">// 最大采样跨度（像素）（值越大，采样范围越大，模糊效果越明显）</span><br><br><span class="hljs-type">void</span> main(<span class="hljs-type">void</span>)<br>&#123;<br>    <span class="hljs-comment">// 1. 采样中心像素</span><br>    <span class="hljs-type">vec3</span> rgbM = <span class="hljs-built_in">texture</span>(u_colorTexture, v_texCoord).rgb;<br><br>    <span class="hljs-comment">// 2. 采样周围四个 texel (上/下/左/右)</span><br>    <span class="hljs-comment">// textureOffset 是一个高效的函数，它使用整数偏移量进行采样</span><br>    <span class="hljs-type">vec3</span> rgbN = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbW = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbE = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbS = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>)).rgb;<br><br>    <span class="hljs-comment">// 3. 将 RGB 转换为亮度 (Luma)，用于边缘检测</span><br>    <span class="hljs-keyword">const</span> <span class="hljs-type">vec3</span> toLuma = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.299</span>, <span class="hljs-number">0.587</span>, <span class="hljs-number">0.114</span>);<br>    <span class="hljs-type">float</span> lumaN = <span class="hljs-built_in">dot</span>(rgbN, toLuma);<br>    <span class="hljs-type">float</span> lumaW = <span class="hljs-built_in">dot</span>(rgbW, toLuma);<br>    <span class="hljs-type">float</span> lumaE = <span class="hljs-built_in">dot</span>(rgbE, toLuma);<br>    <span class="hljs-type">float</span> lumaS = <span class="hljs-built_in">dot</span>(rgbS, toLuma);<br>    <span class="hljs-type">float</span> lumaM = <span class="hljs-built_in">dot</span>(rgbM, toLuma);<br><br>    <span class="hljs-comment">// 4. 计算局部对比度（计算周围上下左右4个Texel和当前Texel的亮度值中的最小和最大，最大减最小获得对比度）</span><br>    <span class="hljs-type">float</span> lumaMin = <span class="hljs-built_in">min</span>(lumaM, <span class="hljs-built_in">min</span>(<span class="hljs-built_in">min</span>(lumaN, lumaW), <span class="hljs-built_in">min</span>(lumaS, lumaE)));<br>    <span class="hljs-type">float</span> lumaMax = <span class="hljs-built_in">max</span>(lumaM, <span class="hljs-built_in">max</span>(<span class="hljs-built_in">max</span>(lumaN, lumaW), <span class="hljs-built_in">max</span>(lumaS, lumaE)));<br>    <span class="hljs-type">float</span> contrast = lumaMax - lumaMin;<br><br>    <span class="hljs-comment">// 5. 如果对比度低于阈值，说明不是边缘，直接返回原颜色，不做AA</span><br>    <span class="hljs-keyword">if</span> (contrast &lt;= lumaMax * FXAA_LUMA_THRESHOLD)<br>    &#123;<br>        fragColor = <span class="hljs-type">vec4</span>(rgbM, <span class="hljs-number">1.0</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 6. 采样四个角点的 texel并计算其亮度值</span><br>    <span class="hljs-type">vec3</span> rgbNW = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">-1</span>, <span class="hljs-number">1</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbNE = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbSW = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbSE = <span class="hljs-built_in">textureOffset</span>(u_colorTexture, v_texCoord, <span class="hljs-type">ivec2</span>(<span class="hljs-number">1</span>, <span class="hljs-number">-1</span>)).rgb;<br><br>    <span class="hljs-type">float</span> lumaNW = <span class="hljs-built_in">dot</span>(rgbNW, toLuma);<br>    <span class="hljs-type">float</span> lumaNE = <span class="hljs-built_in">dot</span>(rgbNE, toLuma);<br>    <span class="hljs-type">float</span> lumaSW = <span class="hljs-built_in">dot</span>(rgbSW, toLuma);<br>    <span class="hljs-type">float</span> lumaSE = <span class="hljs-built_in">dot</span>(rgbSE, toLuma);<br><br>    <span class="hljs-comment">// 7. 计算边缘方向</span><br>    <span class="hljs-type">vec2</span> samplingDirection; <span class="hljs-comment">// 指向边缘的方向</span><br>    samplingDirection.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE)); <span class="hljs-comment">// 上排比下排亮，说明有水平边缘</span><br>    samplingDirection.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE)); <span class="hljs-comment">// 左列比右列亮，说明有垂直边缘</span><br><br>    <span class="hljs-comment">// 8. 根据亮度计算采样步长并沿着边缘方向进行最终采样</span><br>    <span class="hljs-comment">// The brighter the sampled texels, the smaller the final sampling step direction.</span><br>    <span class="hljs-comment">// This results, that brighter areas are less blurred/more sharper than dark areas.</span><br>    <span class="hljs-comment">// samplingDirectionReduce 是亮度调整因子，(lumaNW + lumaNE + lumaSW + lumaSE) * 0.25计算四个角的平均亮度，平均亮度越大，这个因子越大</span><br>    <span class="hljs-type">float</span> samplingDirectionReduce = <span class="hljs-built_in">max</span>((lumaNW + lumaNE + lumaSW + lumaSE) * <span class="hljs-number">0.25</span> * FXAA_MUL_REDUCE, FXAA_MIN_REDUCE);<br>    <span class="hljs-comment">// minSamplingDirectionFactor 是方向因子，计算方法是（绝对值较小的方向分量 + 亮度调整因子）取倒数</span><br>    <span class="hljs-type">float</span> minSamplingDirectionFactor = <span class="hljs-number">1.0</span> / (<span class="hljs-built_in">min</span>(<span class="hljs-built_in">abs</span>(samplingDirection.x), <span class="hljs-built_in">abs</span>(samplingDirection.y)) + samplingDirectionReduce);<br>    <span class="hljs-comment">// Calculate final sampling direction vector by reducing, clamping to a range and finally adapting to the texture size.</span><br>    <span class="hljs-comment">// samplingDirection 是最终采样方向。这里为其应用方向因子，限制最大跨度，并转为纹理坐标</span><br>    samplingDirection = <span class="hljs-built_in">clamp</span>(samplingDirection * minSamplingDirectionFactor, <span class="hljs-type">vec2</span>(-FXAA_MAX_SPAN), <span class="hljs-type">vec2</span>(FXAA_MAX_SPAN)) * u_texelStep;<br><br>    <span class="hljs-comment">// 在边缘方向的两边各取一个采样，求平均；再远一点的两个点采样，再求平均。</span><br>    <span class="hljs-comment">// 这样做是为了在“模糊程度”上有两个候选解。</span><br>    <span class="hljs-comment">// Inner samples on the tab.</span><br>    <span class="hljs-type">vec3</span> rgbSampleNeg = <span class="hljs-built_in">texture</span>(u_colorTexture, v_texCoord + samplingDirection * (<span class="hljs-number">1.0</span>/<span class="hljs-number">3.0</span> - <span class="hljs-number">0.5</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbSamplePos = <span class="hljs-built_in">texture</span>(u_colorTexture, v_texCoord + samplingDirection * (<span class="hljs-number">2.0</span>/<span class="hljs-number">3.0</span> - <span class="hljs-number">0.5</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbTwoTab = (rgbSamplePos + rgbSampleNeg) * <span class="hljs-number">0.5</span>;<br><br>    <span class="hljs-comment">// Outer samples on the tab.</span><br>    <span class="hljs-type">vec3</span> rgbSampleNegOuter = <span class="hljs-built_in">texture</span>(u_colorTexture, v_texCoord + samplingDirection * (<span class="hljs-number">0.0</span> - <span class="hljs-number">0.5</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbSamplePosOuter = <span class="hljs-built_in">texture</span>(u_colorTexture, v_texCoord + samplingDirection * (<span class="hljs-number">1.0</span> - <span class="hljs-number">0.5</span>)).rgb;<br>    <span class="hljs-type">vec3</span> rgbFourTab = (rgbSamplePosOuter + rgbSampleNegOuter) * <span class="hljs-number">0.25</span> + rgbTwoTab * <span class="hljs-number">0.5</span>;<br><br>    <span class="hljs-comment">// calculate luma for checking against the min and max luma values</span><br>    <span class="hljs-type">float</span> lumaFourTab = <span class="hljs-built_in">dot</span>(rgbFourTab, toLuma);<br><br>    <span class="hljs-comment">// 9. 最终选择是使用两个采样点的平均值还是四个采样点的平均值</span><br>    <span class="hljs-comment">// 通过亮度判断：如果第个采样点的平均亮度跑出了边界范围，就认为它太模糊了，退回用两个采样点的平均亮度，否则用四个点的平均亮度。</span><br>    <span class="hljs-keyword">if</span> (lumaFourTab &lt; lumaMin || lumaFourTab &gt; lumaMax)<br>    &#123;<br>        fragColor = <span class="hljs-type">vec4</span>(rgbTwoTab, <span class="hljs-number">1.0</span>);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        fragColor = <span class="hljs-type">vec4</span>(rgbFourTab, <span class="hljs-number">1.0</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2><span id="2taatemporal-anti-aliasing">（2）TAA（Temporal Anti-Aliasing）</span></h2>
+<h2 id="（2）TAA（Temporal-Anti-Aliasing）">（2）TAA（Temporal Anti-Aliasing）</h2>
 <p>See assets/shaders/TAA.frag (Especailly the references and comments in it).</p>
 <p>TAA 在管线中的位置是在渲染完成后进行的</p>
 <ul>
@@ -1710,53 +1710,53 @@ MiB（二进制）：3.90625 MiB<br>
 <li>虚幻采用的方法是：在 TAA 之前进行一次简单的 ToneMap，在 TAA 之后进行 ToneMap 的逆变换，再进行后续的后处理和正式的 ToneMap</li>
 <li>项目中的实现是在 TAA.frag 中做了简单的 ToneMapping 及其逆运算。</li>
 </ul>
-<h3><span id="g-buffer"><strong>G-Buffer</strong></span></h3>
+<h3 id="G-Buffer"><strong>G-Buffer</strong></h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">GLFramebuffer <span class="hljs-title">Gbuffer</span><span class="hljs-params">(width, height, &#123; GL_RGBA16F, GL_RG16F &#125;, GL_DEPTH_COMPONENT24)</span></span>;<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong>颜色缓冲区 0</strong> (<code>GL_RGBA16F</code>): 存储当前帧的渲染结果</li>
 <li><strong>颜色缓冲区 1</strong> (<code>GL_RG16F</code>): 存储运动矢量（velocity buffer）</li>
 <li><strong>深度缓冲区</strong>: 存储深度信息</li>
 </ul>
-<h3><span id="抖动采样jitter-sampling"><strong>抖动采样（Jitter Sampling）</strong></span></h3>
+<h3 id="抖动采样（Jitter-Sampling）"><strong>抖动采样（Jitter Sampling）</strong></h3>
 <p>在顶点着色器中实现 Halton 序列抖动：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// Halton序列用于TAA抖动</span><br><span class="hljs-keyword">const</span> <span class="hljs-type">vec2</span> haltonSequence_2_3[<span class="hljs-number">8</span>] = &#123;<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">0.0</span>f, <span class="hljs-number">-1.0</span>f / <span class="hljs-number">3.0</span>f),<br>    <span class="hljs-type">vec2</span>(<span class="hljs-number">-1.0</span>f / <span class="hljs-number">2.0</span>f, <span class="hljs-number">1.0</span>f / <span class="hljs-number">3.0</span>f),<br>    <span class="hljs-comment">// ... 8个预计算的Halton序列点</span><br>&#125;;<br><br><span class="hljs-comment">// 应用抖动到投影矩阵</span><br><span class="hljs-type">vec2</span> jitter = haltonSequence_2_3[offsetIdx % <span class="hljs-number">8</span>] * u_invScreenSize;<br><span class="hljs-type">mat4</span> jitterMat = proj;<br>jitterMat[<span class="hljs-number">2</span>][<span class="hljs-number">0</span>] += jitter.x;  <span class="hljs-comment">// 修改投影矩阵的X轴偏移</span><br>jitterMat[<span class="hljs-number">2</span>][<span class="hljs-number">1</span>] += jitter.y;  <span class="hljs-comment">// 修改投影矩阵的Y轴偏移</span><br></code></pre></td></tr></table></figure>
-<h3><span id="运动矢量计算"><strong>运动矢量计算</strong></span></h3>
+<h3 id="运动矢量计算"><strong>运动矢量计算</strong></h3>
 <p>在顶点着色器中计算当前帧和上一帧的<strong>裁剪空间</strong>坐标：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs glsl">v_prevClipPos = preProj * mv * <span class="hljs-type">vec4</span>(in_Vertex, <span class="hljs-number">1.0</span>); <span class="hljs-comment">// 上一帧位置</span><br>v_currClipPos = proj * mv * <span class="hljs-type">vec4</span>(in_Vertex, <span class="hljs-number">1.0</span>);    <span class="hljs-comment">// 当前帧位置</span><br></code></pre></td></tr></table></figure>
 <p>在片段着色器中计算运动矢量：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec2</span> newPos = ((v_currClipPos.xy / v_currClipPos.w) * <span class="hljs-number">0.5</span> + <span class="hljs-number">0.5</span>);<br><span class="hljs-type">vec2</span> prePos = ((v_prevClipPos.xy / v_prevClipPos.w) * <span class="hljs-number">0.5</span> + <span class="hljs-number">0.5</span>);<br>out_Velocity = newPos - prePos; <span class="hljs-comment">// 运动矢量 = 当前UV - 上一帧UV</span><br></code></pre></td></tr></table></figure>
-<h3><span id="taa-核心算法"><strong>TAA 核心算法</strong></span></h3>
+<h3 id="TAA-核心算法"><strong>TAA 核心算法</strong></h3>
 <p>TAA.frag 实现了完整的时域抗锯齿算法：</p>
-<h4><span id="历史帧采样"><strong>历史帧采样</strong></span></h4>
+<h4 id="历史帧采样"><strong>历史帧采样</strong></h4>
 <p>采样 velocity 时，因为物体轮廓周围的 velocity 也可能是有锯齿的，所以物体轮廓边缘可能会失去抗锯齿的效果。可以比较该像素周边 3x3 像素的深度，选用深度最小的那一个的 velocity。（虚幻是选择在 5×5 的范围内选取四个拐角和中心五个点来比较）。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 使用深度信息选择最接近的运动矢量</span><br><span class="hljs-type">vec2</span> velocity = <span class="hljs-built_in">texture</span>(texVelocity, getClosestOffset()).xy;<br><span class="hljs-type">vec2</span> offsetUV = <span class="hljs-built_in">clamp</span>(v_texCoord - velocity, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);<br><span class="hljs-type">vec3</span> preColor = <span class="hljs-built_in">texture</span>(texHistoryFrame, offsetUV).rgb;<br></code></pre></td></tr></table></figure>
-<h4><span id="色彩空间转换"><strong>色彩空间转换</strong></span></h4>
+<h4 id="色彩空间转换"><strong>色彩空间转换</strong></h4>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 转换到YCgCo色彩空间以减少闪烁</span><br>curColor = RGB2YCoCgR(ToneMap(curColor));<br>preColor = RGB2YCoCgR(ToneMap(preColor));<br></code></pre></td></tr></table></figure>
-<h4><span id="aabb-裁剪variance-clipping"><strong>AABB 裁剪（Variance Clipping）</strong></span></h4>
+<h4 id="AABB-裁剪（Variance-Clipping）"><strong>AABB 裁剪（Variance Clipping）</strong></h4>
 <p>根据当前帧当前像素周围的 5 个或 9 个像素的颜色作为依据，来截断采样到的历史帧颜色，用以缓解 TAA ghosting 问题。将颜色的 RGB 三个通道当做 AABB 的三维，可以求出这 9 个像素的颜色的 AABB。</p>
 <p>采样周围九个像素的色彩值，计算从相邻像素采样的颜色值 C 的平均值 (mu) 和标准差 (sigma)。然后，通过从平均值中减去/加上标准差的倍数 (VarianceClipGamma) 来计算 aabbMin 和 aabbMax 值。这有助于减少采样数据中极端颜色变化（异常值）的影响，从而产生更稳定和视觉上更令人愉悦的结果。这也可以避免最终图像中出现闪烁伪影。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 使用3x3邻域计算颜色统计信息</span><br><span class="hljs-type">vec3</span> mu = m1 / N;  <span class="hljs-comment">// 均值</span><br><span class="hljs-type">vec3</span> sigma = <span class="hljs-built_in">sqrt</span>(<span class="hljs-built_in">abs</span>(m2 / N - mu * mu));  <span class="hljs-comment">// 标准差</span><br>aabbMin = mu - VarianceClipGamma * sigma;<br>aabbMax = mu + VarianceClipGamma * sigma;<br><br><span class="hljs-comment">// 将历史颜色裁剪到AABB范围内减少 ghosting 现象</span><br>preColor = clipAABB(curColor, preColor);<br></code></pre></td></tr></table></figure>
-<h4><span id="时域混合"><strong>时域混合</strong></span></h4>
+<h4 id="时域混合"><strong>时域混合</strong></h4>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> c = <span class="hljs-number">0.05</span>; <span class="hljs-comment">// 历史帧权重</span><br>out_FragColor = <span class="hljs-type">vec4</span>(c * curColor.rgb + (<span class="hljs-number">1</span>-c) * preColor, <span class="hljs-number">1.0</span>);<br></code></pre></td></tr></table></figure>
-<h3><span id="渲染管线集成"><strong>渲染管线集成</strong></span></h3>
+<h3 id="渲染管线集成"><strong>渲染管线集成</strong></h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (g_EnableTAA) &#123;<br>    taa.<span class="hljs-built_in">bind</span>();<br>    programTAA.<span class="hljs-built_in">useProgram</span>();<br>    <span class="hljs-built_in">glUniform1i</span>(frameIndexLoc, frameIndex);<br>    <span class="hljs-built_in">glUniform2f</span>(invScreenSizeLoc_TAA, <span class="hljs-number">1.0f</span> / width, <span class="hljs-number">1.0f</span> / height);<br><br>    <span class="hljs-comment">// 绑定纹理</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">0</span>, Gbuffer.<span class="hljs-built_in">getTextureColor</span>(<span class="hljs-number">0</span>).<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 当前帧</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">1</span>, history_taa.<span class="hljs-built_in">getTextureColor</span>().<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 历史帧</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">2</span>, Gbuffer.<span class="hljs-built_in">getTextureColor</span>(<span class="hljs-number">1</span>).<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 运动矢量</span><br>    <span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">3</span>, Gbuffer.<span class="hljs-built_in">getTextureDepth</span>().<span class="hljs-built_in">getHandle</span>()); <span class="hljs-comment">// 深度</span><br><br>    <span class="hljs-built_in">glDrawArrays</span>(GL_TRIANGLES, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>);<br>    taa.<span class="hljs-built_in">unbind</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3><span id="历史帧管理"><strong>历史帧管理</strong></span></h3>
+<h3 id="历史帧管理"><strong>历史帧管理</strong></h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 为下一帧准备历史帧</span><br><span class="hljs-keyword">if</span> (g_EnableTAA) &#123;<br>    <span class="hljs-built_in">glBlitNamedFramebuffer</span>(taa.<span class="hljs-built_in">getHandle</span>(), history_taa.<span class="hljs-built_in">getHandle</span>(),<br>                           <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, width, height,<br>                           GL_COLOR_BUFFER_BIT, GL_LINEAR);<br>&#125;<br>prevView = view; <span class="hljs-comment">// 保存当前帧的VP矩阵</span><br>prevProj = proj;<br></code></pre></td></tr></table></figure>
-<h1><span id="12-减少-draw-call">12. 减少 Draw Call</span></h1>
-<h2><span id="1动态合批">（1）动态合批</span></h2>
-<h3><span id="为什么需要合批">为什么需要合批？</span></h3>
+<h1>12. 减少 Draw Call</h1>
+<h2 id="（1）动态合批">（1）动态合批</h2>
+<h3 id="为什么需要合批？">为什么需要合批？</h3>
 <ul>
 <li>在渲染管线中，<strong>每一次 Draw Call</strong>（绘制调用）都需要 CPU -&gt; GPU 的状态切换、数据提交。</li>
 <li>当场景里有成千上万个小物体时，Draw Call 成本可能比真正的 GPU 绘制还要大。</li>
 <li>解决办法：<strong>把多个小物体的渲染合并成一次提交（Batching）</strong>。</li>
 </ul>
-<h3><span id="动态合批dynamic-batching的原理">动态合批（Dynamic Batching）的原理</span></h3>
+<h3 id="动态合批（Dynamic-Batching）的原理">动态合批（Dynamic Batching）的原理</h3>
 <ul>
 <li>引擎在运行时（CPU 端），检测多个物体是否可以合并。</li>
 <li>如果条件满足，把这些物体的 <strong>顶点数据拼接成一个大顶点缓冲 VAO</strong>，然后用一次 Draw Call 提交。</li>
 <li>GPU 看到的就是一大块连续的几何数据，不需要多次切换状态。CPU 负责“拼接”，GPU 还是照常用传统 VAO + glDrawElements 来取顶点。</li>
 </ul>
-<h3><span id="动态合批的条件">动态合批的条件</span></h3>
+<h3 id="动态合批的条件">动态合批的条件</h3>
 <p>并不是所有物体都能随便合并，通常需要满足：</p>
 <ul>
 <li><strong>相同的材质 / Shader</strong>（否则 GPU 还是要切换 pipeline）。</li>
@@ -1764,7 +1764,7 @@ MiB（二进制）：3.90625 MiB<br>
 <li><strong>顶点数量不要太大</strong>（拼接开销太高就得不偿失）。</li>
 <li><strong>没有复杂的顶点动画</strong>（因为 CPU 要预处理合并顶点）。</li>
 </ul>
-<h3><span id="动态合批-vs-静态合批">动态合批 vs 静态合批</span></h3>
+<h3 id="动态合批-vs-静态合批">动态合批 vs 静态合批</h3>
 <ul>
 <li>
 <p><strong>静态合批 (Static Batching)</strong>：</p>
@@ -1783,16 +1783,16 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h3><span id="动态合批的缺点">动态合批的缺点：</span></h3>
+<h3 id="动态合批的缺点：">动态合批的缺点：</h3>
 <ul>
 <li>CPU 要在每帧做顶点拼接，带来额外开销。</li>
 <li>对复杂几何体反而可能更慢。</li>
 <li>对内存带宽要求更高（需要复制顶点数据）。</li>
 <li>限制条件较多（材质、状态必须相同）。</li>
 </ul>
-<h2><span id="2programmable-vertex-pulling-pvp">（2）Programmable Vertex Pulling (PVP)</span></h2>
+<h2 id="（2）Programmable-Vertex-Pulling-PVP">（2）Programmable Vertex Pulling (PVP)</h2>
 <p>传统的模式中，CPU 通过设置顶点数组对象（VAO）来详细定义顶点数据的内存布局（如位置、法线、纹理坐标等属性的偏移和步长）。然后，GPU 的固定功能硬件根据 VAO 的配置，自动“推送”这些属性给顶点着色器。而在 PVP“顶点拉取”模式中，这个过程被反过来了：不再为 VAO 配置详细的顶点属性布局。取而代之的是，将所有的顶点数据存放在一个或多个大的通用缓冲区中，例如着色器存储缓冲区（SSBO）。顶点着色器利用内置变量（如 gl_VertexID）作为索引，主动地从这些大缓冲区中“拉取”它所需要的顶点数据。通过 PVP，开发者可以将成百上千个小网格（mesh）合并到单个巨大的缓冲区中，然后用一次绘制调用就将它们全部渲染出来，极大地提升了批处理效率 。</p>
-<h2><span id="3多重间接绘制-multi-draw-indirect-mdi">（3）多重间接绘制 (Multi-Draw Indirect - MDI)</span></h2>
+<h2 id="（3）多重间接绘制-Multi-Draw-Indirect-MDI">（3）多重间接绘制 (Multi-Draw Indirect - MDI)</h2>
 <p>传统渲染模式下，CPU 需要为每一个（或每一批）物体单独调用一次绘制命令（如 glDrawElements）。而在 MDI 模式下，CPU 预先将成百上千个独立的绘制命令所需的所有参数（如顶点数量、实例数量、索引偏移量、顶点偏移量等）打包成一个结构体数组，并存入一个 GPU 缓冲区中。然后，CPU 只需向 GPU 发送一次 API 调用（例如 glMultiDrawElementsIndirect），GPU 就会自己去读取那个缓冲区，并依次执行里面的所有绘制命令。在项目中的应用如下：</p>
 <ul>
 <li>
@@ -1814,20 +1814,20 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="4static-batching-and-dynamic-batching-in-unity-ue">（4）static batching and dynamic batching in Unity / UE</span></h2>
+<h2 id="（4）static-batching-and-dynamic-batching-in-Unity-UE">（4）static batching and dynamic batching in Unity / UE</h2>
 <p>references:</p>
 <p>百人计划作业：图形 5800 合批原理讲解 - 北京 TA 吴强的文章 - 知乎<br>
 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/688223935">https://zhuanlan.zhihu.com/p/688223935</a></p>
 <p>合批（Batching）在 UE 中的实现汇总 - SSSShark 的文章 - 知乎<br>
 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26832019957">https://zhuanlan.zhihu.com/p/26832019957</a></p>
-<h1><span id="杂项">杂项</span></h1>
-<h2><span id="1项目坐标系">（1）项目坐标系</span></h2>
-<h2><span id="2场景里的-grids-怎么绘制的">（2）场景里的 grids 怎么绘制的</span></h2>
-<h2><span id="3几何着色器和曲面细分着色器的使用">（3）几何着色器和曲面细分着色器的使用</span></h2>
+<h1>杂项</h1>
+<h2 id="（1）项目坐标系">（1）项目坐标系</h2>
+<h2 id="（2）场景里的-grids-怎么绘制的">（2）场景里的 grids 怎么绘制的</h2>
+<h2 id="（3）几何着色器和曲面细分着色器的使用">（3）几何着色器和曲面细分着色器的使用</h2>
 <p>各类着色器在渲染管线中的位置：vs -&gt; tcs -&gt; tes -&gt; geom -&gt; fs</p>
 <p>其中 tcs 以一组顶点（Patch）为单位进行操作，主要任务是计算并设置细分级别，即告诉后续的硬件曲面细分器应该将这个面片细分成多少个更小的图元。tes 为硬件生成的每一个新顶点计算其最终的属性值（如位置、纹理坐标等），通过对原始面片顶点的属性进行重心坐标插值来完成计算。geom 以完整的图元（点、线、三角形）为单位进行操作。它可以创建新的图元或丢弃现有的图元。</p>
 <p>最终项目代码里没用到几何着色器和曲面细分着色器，但前期使用过，以下是使用场景。</p>
-<h3><span id="曲面细分着色器">曲面细分着色器</span></h3>
+<h3 id="曲面细分着色器">曲面细分着色器</h3>
 <p>曲面细分着色器在项目中用于实现动态的、基于距离的 LOD（Level of Detail）。目标是让靠近摄像机的物体表面被细分成更多的三角形，展现更多细节；而远离摄像机的物体则使用较少的三角形，以节省性能。下面是实现：</p>
 <ul>
 <li>
@@ -1859,7 +1859,7 @@ MiB（二进制）：3.90625 MiB<br>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-comment">// equal_spacing mode告诉OpenGL 对于tessellation level n, n 应该被限制在0-64范围内且取整到最近的整数（round），然后对应的边被切成n段。</span><br><span class="hljs-comment">// ccw用来指定图元生成器生成的三角形的朝向。</span><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">triangles</span>, <span class="hljs-keyword">equal_spacing</span>, <span class="hljs-keyword">ccw</span>) <span class="hljs-keyword">in</span>;<br><br>struct vertex<br>&#123;<br>  <span class="hljs-type">vec2</span> uv;<br>&#125;;<br><br><span class="hljs-keyword">in</span> gl_PerVertex<br>&#123;<br>  <span class="hljs-type">vec4</span> <span class="hljs-built_in">gl_Position</span>;<br>&#125; <span class="hljs-built_in">gl_in</span>[];<br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> vertex In[];<br><br><span class="hljs-keyword">out</span> gl_PerVertex<br>&#123;<br>  <span class="hljs-type">vec4</span> <span class="hljs-built_in">gl_Position</span>;<br>&#125;;<br><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec2</span> uv;<br><br><span class="hljs-type">vec2</span> interpolate2(<span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> v0, <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> v1, <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> v2)<br>&#123;<br>  <span class="hljs-keyword">return</span> v0 * <span class="hljs-built_in">gl_TessCoord</span>.x + v1 * <span class="hljs-built_in">gl_TessCoord</span>.y + v2 * <span class="hljs-built_in">gl_TessCoord</span>.z;<br>&#125;<br><br><span class="hljs-type">vec4</span> interpolate4(<span class="hljs-keyword">in</span> <span class="hljs-type">vec4</span> v0, <span class="hljs-keyword">in</span> <span class="hljs-type">vec4</span> v1, <span class="hljs-keyword">in</span> <span class="hljs-type">vec4</span> v2)<br>&#123;<br>  <span class="hljs-keyword">return</span> v0 * <span class="hljs-built_in">gl_TessCoord</span>.x + v1 * <span class="hljs-built_in">gl_TessCoord</span>.y + v2 * <span class="hljs-built_in">gl_TessCoord</span>.z;<br>&#125;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>  <span class="hljs-built_in">gl_Position</span> = interpolate4(<span class="hljs-built_in">gl_in</span>[<span class="hljs-number">0</span>].<span class="hljs-built_in">gl_Position</span>,	<span class="hljs-built_in">gl_in</span>[<span class="hljs-number">1</span>].<span class="hljs-built_in">gl_Position</span>, <span class="hljs-built_in">gl_in</span>[<span class="hljs-number">2</span>].<span class="hljs-built_in">gl_Position</span>);<br>  uv = interpolate2(In[<span class="hljs-number">0</span>].uv, In[<span class="hljs-number">1</span>].uv, In[<span class="hljs-number">2</span>].uv);<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3><span id="几何着色器">几何着色器</span></h3>
+<h3 id="几何着色器">几何着色器</h3>
 <p>在实现线框绘制效果的时候为网格生成重心坐标（Barycentric Coordinates）来识别使用重心坐标来识别每个三角形内部三角形边缘的接近程度，并相应地改变颜色。下面是为每个三角形 mesh 生成重心坐标的 geometry shader 示例.</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 460 core</span><br><br><span class="hljs-keyword">layout</span>( <span class="hljs-keyword">triangles</span> ) <span class="hljs-keyword">in</span>;<br><span class="hljs-keyword">layout</span>( <span class="hljs-keyword">triangle_strip</span>, <span class="hljs-keyword">max_vertices</span> = <span class="hljs-number">3</span> ) <span class="hljs-keyword">out</span>;<br><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> uv[];<br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec2</span> uvs;<br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span>=<span class="hljs-number">1</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec3</span> barycoords;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>	<span class="hljs-keyword">const</span> <span class="hljs-type">vec3</span> bc[<span class="hljs-number">3</span>] = <span class="hljs-type">vec3</span>[]<br>	(<br>		<span class="hljs-type">vec3</span>(<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>),<br>		<span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>),<br>		<span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>	);<br>	<span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++ )<br>	&#123;<br>		<span class="hljs-built_in">gl_Position</span> = <span class="hljs-built_in">gl_in</span>[i].<span class="hljs-built_in">gl_Position</span>;<br>		uvs = uv[i];<br>		barycoords = bc[i];<br>		<span class="hljs-built_in">EmitVertex</span>();<br>	&#125;<br>	<span class="hljs-built_in">EndPrimitive</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>然后在 fragment shader 中利用计算出的重心坐标来区分颜色：</p>
@@ -1894,10 +1894,10 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="4opengl-渲染管线">（4）OpenGL 渲染管线</span></h2>
-<h2><span id="5ndc-到屏幕坐标的变换">（5）ndc 到屏幕坐标的变换</span></h2>
-<h2><span id="6opengl-对图像旋转缩放">（6）opengl 对图像旋转缩放</span></h2>
-<h2><span id="7取-a-的前-4-个字节和-b-的后-4-个字节然后组成一个新的字节如何操作">（7）取 a 的前 4 个字节和 b 的后 4 个字节，然后组成一个新的字节，如何操作？</span></h2>
+<h2 id="（4）OpenGL-渲染管线">（4）OpenGL 渲染管线</h2>
+<h2 id="（5）ndc-到屏幕坐标的变换">（5）ndc 到屏幕坐标的变换</h2>
+<h2 id="（6）opengl-对图像旋转缩放">（6）opengl 对图像旋转缩放</h2>
+<h2 id="（7）取-a-的前-4-个字节和-b-的后-4-个字节，然后组成一个新的字节，如何操作？">（7）取 a 的前 4 个字节和 b 的后 4 个字节，然后组成一个新的字节，如何操作？</h2>
 <p>如果 a、b 都是 <strong>64-bit（8 字节）整数</strong>（uint64_t），而想把</p>
 <ul>
 <li>a 的 <strong>高 4 字节</strong>（最高有效 32 位）</li>
@@ -1915,8 +1915,8 @@ MiB（二进制）：3.90625 MiB<br>
 </ul>
 </li>
 </ul>
-<h2><span id="8gltf-中的内容obj-中的内容">（8）.gltf 中的内容？.obj 中的内容？</span></h2>
-<h2><span id="9项目中智能指针的使用">（9）项目中智能指针的使用</span></h2>
+<h2 id="（8）-gltf-中的内容？-obj-中的内容？">（8）.gltf 中的内容？.obj 中的内容？</h2>
+<h2 id="（9）项目中智能指针的使用">（9）项目中智能指针的使用</h2>
 <ul>
 <li>
 <p>GLFramebuffer.h 中构造函数里用 unique_ptr 存储纹理对象指针（支持可变数量的颜色附件（vector 纹理数组）和一个深度附件）。每个纹理对象只属于这一个帧缓冲对象；当 GLFramebuffer 对象销毁时，纹理会自动删除；避免内存泄漏，确保纹理资源在帧缓冲销毁时被正确释放。如果构造函数中发生异常，unique_ptr 会自动清理已创建的纹理避免部分初始化状态下的资源泄漏。</p>

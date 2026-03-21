@@ -311,8 +311,8 @@
 </ul>
 </li>
 </ul>
-<h1><span id="in-3d">In 3D</span></h1>
-<h2><span id="reflective-shadow-maps-rsm">Reflective Shadow Maps (RSM)</span></h2>
+<h1>In 3D</h1>
+<h2 id="Reflective-Shadow-Maps-RSM">Reflective Shadow Maps (RSM)</h2>
 <ul>
 <li>
 <p>Q1: Which surface patches are directly lit</p>
@@ -388,7 +388,7 @@
 <p>RSM is like the virtual point light (VPL) in off-line rendering.</p>
 </li>
 </ul>
-<h2><span id="light-propagation-volumes-lpv">Light Propagation Volumes (LPV)</span></h2>
+<h2 id="Light-Propagation-Volumes-LPV">Light Propagation Volumes (LPV)</h2>
 <ul>
 <li>
 <p>Key problem</p>
@@ -470,7 +470,7 @@
 <p>Cascade LPV</p>
 </li>
 </ul>
-<h2><span id="voxel-global-lllumination-vxgi">Voxel Global lllumination (VXGI)</span></h2>
+<h2 id="Voxel-Global-lllumination-VXGI">Voxel Global lllumination (VXGI)</h2>
 <ul>
 <li>
 <p>Still a two-pass algorithm</p>
@@ -507,19 +507,19 @@
 <p>Pretty good results, similar to ray tracing</p>
 </li>
 </ul>
-<h2><span id="summary">Summary</span></h2>
-<h3><span id="reflective-shadow-maps-rsm-turning-shadow-maps-into-light-sources">Reflective Shadow Maps (RSM): Turning Shadow Maps into Light Sources</span></h3>
+<h2 id="Summary">Summary</h2>
+<h3 id="Reflective-Shadow-Maps-RSM-Turning-Shadow-Maps-into-Light-Sources">Reflective Shadow Maps (RSM): Turning Shadow Maps into Light Sources</h3>
 <p>Reflective Shadow Maps are an extension of the standard shadow mapping technique. Instead of just storing depth information from the light’s perspective, an RSM also <strong>stores additional data for each pixel</strong>, such as the world position, normal, and the amount of light (flux) being reflected from that point.</p>
 <p>At its core, the RSM technique <strong>treats each pixel in the shadow map as a small, virtual point light (VPL)</strong>. These VPLs then act as <strong>secondary light sources</strong>, casting indirect light back into the scene. To calculate the indirect illumination for a given point on a surface, <strong>a shader samples a number of these VPLs from the RSM and accumulates their contributions</strong>. This approach is particularly effective for capturing the first bounce of indirect diffuse light, leading to more realistic and dynamic lighting scenarios. It is usually used for flashlight-style light source. However, the quality of the effect is dependent on the resolution of the shadow map and the number of samples taken, which can impact performance.</p>
-<h3><span id="light-propagation-volumes-lpv-spreading-light-through-a-3d-grid">Light Propagation Volumes (LPV): Spreading Light Through a 3D Grid</span></h3>
+<h3 id="Light-Propagation-Volumes-LPV-Spreading-Light-Through-a-3D-Grid">Light Propagation Volumes (LPV): Spreading Light Through a 3D Grid</h3>
 <p>Light Propagation Volumes take a different approach by <strong>simulating the propagation of light through a 3D grid</strong>, or volume, that encompasses the scene. The process begins by <strong>injecting</strong> initial lighting information into this volume. This is often done using <strong>RSM</strong> to generate the initial set of virtual light sources.</p>
 <p>Once the light is injected, it is iteratively <strong>propagated to neighboring cells</strong> within the 3D grid. This propagation simulates the scattering and bouncing of light throughout the scene. The lighting information within each cell is often represented using <strong>spherical harmonics</strong>, which allows for a more efficient representation of the directional distribution of light. To light the final scene, shaders can then sample the accumulated light from this 3D volume, providing a dynamic and global illumination effect. LPVs are known for their ability to handle dynamic scenes and changing light conditions in real-time, though they can sometimes suffer from <strong>light leaking</strong> through thin walls and a somewhat uniform level of detail across the volume.</p>
-<h3><span id="voxel-global-illumination-vxgi-ray-tracing-in-a-voxelized-world">Voxel Global Illumination (VXGI): Ray Tracing in a Voxelized World</span></h3>
+<h3 id="Voxel-Global-Illumination-VXGI-Ray-Tracing-in-a-Voxelized-World">Voxel Global Illumination (VXGI): Ray Tracing in a Voxelized World</h3>
 <p>Voxel Global Illumination, famously implemented by NVIDIA, represents the scene as a 3D grid of voxels (volumetric pixels). This voxel representation <strong>stores information about the geometry and material properties of the scene</strong>. The core of VXGI lies in a technique called <strong>Voxel Cone Tracing</strong>.</p>
 <p>Instead of casting individual rays, which is computationally expensive, VXGI <strong>traces cones through the voxel grid</strong>. By <strong>sampling the voxel data at different levels of detail (mipmaps / hierarchical voxels) along the cone’s path</strong>, the algorithm can efficiently gather information about indirect lighting, reflections, and ambient occlusion. <strong>Wider cones sample from lower-resolution voxel mipmaps</strong>, effectively approximating the contribution of light from a <strong>larger area</strong>, while <strong>narrower cones use higher-resolution data for more detailed information</strong>. This hierarchical approach allows for a significant performance increase compared to traditional ray tracing, making it a powerful solution for achieving high-quality, real-time global illumination with support for both diffuse and specular indirect lighting.</p>
-<h1><span id="screen-space">Screen Space</span></h1>
+<h1>Screen Space</h1>
 <p>post-processing on existing renderings</p>
-<h2><span id="screen-space-ambient-occlusion-ssao">Screen Space Ambient Occlusion (SSAO)</span></h2>
+<h2 id="Screen-Space-Ambient-Occlusion-SSAO">Screen Space Ambient Occlusion (SSAO)</h2>
 <ul>
 <li>Why AO?
 <ul>
@@ -605,7 +605,7 @@
 </ul>
 </li>
 </ul>
-<h2><span id="screen-space-directional-occlusion-ssdo">Screen Space Directional Occlusion (SSDO)</span></h2>
+<h2 id="Screen-Space-Directional-Occlusion-SSDO">Screen Space Directional Occlusion (SSDO)</h2>
 <ul>
 <li>What is SSDO?
 <ul>
@@ -639,7 +639,7 @@ See the figure below, notice that the color of the text corresponds to the part 
 </ul>
 </li>
 </ul>
-<h2><span id="screen-space-reflection-ssr">Screen Space Reflection (SSR)</span></h2>
+<h2 id="Screen-Space-Reflection-SSR">Screen Space Reflection (SSR)</h2>
 <ul>
 <li>What is SSR?
 <ul>
@@ -712,7 +712,7 @@ The most significant limitation is that SSR can only reflect what is currently v
 </ul>
 </li>
 </ul>
-<h1><span id="lumen">Lumen</span></h1>
+<h1>Lumen</h1>
 <p><img src="lumen.png" alt="Lumen"></p>
 
                 

@@ -281,19 +281,19 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="focal-length-f">Focal Length (<code>f</code>)</span></h1>
+                <h1>Focal Length (<code>f</code>)</h1>
 <ul>
 <li>The <strong>focal length</strong> represents the distance from the <strong>camera (eye)</strong> to the <strong>image plane (viewport)</strong> in world space.</li>
 <li>A larger focal length means a more <strong>zoomed-in</strong> effect (narrow FoV).</li>
 <li>A smaller focal length means a <strong>wider</strong> perspective (wide FoV).</li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="Ray-Tracing-Interpretation">Ray Tracing Interpretation</h2>
 <ul>
 <li>The focal length determines how far the <strong>virtual image plane (viewport)</strong> is placed in front of the camera.</li>
 <li>In ray tracing, we assume a <strong>thin lens model</strong>, where the camera sits at <code>(0,0,0)</code>, and the image plane is placed at <code>z = -f</code>.</li>
 </ul>
 <hr>
-<h1><span id="viewport-size-viewport_width-viewport_height">Viewport Size (<code>viewport_width</code>, <code>viewport_height</code>)</span></h1>
+<h1>Viewport Size (<code>viewport_width</code>, <code>viewport_height</code>)</h1>
 <ul>
 <li>The <strong>viewport</strong> is the <strong>imaginary 2D plane</strong> where the rays originate before traveling into the scene.</li>
 <li>The size of the viewport depends on:
@@ -304,13 +304,13 @@
 </ul>
 </li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="Ray-Tracing-Interpretation-2">Ray Tracing Interpretation</h2>
 <ul>
 <li>The viewport is usually defined in <strong>world coordinates</strong> at <code>z = -f</code> (for a forward-facing camera).</li>
 <li>The camera shoots rays from its <strong>center of projection</strong>, passing through each pixel on the viewport.</li>
 </ul>
 <hr>
-<h1><span id="field-of-view-fov">Field of View (FoV)</span></h1>
+<h1>Field of View (FoV)</h1>
 <ul>
 <li>
 <p>The <strong>field of view (FoV)</strong> is the angular extent of the scene captured by the camera.</p>
@@ -328,12 +328,12 @@
 <p>A <strong>small FoV</strong> (e.g., 30°) results in a <strong>zoomed-in</strong> effect.</p>
 </li>
 </ul>
-<h2><span id="ray-tracing-interpretation">Ray Tracing Interpretation</span></h2>
+<h2 id="Ray-Tracing-Interpretation-3">Ray Tracing Interpretation</h2>
 <ul>
 <li>When setting up a <strong>camera in ray tracing</strong>, we often specify the <strong>FoV</strong>, then derive the viewport size accordingly.</li>
 </ul>
 <hr>
-<h1><span id="relationship-between-focal-length-viewport-and-fov">Relationship Between Focal Length, Viewport, and FoV</span></h1>
+<h1>Relationship Between Focal Length, Viewport, and FoV</h1>
 <ol>
 <li>
 <p><strong>Focal Length and Viewport</strong></p>
@@ -362,7 +362,7 @@
 </ul>
 </li>
 </ol>
-<h1><span id="defocus-blur-depth-of-field">Defocus Blur (Depth of Field)</span></h1>
+<h1>Defocus Blur (Depth of Field)</h1>
 <p>See <a target="_blank" rel="noopener" href="https://raytracing.github.io/books/RayTracingInOneWeekend.html#defocusblur/athinlensapproximation">https://raytracing.github.io/books/RayTracingInOneWeekend.html#defocusblur/athinlensapproximation</a> 13. Defocus Blur for more.</p>
 
                 

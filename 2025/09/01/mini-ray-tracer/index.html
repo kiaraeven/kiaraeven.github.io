@@ -280,8 +280,8 @@
             
               <div class="markdown-body">
                 
-                <h1><span id="tiny-renderer">Tiny Renderer</span></h1>
-<h2><span id="1-切线空间-法线贴图">1. 切线空间-法线贴图</span></h2>
+                <h1>Tiny Renderer</h1>
+<h2 id="1-切线空间-法线贴图">1. 切线空间-法线贴图</h2>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52179126/article/details/147749107">https://blog.csdn.net/qq_52179126/article/details/147749107</a><br>
 <a target="_blank" rel="noopener" href="https://github.com/ssloy/tinyrenderer/wiki/Lesson-6bis:-tangent-space-normal-mapping">https://github.com/ssloy/tinyrenderer/wiki/Lesson-6bis:-tangent-space-normal-mapping</a></p>
 <ul>
@@ -350,10 +350,10 @@
 </ul>
 </li>
 </ul>
-<h2><span id="2-shadow-mapping">2. Shadow Mapping</span></h2>
+<h2 id="2-Shadow-Mapping">2. Shadow Mapping</h2>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52179126/article/details/147749156">https://blog.csdn.net/qq_52179126/article/details/147749156</a></p>
 <p>好的，我们来详细解析 Shadow Mapping 的两个主要 Pass（遍）中涉及到的坐标空间和深度记录。</p>
-<h3><span id="第一个-pass渲染阴影图">第一个 Pass：渲染阴影图</span></h3>
+<h3 id="第一个-Pass：渲染阴影图">第一个 Pass：渲染阴影图</h3>
 <ul>
 <li><strong>目标：</strong> 从光源的视角观察场景，并将场景中每个点相对于光源的深度信息记录到一张特殊的纹理中，这张纹理就是阴影图（Shadow Map）。</li>
 </ul>
@@ -381,7 +381,7 @@
 </li>
 </ul>
 <p><strong>所以，Pass 1 记录的深度是光源视角下的归一化深度，本质上是光源裁剪空间/NDC 空间中的深度信息。</strong></p>
-<h3><span id="第二个-pass渲染最终场景">第二个 Pass：渲染最终场景</span></h3>
+<h3 id="第二个-Pass：渲染最终场景">第二个 Pass：渲染最终场景</h3>
 <ul>
 <li>
 <p><strong>目标：</strong> 从主摄像机的视角渲染场景，并利用第一个 Pass 生成的阴影图来判断场景中的每个片元是否处于阴影之中。</p>
@@ -552,7 +552,7 @@
 </li>
 <li>还知道有哪些阴影算法？</li>
 </ul>
-<h2><span id="3-ambient-occlusion">3. Ambient Occlusion</span></h2>
+<h2 id="3-Ambient-Occlusion">3. Ambient Occlusion</h2>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/545571616">https://zhuanlan.zhihu.com/p/545571616</a><br>
 <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42987967/article/details/125011820?fromshare=blogdetail&amp;sharetype=blogdetail&amp;sharerId=125011820&amp;sharerefer=PC&amp;sharesource=kiara_kairan&amp;sharefrom=from_link">https://blog.csdn.net/qq_42987967/article/details/125011820?fromshare=blogdetail&amp;sharetype=blogdetail&amp;sharerId=125011820&amp;sharerefer=PC&amp;sharesource=kiara_kairan&amp;sharefrom=from_link</a></p>
 <p>(1) 从半球上随机取 1000 个点作为光源（半球通过令所有小于 0 的 y=-y 实现），记录不同光源照射模型产生的 shadow mapping 效果（比如某点可被照射到则该点记录为 1，否则记录为 0），将多个光源照射结果累加得到最终的不均匀环境光纹理。</p>
@@ -566,7 +566,7 @@
 <li>最后，根据这个遮蔽程度来确定像素的亮度，从而产生环境光遮蔽的效果（遮蔽因子*255 写入纹理）。用 pow(遮蔽因子,n)，n 越大可使得凹凸更明显。</li>
 </ul>
 <p>这种方法与传统的 SSAO 在采样策略上有所不同（2D 射线步进 vs 3D 半球随机采样），但其核心思想——利用屏幕空间的深度信息来估算环境光遮蔽——是相同的。</p>
-<h2><span id="4-obj-文件里都有什么内容">4. .OBJ 文件里都有什么内容？</span></h2>
+<h2 id="4-OBJ-文件里都有什么内容？">4. .OBJ 文件里都有什么内容？</h2>
 <ul>
 <li>
 <p><strong><code>#</code> - 注释</strong>:</p>
@@ -665,14 +665,14 @@
 <li><strong>材质引用</strong>: 链接到外部.MTL 文件以及指定面使用哪个材质。</li>
 <li><strong>组织结构</strong>: 对象名和组名，用于组织复杂的模型。</li>
 </ul>
-<h2><span id="5-mvp-矩阵分别是如何构造的点用几维表示为什么">5. MVP 矩阵分别是如何构造的？点用几维表示（为什么）？</span></h2>
+<h2 id="5-MVP-矩阵分别是如何构造的？点用几维表示（为什么）？">5. MVP 矩阵分别是如何构造的？点用几维表示（为什么）？</h2>
 <p>注意这里应该在用 model 矩阵处理点之前把点变为 4 维的(x,y,z,1)。</p>
 <p>透视投影矩阵中的 fov 会影响看到的范围和模型形状（如果调整不合适的话可能造成近小远大的错误视觉效果）。</p>
-<h2><span id="6-tga-是有透明度的有用到透明度吗">6. .tga 是有透明度的，有用到透明度吗？</span></h2>
-<h2><span id="7-杂项">7. 杂项</span></h2>
-<h3><span id="1">(1)</span></h3>
+<h2 id="6-tga-是有透明度的，有用到透明度吗？">6. .tga 是有透明度的，有用到透明度吗？</h2>
+<h2 id="7-杂项">7. 杂项</h2>
+<h3 id="1">(1)</h3>
 <p>派生类的构造函数可以在初始化列表中调用基类的构造函数来初始化基类中的成员变量，其他成员变量正常初始化。</p>
-<h3><span id="2">(2)</span></h3>
+<h3 id="2">(2)</h3>
 <ul>
 <li>
 <p>深度缓冲中存储的是经过透视除法的深度。一方面自然的完成了透视矫正插值，另一方面提供了规范化范围。</p>
@@ -712,16 +712,16 @@
 <p>然而插值 ndc 深度的时候不需要用上面的公式，就直接把重心坐标作用于三个顶点的 ndc 的 z 值，因为它们已经经过透视除法。</p>
 </li>
 </ul>
-<h3><span id="3-裁剪">(3) 裁剪</span></h3>
+<h3 id="3-裁剪">(3) 裁剪</h3>
 <p>本项目是先裁剪空间里的坐标经过透视除法转换为 ndc，裁剪就是剔除出 ndc 中坐标超过<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">[-1, 1]^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span>的那些。但正常应该是透视除法之前：</p>
 <ul>
 <li>完全在裁剪体外部的图元被丢弃。</li>
 <li>完全在裁剪体内部的图元被保留。</li>
 <li>与裁剪体边界相交的图元会被裁剪，生成新的顶点和新的图元，确保它们完全位于裁剪体内部。</li>
 </ul>
-<h3><span id="4">(4)</span></h3>
+<h3 id="4">(4)</h3>
 <p>构建观察矩阵的时候所用的相机位置是在世界空间里的。而在观察空间里直接默认相机的位置是(0,0,0).</p>
-<h3><span id="5-近平面附近精度高">(5) 近平面附近精度高</span></h3>
+<h3 id="5-近平面附近精度高">(5) 近平面附近精度高</h3>
 <p>透视投影中，深度缓冲（Z-buffer）的精度在近裁剪面 (Near Plane) 附近更高，而在远裁剪面 (Far Plane) 附近较低。这种非线性分布是透视投影变换本身特性以及后续 NDC（规范化设备坐标）到深度缓冲值映射共同作用的结果。主要原因是：</p>
 <ul>
 <li>
@@ -757,8 +757,8 @@
 <p><strong>缺点</strong>：远处物体的深度精度较低，更容易出现 Z-fighting，尤其是在 <code>zFar / zNear</code> 的比值非常大（即远近平面距离悬殊）的情况下，这个问题会更加严重。这也是为什么在设置投影矩阵时，需要合理选择 <code>zNear</code> 和 <code>zFar</code> 的值，尽量让它们紧密包裹场景，以优化整个深度范围的精度利用。</p>
 </li>
 </ul>
-<h1><span id="mini-ray-tracer">Mini Ray Tracer</span></h1>
-<h2><span id="1-光线基础">1. 光线基础</span></h2>
+<h1>Mini Ray Tracer</h1>
+<h2 id="1-光线基础">1. 光线基础</h2>
 <ul>
 <li>
 <p>遍历像素，从每个像素发出光线，判断光线是否与场景中的物体相交，如果相交就计算颜色。</p>
@@ -773,7 +773,7 @@
 <p>长方体用几个长方形拼接成，每个面法线向外。假设长方形在z=k的平面上，光线<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>o</mi><mo>+</mo><mi>d</mi><mo>∗</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">r(t) = o + d*t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">o</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span>，则有</p>
 </li>
 </ul>
-<p class="katex-block katex-error " title="ParseError: KaTeX parse error: Can&#039;t use function &#039;$&#039; in math mode at position 21: …) = o_z + d_z*t$̲$.若满足z = k，则可以求…">r_z(t) = o_z + d_z*t$$.若满足z = k，则可以求出t。
+<p class='katex-block katex-error ' title='ParseError: KaTeX parse error: Can&#039;t use function &#039;$&#039; in math mode at position 21: …) = o_z + d_z*t$̲$.若满足z = k，则可以求…'>r_z(t) = o_z + d_z*t$$.若满足z = k，则可以求出t。
 
 - 反走样：在像素中心周围设置若干个采样点，每个都打出光线，所有采样点的结果取平均。
 
