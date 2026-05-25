@@ -21,15 +21,15 @@
   <meta name="author" content="Go7">
   <meta name="keywords" content="">
   
-    <meta name="description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
+    <meta name="description" content="C++ Basics 1. 多态&#x2F;虚函数 虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当用基类的指针来操作一个派生类的时候，这张虚函数表就指明了实际应该调用的函数。 (1) 多态  定义：同一个接口可以表现出不同行为 分类：  静态多态（编译时）：函数重载、模板函数 动态多态（运行时）：虚函数机制 + 基类指针调用   动态多态原理：  在派生类中重写基类中声明的虚函数，这样使用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Graphics Interview Review 2">
 <meta property="og:url" content="http://example.com/2025/11/28/interview-review2/index.html">
 <meta property="og:site_name" content="Go7">
-<meta property="og:description" content="I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer net">
+<meta property="og:description" content="C++ Basics 1. 多态&#x2F;虚函数 虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当用基类的指针来操作一个派生类的时候，这张虚函数表就指明了实际应该调用的函数。 (1) 多态  定义：同一个接口可以表现出不同行为 分类：  静态多态（编译时）：函数重载、模板函数 动态多态（运行时）：虚函数机制 + 基类指针调用   动态多态原理：  在派生类中重写基类中声明的虚函数，这样使用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-11-29T07:09:46.000Z">
-<meta property="article:modified_time" content="2026-03-19T06:31:23.744Z">
+<meta property="article:modified_time" content="2026-05-25T01:26:23.216Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="graphics">
 <meta property="article:tag" content="interview">
@@ -281,8 +281,7 @@
             
               <div class="markdown-body">
                 
-                <p>I initially decided to put all reviews in one blog, but as I added more and more contents, it seemd to become too long for a single blog. Therefore, I sperate the cpp part (maybe also the computer network and os part? Let’s see if we have enough room for these two parts in this blog, or we need another new blog for them …). Anyway, let’s review cpp basics. Again, this is for interviews in Chinese, so I’ll use English only when it’s necessary.</p>
-<h1>C++ Basics</h1>
+                <h1>C++ Basics</h1>
 <h2 id="1-多态-虚函数">1. 多态/虚函数</h2>
 <p>虚函数表解决了基类和派生类的继承问题和类中成员函数的覆盖问题，当<strong>用基类的指针来操作一个派生类</strong>的时候，这张虚函数表就指明了实际应该调用的函数。</p>
 <h3 id="1-多态">(1) 多态</h3>
